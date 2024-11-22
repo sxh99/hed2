@@ -1,0 +1,20 @@
+[package]
+name = "hed2"
+version = "0.1.0"
+description = "A Tauri App"
+authors = ["you"]
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "Hed2"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0.93"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2", features = [] }
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
