@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 
 function main() {
   const cmds = [
@@ -6,28 +6,30 @@ function main() {
       name: 'tailwindcss',
       runner: 'node',
       args: ['--run', 'tailwindcss'],
-      exited: false,
+      closed: false,
       cp: null,
-      realCloseEvent: 'close',
     },
     {
       name: 'vite',
       runner: 'node',
       args: ['--run', 'dev'],
-      exited: false,
+      closed: false,
       cp: null,
-      realCloseEvent: 'exit',
     },
     {
       name: 'tauri',
       runner: 'cargo',
       args: ['run'],
-      main: true,
-      exited: false,
+      closed: false,
       cp: null,
-      realCloseEvent: 'close',
     },
   ];
+
+  const checkAndExit = () => {
+    if (cmds.every((cmd) => cmd.closed)) {
+      process.exit();
+    }
+  };
 
   for (const cmd of cmds) {
     const cp = spawn(cmd.runner, cmd.args);
@@ -41,27 +43,34 @@ function main() {
     });
 
     cp.on('error', (err) => {
-      cmd.exited = true;
+      cmd.closed = true;
       console.error(err);
+      checkAndExit();
     });
 
     cp.on('spawn', () => {
       cmd.cp = cp;
     });
 
-    cp.on(cmd.realCloseEvent, () => {
-      cmd.exited = true;
-      if (cmd.main) {
+    cp.on('close', () => {
+      cmd.closed = true;
+      if (cmd.name === 'tauri') {
         for (const cmd of cmds) {
-          if (cmd.exited) {
+          if (cmd.closed) {
             continue;
           }
-          cmd.cp.kill();
+          if (
+            cmd.name === 'vite' &&
+            process.platform === 'win32' &&
+            cmd.cp.pid
+          ) {
+            execFile('taskkill', ['/PID', cmd.cp.pid, '/F', '/T']);
+          } else {
+            cmd.cp.kill();
+          }
         }
       }
-      if (cmds.every((cmd) => cmd.exited)) {
-        process.exit();
-      }
+      checkAndExit();
     });
   }
 }
