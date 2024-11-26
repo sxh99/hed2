@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "lib": ["ES2021", "DOM"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["ui/*"]
+    }
+  },
+  "include": ["ui", "vite.config.ts"]
+}

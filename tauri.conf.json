@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "hed2",
+  "identifier": "com.hed2.app",
+  "mainBinaryName": "Hed2",
+  "build": {
+    "devUrl": "http://localhost:4000",
+    "frontendDist": "dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "hed2",
+        "width": 1000,
+        "minWidth": 1000,
+        "height": 700,
+        "minHeight": 700,
+        "resizable": true,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["app"],
+    "icon": [
+      "assets/32x32.png",
+      "assets/128x128.png",
+      "assets/128x128@2x.png",
+      "assets/icon.icns",
+      "assets/icon.ico"
+    ],
+    "category": "DeveloperTool"
+  }
+}
