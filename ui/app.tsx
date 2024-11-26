@@ -1,42 +1,33 @@
-import { invoke } from '@tauri-apps/api/core';
-import { useState } from 'react';
-import { Button, Input } from '~/components';
-import { SidebarProvider, SidebarTrigger } from '~/components/sidebar';
+import { AppContextProvider } from '~/context/app';
+import { ThemeProvider } from '~/context/theme';
+import { AppHeader } from '~/views/app-header';
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from '~/components/resizable';
 import { Profiles } from '~/views/profiles';
-import { AppContextProvider } from '~/context';
 
 export function App() {
-  const [greetMsg, setGreetMsg] = useState('');
-  const [name, setName] = useState('');
-
-  async function greet() {
-    const newGreetMsg: string = await invoke('greet', { name });
-    setGreetMsg(newGreetMsg);
-  }
-
   return (
-    <div className="h-screen w-screen">
-      <SidebarProvider>
-        <AppContextProvider>
-          <Profiles />
-          <div>
-            <SidebarTrigger />
-            <div>
-              <div>
-                <Input
-                  value={name}
-                  onChange={(e) => setName(e.currentTarget.value)}
-                  placeholder="Enter a name..."
-                />
-                <Button className="ml-2" onClick={greet}>
-                  Greet
-                </Button>
+    <div className="h-screen w-screen flex flex-col">
+      <AppContextProvider>
+        <ThemeProvider>
+          <AppHeader />
+          <ResizablePanelGroup direction="horizontal" autoSaveId="main">
+            <ResizablePanel defaultSize={20} minSize={20} maxSize={30}>
+              <Profiles />
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={80}>
+              <div className="w-full h-14 flex justify-between items-center px-4 py-1 border-b border-border/40 bg-background/95 dark:border-border">
+                todo
               </div>
-              <div className="mt-2">{greetMsg}</div>
-            </div>
-          </div>
-        </AppContextProvider>
-      </SidebarProvider>
+              <div>todo</div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </ThemeProvider>
+      </AppContextProvider>
     </div>
   );
 }

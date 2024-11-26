@@ -1,14 +1,14 @@
-import { createContext, useContext, useState, useMemo } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 import type { Profile } from '~/types';
 
-interface IAppContext {
+interface AppState {
   selectedProfile?: Profile;
   setSelectedProfile: (v: Profile) => void;
 }
 
-const AppContext = createContext<IAppContext>({ setSelectedProfile: () => {} });
+const AppContext = createContext<AppState>({ setSelectedProfile: () => {} });
 
-export function useAppContext(): IAppContext {
+export function useApp(): AppState {
   return useContext(AppContext);
 }
 
@@ -16,7 +16,7 @@ export function AppContextProvider(props: React.PropsWithChildren) {
   const { children } = props;
   const [selectedProfile, setSelectedProfile] = useState<Profile>();
 
-  const contextValue = useMemo<IAppContext>(() => {
+  const contextValue = useMemo<AppState>(() => {
     return {
       selectedProfile,
       setSelectedProfile,
