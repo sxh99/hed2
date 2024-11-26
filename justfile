@@ -13,7 +13,7 @@ toolchain:
 	node -v
 	npm -v
 	pnpm -v
-	cargo tauri -V
+	pnpm tauri -V
 
 fmt:
 	pnpm biome check --linter-enabled=false --write

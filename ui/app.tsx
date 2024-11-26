@@ -1,11 +1,11 @@
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '~/components/resizable';
 import { AppContextProvider } from '~/context/app';
 import { ThemeProvider } from '~/context/theme';
 import { AppHeader } from '~/views/app-header';
-import {
-  ResizablePanelGroup,
-  ResizablePanel,
-  ResizableHandle,
-} from '~/components/resizable';
 import { Profiles } from '~/views/profiles';
 
 export function App() {

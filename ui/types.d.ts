@@ -1,5 +1,5 @@
 export interface Profile {
   id: number;
   name: string;
-  syetem?: boolean;
+  system?: boolean;
 }

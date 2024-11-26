@@ -1,4 +1,5 @@
-import { execFile, spawn } from 'node:child_process';
+import { spawn } from 'node:child_process';
+import kill from 'tree-kill';
 
 function main() {
   const cmds = [
@@ -59,15 +60,7 @@ function main() {
           if (cmd.closed) {
             continue;
           }
-          if (
-            cmd.name === 'vite' &&
-            process.platform === 'win32' &&
-            cmd.cp.pid
-          ) {
-            execFile('taskkill', ['/PID', cmd.cp.pid, '/F', '/T']);
-          } else {
-            cmd.cp.kill();
-          }
+          kill(cmd.cp.pid);
         }
       }
       checkAndExit();
