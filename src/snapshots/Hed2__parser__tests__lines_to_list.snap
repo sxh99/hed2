@@ -1,0 +1,47 @@
+---
+source: src/parser.rs
+assertion_line: 160
+expression: list
+snapshot_kind: text
+---
+[
+    Item {
+        ip: "172.16.254.1",
+        hosts: [
+            Host {
+                content: "a.com",
+                enabled: true,
+            },
+            Host {
+                content: "c.com",
+                enabled: true,
+            },
+            Host {
+                content: "d.com",
+                enabled: true,
+            },
+        ],
+    },
+    Item {
+        ip: "2402:1200:4f00:1234:0000:5678:9abc:def0",
+        hosts: [
+            Host {
+                content: "b.com",
+                enabled: true,
+            },
+        ],
+    },
+    Item {
+        ip: "127.0.0.1",
+        hosts: [
+            Host {
+                content: "e.com",
+                enabled: true,
+            },
+            Host {
+                content: "f.com",
+                enabled: false,
+            },
+        ],
+    },
+]

@@ -1,7 +1,7 @@
 import { LoaderCircle, Search } from 'lucide-react';
 import { useDeferredValue, useEffect, useRef, useState } from 'react';
 import { Button, Input, ScrollArea } from '~/components';
-import { useAppState, useAppDispatch } from '~/context/app';
+import { useAppDispatch, useAppState } from '~/context/app';
 import type { Profile } from '~/types';
 
 export function Profiles() {
