@@ -1,18 +1,18 @@
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, Search } from 'lucide-react';
 import { useDeferredValue, useEffect, useRef, useState } from 'react';
 import { Button, Input, ScrollArea } from '~/components';
-import { useApp } from '~/context/app';
+import { useAppState, useAppDispatch } from '~/context/app';
 import type { Profile } from '~/types';
 
 export function Profiles() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [search, setSearch] = useState<string>('');
   const deferredSearch = useDeferredValue(search);
-  const { selectedProfile, setSelectedProfile } = useApp();
+  const { selectedProfile } = useAppState();
+  const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const mockInvoke = () => {
       return new Promise<Profile[]>((resolve) => {
@@ -21,6 +21,11 @@ export function Profiles() {
             id: i + 1,
             name: `profile-${i + 1}`,
             system: i === 0,
+            hostsInfo: {
+              content: '',
+              lines: [],
+              list: [],
+            },
           };
         });
         setTimeout(() => {
@@ -35,7 +40,7 @@ export function Profiles() {
         setProfiles(mockData);
         const systemProfile = mockData.find((profile) => profile.system);
         if (systemProfile) {
-          setSelectedProfile(systemProfile);
+          dispatch({ selectedProfile: systemProfile });
         }
       } finally {
         setLoading(false);
@@ -67,21 +72,23 @@ export function Profiles() {
     if (selectedProfile?.id === profile.id) {
       return 'default';
     }
-    if (deferredSearch && profile.name.includes(search)) {
+    if (deferredSearch && profile.name.includes(deferredSearch)) {
       return 'secondary';
     }
     return 'ghost';
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="h-14 p-2 border-b flex items-center">
+    <div className="h-full flex flex-col bg-neutral-50 dark:bg-background">
+      <div className="h-14 px-3 flex items-center relative">
+        <Search className="pointer-events-none absolute left-5 size-4 top-1/2 -translate-y-1/2 select-none opacity-50" />
         <Input
-          className="bg-secondary"
+          className="bg-white dark:bg-black pl-8"
           placeholder="Search profile"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <span className="sr-only">Search profile</span>
       </div>
       {loading ? (
         <div className="h-full flex justify-center items-center">
@@ -97,12 +104,13 @@ export function Profiles() {
                 data-id={profile.id}
               >
                 <Button
-                  onClick={() => setSelectedProfile(profile)}
+                  onClick={() => dispatch({ selectedProfile: profile })}
                   variant={calcVariant(profile)}
                   className="w-full h-11 justify-start"
                 >
                   <span>{profile.name}</span>
                 </Button>
+                <span className="sr-only">{profile.name}</span>
               </div>
             );
           })}

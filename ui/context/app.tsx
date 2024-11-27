@@ -1,29 +1,36 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useReducer } from 'react';
 import type { Profile } from '~/types';
 
 interface AppState {
   selectedProfile?: Profile;
-  setSelectedProfile: (v: Profile) => void;
 }
 
-const AppContext = createContext<AppState>({ setSelectedProfile: () => {} });
+type Dispatch = (state: Partial<AppState>) => void;
 
-export function useApp(): AppState {
-  return useContext(AppContext);
+const AppStateContext = createContext<AppState>({});
+const AppDispatchContext = createContext<Dispatch>(() => {});
+
+export function useAppState(): AppState {
+  return useContext(AppStateContext);
+}
+
+export function useAppDispatch(): Dispatch {
+  return useContext(AppDispatchContext);
+}
+
+function reducer(state: AppState, action: Partial<AppState>): AppState {
+  return { ...state, ...action };
 }
 
 export function AppContextProvider(props: React.PropsWithChildren) {
   const { children } = props;
-  const [selectedProfile, setSelectedProfile] = useState<Profile>();
-
-  const contextValue = useMemo<AppState>(() => {
-    return {
-      selectedProfile,
-      setSelectedProfile,
-    };
-  }, [selectedProfile]);
+  const [state, dispatch] = useReducer(reducer, {});
 
   return (
-    <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
+    <AppStateContext.Provider value={state}>
+      <AppDispatchContext.Provider value={dispatch}>
+        {children}
+      </AppDispatchContext.Provider>
+    </AppStateContext.Provider>
   );
 }
