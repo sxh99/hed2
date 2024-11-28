@@ -42,3 +42,9 @@ push-tag tag:
 
 run:
 	node ./scripts/dev.js
+
+ta:
+	INSTA_UPDATE=always cargo test
+
+tu: 
+	INSTA_UPDATE=unseen cargo test

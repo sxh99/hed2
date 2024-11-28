@@ -1,13 +1,65 @@
 ---
 source: src/parser.rs
-assertion_line: 160
 expression: list
 snapshot_kind: text
 ---
 [
     Item {
-        ip: "172.16.254.1",
+        ip: "1.1.1.1",
         hosts: [
+            Host {
+                content: "foo.com",
+                enabled: true,
+            },
+            Host {
+                content: "bar.com",
+                enabled: false,
+            },
+        ],
+    },
+    Item {
+        ip: "127.0.0.1",
+        hosts: [
+            Host {
+                content: "1.com",
+                enabled: false,
+            },
+            Host {
+                content: "2.com",
+                enabled: false,
+            },
+            Host {
+                content: "3.com",
+                enabled: false,
+            },
+            Host {
+                content: "4.com",
+                enabled: false,
+            },
+            Host {
+                content: "5.com",
+                enabled: false,
+            },
+            Host {
+                content: "6.com",
+                enabled: false,
+            },
+            Host {
+                content: "7.com",
+                enabled: false,
+            },
+            Host {
+                content: "8.com",
+                enabled: false,
+            },
+            Host {
+                content: "9.com",
+                enabled: false,
+            },
+            Host {
+                content: "10.com",
+                enabled: false,
+            },
             Host {
                 content: "a.com",
                 enabled: true,
@@ -17,8 +69,56 @@ snapshot_kind: text
                 enabled: true,
             },
             Host {
-                content: "d.com",
+                content: "b.com",
                 enabled: true,
+            },
+            Host {
+                content: "f.com",
+                enabled: true,
+            },
+            Host {
+                content: "e.com",
+                enabled: true,
+            },
+            Host {
+                content: "h.com",
+                enabled: true,
+            },
+            Host {
+                content: "g.com",
+                enabled: true,
+            },
+            Host {
+                content: "i.com",
+                enabled: true,
+            },
+            Host {
+                content: "k.com",
+                enabled: true,
+            },
+            Host {
+                content: "j.com",
+                enabled: true,
+            },
+            Host {
+                content: "l.com",
+                enabled: true,
+            },
+            Host {
+                content: "m.com",
+                enabled: true,
+            },
+            Host {
+                content: "n.com",
+                enabled: true,
+            },
+            Host {
+                content: "11.com",
+                enabled: false,
+            },
+            Host {
+                content: "12.com",
+                enabled: false,
             },
         ],
     },
@@ -28,19 +128,6 @@ snapshot_kind: text
             Host {
                 content: "b.com",
                 enabled: true,
-            },
-        ],
-    },
-    Item {
-        ip: "127.0.0.1",
-        hosts: [
-            Host {
-                content: "e.com",
-                enabled: true,
-            },
-            Host {
-                content: "f.com",
-                enabled: false,
             },
         ],
     },
