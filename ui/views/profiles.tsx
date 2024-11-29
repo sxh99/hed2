@@ -3,6 +3,7 @@ import { useDeferredValue, useEffect, useRef, useState } from 'react';
 import { Button, Input, ScrollArea } from '~/components';
 import { useAppDispatch, useAppState } from '~/context/app';
 import type { Profile } from '~/types';
+import { getSysHostsContent } from '~/utils/ipc';
 
 export function Profiles() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -22,7 +23,7 @@ export function Profiles() {
             name: `profile-${i + 1}`,
             system: i === 0,
             hostsInfo: {
-              content: '',
+              text: '',
               lines: [],
               list: [],
             },
@@ -47,6 +48,7 @@ export function Profiles() {
       }
     };
     fetchData();
+    getSysHostsContent().then((ret) => console.log(ret));
   }, []);
 
   useEffect(() => {

@@ -1,12 +1,10 @@
-use std::{
-	collections::{HashMap, HashSet},
-	net::IpAddr,
-};
+use std::{collections::HashSet, net::IpAddr};
 
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone)]
-enum Line {
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub enum Line {
 	Valid {
 		ip: String,
 		hosts: Vec<String>,
@@ -16,14 +14,14 @@ enum Line {
 	Other(String),
 }
 
-#[derive(Debug, Clone)]
-struct Item {
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Item {
 	ip: String,
 	hosts: Vec<Host>,
 }
 
-#[derive(Debug, Clone)]
-struct Host {
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Host {
 	content: String,
 	enabled: bool,
 }
@@ -32,7 +30,7 @@ fn is_ip(s: &str) -> bool {
 	s.parse::<IpAddr>().is_ok()
 }
 
-fn text_to_lines(text: &str) -> Vec<Line> {
+pub fn text_to_lines(text: &str) -> Vec<Line> {
 	let mut lines = vec![];
 
 	for l in text.lines() {
@@ -78,7 +76,7 @@ fn split_ip_hosts(s: &str) -> Option<(String, Vec<String>)> {
 	None
 }
 
-fn lines_to_list(lines: &[Line]) -> Vec<Item> {
+pub fn lines_to_list(lines: &[Line]) -> Vec<Item> {
 	let mut item_map: IndexMap<String, Item> = IndexMap::new();
 
 	for line in lines {
@@ -87,7 +85,7 @@ fn lines_to_list(lines: &[Line]) -> Vec<Item> {
 		};
 
 		let hosts = hosts
-			.into_iter()
+			.iter()
 			.map(|content| Host {
 				content: content.clone(),
 				enabled: *enabled,
@@ -137,7 +135,7 @@ fn hosts_to_lines(hosts: Vec<Host>, ip: &str, enabled: bool) -> Vec<Line> {
 		.collect()
 }
 
-fn list_to_lines(list: Vec<Item>, old_lines: Vec<Line>) -> Vec<Line> {
+pub fn list_to_lines(list: Vec<Item>, old_lines: Vec<Line>) -> Vec<Line> {
 	let mut lines = vec![];
 	let mut ip_hosts_map = list
 		.into_iter()
@@ -152,16 +150,15 @@ fn list_to_lines(list: Vec<Item>, old_lines: Vec<Line>) -> Vec<Line> {
 		match line {
 			line @ Line::Empty => {
 				if !is_pre_empty {
-					is_pre_empty = true;
 					lines.push(line);
+					is_pre_empty = true;
 				}
 			}
 			line @ Line::Other(_) => {
-				is_pre_empty = false;
 				lines.push(line);
+				is_pre_empty = false;
 			}
 			Line::Valid { ip, .. } => {
-				is_pre_empty = false;
 				if let Some(hosts) = ip_hosts_map.get_mut(&ip) {
 					if hosts.is_empty() {
 						if !is_pre_empty {
@@ -175,6 +172,9 @@ fn list_to_lines(list: Vec<Item>, old_lines: Vec<Line>) -> Vec<Line> {
 					let (enabled, disabled) = hosts_partition(new_hosts);
 					lines.extend(hosts_to_lines(enabled, &ip, true));
 					lines.extend(hosts_to_lines(disabled, &ip, false));
+					is_pre_empty = false;
+				} else {
+					is_pre_empty = true;
 				}
 			}
 		}
@@ -185,7 +185,7 @@ fn list_to_lines(list: Vec<Item>, old_lines: Vec<Line>) -> Vec<Line> {
 			continue;
 		}
 		let (enabled, disabled) = hosts_partition(hosts);
-		if enabled.len() + disabled.len() > 0 {
+		if enabled.len() + disabled.len() > 0 && !is_pre_empty {
 			lines.push(Line::Empty);
 		}
 		lines.extend(hosts_to_lines(enabled, &ip, true));
@@ -199,7 +199,7 @@ fn list_to_lines(list: Vec<Item>, old_lines: Vec<Line>) -> Vec<Line> {
 	lines
 }
 
-fn lines_to_text(lines: &[Line], is_win: bool) -> String {
+pub fn lines_to_text(lines: &[Line], is_win: bool) -> String {
 	let mut text_lines = vec![];
 
 	for line in lines {

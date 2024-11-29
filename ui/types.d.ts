@@ -6,7 +6,7 @@ export interface Profile {
 }
 
 export interface HostsInfo {
-  content: string;
+  text: string;
   lines: Line[];
   list: Item[];
 }
