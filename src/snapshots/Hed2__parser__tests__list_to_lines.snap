@@ -70,7 +70,6 @@ snapshot_kind: text
         enabled: false,
     },
     Empty,
-    Empty,
     Other(
         "# comment",
     ),
@@ -86,7 +85,6 @@ snapshot_kind: text
     Other(
         "# comment",
     ),
-    Empty,
     Empty,
     Valid {
         ip: "2402:1200:4f00:1234:0000:5678:9abc:def0",
@@ -95,7 +93,6 @@ snapshot_kind: text
         ],
         enabled: true,
     },
-    Empty,
     Empty,
     Valid {
         ip: "2.2.2.2",
