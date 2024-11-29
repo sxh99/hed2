@@ -8,6 +8,7 @@ interface AppState {
 type Dispatch = (state: Partial<AppState>) => void;
 
 const AppStateContext = createContext<AppState>({});
+
 const AppDispatchContext = createContext<Dispatch>(() => {});
 
 export function useAppState(): AppState {

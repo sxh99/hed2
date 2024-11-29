@@ -1,1 +1,4 @@
 * text=auto eol=lf
+*.css linguist-generated
+*.html linguist-vendored
+*.snap linguist-generated

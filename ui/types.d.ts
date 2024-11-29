@@ -1,5 +1,5 @@
 export interface Profile {
-  id: number;
+  // id: number;
   name: string;
   system?: boolean;
   hostsInfo: HostsInfo;
@@ -11,23 +11,12 @@ export interface HostsInfo {
   list: Item[];
 }
 
-export interface Line {
-  type: 'valid' | 'comment' | 'empty' | 'other';
-  content?: string;
-  ip?: string;
-  hosts?: string[];
-  comment?: string;
-  enabled?: bool;
-}
-
 export interface Item {
-  id: number;
   ip: string;
   hosts: Host[];
 }
 
 export interface Host {
-  id: number;
   content: string;
   enabled: boolean;
 }

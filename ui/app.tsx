@@ -7,6 +7,7 @@ import { AppContextProvider } from '~/context/app';
 import { ThemeProvider } from '~/context/theme';
 import { AppHeader } from '~/views/app-header';
 import { Profiles } from '~/views/profiles';
+import { Editor } from '~/views/editor';
 
 export function App() {
   return (
@@ -20,10 +21,7 @@ export function App() {
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel defaultSize={80}>
-              <div className="w-full h-14 flex justify-between items-center px-4 py-1 border-b border-border/40 bg-background/95 dark:border-border">
-                todo
-              </div>
-              <div>todo</div>
+              <Editor />
             </ResizablePanel>
           </ResizablePanelGroup>
         </ThemeProvider>

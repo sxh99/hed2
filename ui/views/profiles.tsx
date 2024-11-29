@@ -3,7 +3,7 @@ import { useDeferredValue, useEffect, useRef, useState } from 'react';
 import { Button, Input, ScrollArea } from '~/components';
 import { useAppDispatch, useAppState } from '~/context/app';
 import type { Profile } from '~/types';
-import { getSysHostsContent } from '~/utils/ipc';
+import { ipc } from '~/utils/ipc';
 
 export function Profiles() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -19,7 +19,6 @@ export function Profiles() {
       return new Promise<Profile[]>((resolve) => {
         const mockData: Profile[] = new Array(20).fill(0).map((_, i) => {
           return {
-            id: i + 1,
             name: `profile-${i + 1}`,
             system: i === 0,
             hostsInfo: {
@@ -38,17 +37,23 @@ export function Profiles() {
       try {
         setLoading(true);
         const mockData = await mockInvoke();
-        setProfiles(mockData);
         const systemProfile = mockData.find((profile) => profile.system);
         if (systemProfile) {
+          const text = await ipc.getSysHostsContent();
+          const { list, lines } = await ipc.textToList(text);
+          systemProfile.hostsInfo = {
+            text,
+            list,
+            lines,
+          };
           dispatch({ selectedProfile: systemProfile });
         }
+        setProfiles(mockData);
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-    getSysHostsContent().then((ret) => console.log(ret));
   }, []);
 
   useEffect(() => {
@@ -62,16 +67,16 @@ export function Profiles() {
       return;
     }
     const ele = scrollAreaRef.current.querySelector(
-      `[data-id="${profile.id}"]`,
+      `[data-name="${profile.name}"]`,
     );
     if (!ele) {
       return;
     }
-    ele.scrollIntoView();
+    ele.scrollIntoView({ block: 'nearest' });
   }, [deferredSearch, profiles]);
 
   const calcVariant = (profile: Profile) => {
-    if (selectedProfile?.id === profile.id) {
+    if (selectedProfile?.name === profile.name) {
       return 'default';
     }
     if (deferredSearch && profile.name.includes(deferredSearch)) {
@@ -97,23 +102,19 @@ export function Profiles() {
           <LoaderCircle className="animate-spin" />
         </div>
       ) : (
-        <ScrollArea className="flex-1 px-3 pb-1 space-y-1" ref={scrollAreaRef}>
+        <ScrollArea className="flex-1 px-3 pb-1" ref={scrollAreaRef}>
           {profiles.map((profile) => {
             return (
-              <div
-                className="w-full h-12"
-                key={profile.id}
-                data-id={profile.id}
+              <Button
+                key={profile.name}
+                data-name={profile.name}
+                onClick={() => dispatch({ selectedProfile: profile })}
+                variant={calcVariant(profile)}
+                className="w-full h-12 justify-start mt-1"
               >
-                <Button
-                  onClick={() => dispatch({ selectedProfile: profile })}
-                  variant={calcVariant(profile)}
-                  className="w-full h-11 justify-start"
-                >
-                  <span>{profile.name}</span>
-                </Button>
+                <span>{profile.name}</span>
                 <span className="sr-only">{profile.name}</span>
-              </div>
+              </Button>
             );
           })}
         </ScrollArea>
