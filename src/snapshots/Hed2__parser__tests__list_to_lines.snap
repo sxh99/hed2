@@ -4,6 +4,10 @@ expression: new_lines
 snapshot_kind: text
 ---
 [
+    Empty,
+    Empty,
+    Empty,
+    Empty,
     Other(
         "#    comment",
     ),
@@ -15,6 +19,7 @@ snapshot_kind: text
         ],
         enabled: true,
     },
+    Empty,
     Empty,
     Other(
         "#   中文内容",
@@ -70,6 +75,8 @@ snapshot_kind: text
         enabled: false,
     },
     Empty,
+    Empty,
+    Empty,
     Other(
         "# comment",
     ),
@@ -86,10 +93,66 @@ snapshot_kind: text
         "# comment",
     ),
     Empty,
+    Empty,
+    Empty,
+    Empty,
     Valid {
         ip: "2402:1200:4f00:1234:0000:5678:9abc:def0",
         hosts: [
             "b.com",
+        ],
+        enabled: true,
+    },
+    Empty,
+    Empty,
+    Other(
+        "# 4.4.4.4",
+    ),
+    Other(
+        "# 4.4.4.4",
+    ),
+    Empty,
+    Group(
+        "foo",
+    ),
+    Empty,
+    Group(
+        "bar",
+    ),
+    Valid {
+        ip: "3.3.3.3",
+        hosts: [
+            "a.com",
+        ],
+        enabled: true,
+    },
+    Valid {
+        ip: "3.3.3.3",
+        hosts: [
+            "b.com",
+        ],
+        enabled: false,
+    },
+    Empty,
+    Empty,
+    Group(
+        "bar",
+    ),
+    Group(
+        "baz",
+    ),
+    Empty,
+    Group(
+        "foo",
+    ),
+    Empty,
+    Group(
+        "bar",
+    ),
+    Valid {
+        ip: "5.5.5.5",
+        hosts: [
+            "a.com",
         ],
         enabled: true,
     },
@@ -108,5 +171,4 @@ snapshot_kind: text
         ],
         enabled: false,
     },
-    Empty,
 ]

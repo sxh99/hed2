@@ -1,9 +1,10 @@
+#![allow(unused)]
+
 use std::{collections::HashSet, net::IpAddr};
 
 use indexmap::IndexMap;
-use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone)]
 pub enum Line {
 	Valid {
 		ip: String,
@@ -12,25 +13,35 @@ pub enum Line {
 	},
 	Empty,
 	Other(String),
+	Group(String),
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone)]
 pub struct Item {
 	ip: String,
 	hosts: Vec<Host>,
+	group: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone)]
 pub struct Host {
 	content: String,
 	enabled: bool,
+}
+
+#[derive(Debug, Clone)]
+pub struct Group {
+	name: String,
+	text: String,
+	lines: Vec<Line>,
+	list: Vec<Item>,
 }
 
 fn is_ip(s: &str) -> bool {
 	s.parse::<IpAddr>().is_ok()
 }
 
-pub fn text_to_lines(text: &str) -> Vec<Line> {
+fn text_to_lines(text: &str) -> Vec<Line> {
 	let mut lines = vec![];
 
 	for l in text.lines() {
@@ -40,6 +51,8 @@ pub fn text_to_lines(text: &str) -> Vec<Line> {
 			lines.push(Line::Empty);
 		} else if let Some(valid_line) = parse_valid_line(line) {
 			lines.push(valid_line);
+		} else if let Some(group_line) = parse_group_line(line) {
+			lines.push(group_line);
 		} else {
 			lines.push(Line::Other(line.to_string()));
 		}
@@ -48,22 +61,22 @@ pub fn text_to_lines(text: &str) -> Vec<Line> {
 	lines
 }
 
-fn parse_valid_line(s: &str) -> Option<Line> {
-	let enabled = !s.starts_with('#');
-	let striped = s.strip_prefix('#').unwrap_or(s);
-	let (ip_hosts, _) = striped.split_once('#').unwrap_or((striped, ""));
-
-	if let Some((ip, hosts)) = split_ip_hosts(ip_hosts) {
-		Some(Line::Valid { ip, hosts, enabled })
+fn parse_valid_line(line: &str) -> Option<Line> {
+	let enabled = !line.starts_with('#');
+	let stripped = line.strip_prefix('#').unwrap_or(line);
+	let (ip_hosts, _) = stripped.split_once('#').unwrap_or((stripped, ""));
+	let (ip, hosts) = split_ip_hosts(ip_hosts)?;
+	if hosts.is_empty() {
+		Some(Line::Other(format!("# {}", ip)))
 	} else {
-		None
+		Some(Line::Valid { ip, hosts, enabled })
 	}
 }
 
 fn split_ip_hosts(s: &str) -> Option<(String, Vec<String>)> {
 	let chunks = s.split_whitespace().collect::<Vec<&str>>();
 
-	if chunks.len() > 1 {
+	if !chunks.is_empty() {
 		let may_ip = chunks[0];
 		if is_ip(may_ip) {
 			return Some((
@@ -76,7 +89,23 @@ fn split_ip_hosts(s: &str) -> Option<(String, Vec<String>)> {
 	None
 }
 
-pub fn lines_to_list(lines: &[Line]) -> Vec<Item> {
+fn parse_group_line(line: &str) -> Option<Line> {
+	let processed = line.strip_prefix('#')?.trim_start();
+	let chs = processed.chars().collect::<Vec<char>>();
+	if chs.len() >= 3 && chs[0] == '[' && chs[chs.len() - 1] == ']' {
+		let mut name = String::new();
+		for ch in &chs[1..chs.len() - 1] {
+			if !ch.is_whitespace() {
+				name.push(*ch);
+			}
+		}
+		Some(Line::Group(name))
+	} else {
+		None
+	}
+}
+
+fn lines_to_list(lines: &[Line], group: String) -> Vec<Item> {
 	let mut item_map: IndexMap<String, Item> = IndexMap::new();
 
 	for line in lines {
@@ -84,7 +113,11 @@ pub fn lines_to_list(lines: &[Line]) -> Vec<Item> {
 			continue;
 		};
 
-		let hosts = hosts
+		if hosts.is_empty() {
+			continue;
+		}
+
+		let mut hosts = hosts
 			.iter()
 			.map(|content| Host {
 				content: content.clone(),
@@ -93,13 +126,14 @@ pub fn lines_to_list(lines: &[Line]) -> Vec<Item> {
 			.collect::<Vec<Host>>();
 
 		if let Some(item) = item_map.get_mut(ip) {
-			item.hosts.extend(hosts);
+			item.hosts.append(&mut hosts);
 		} else {
 			item_map.insert(
 				ip.clone(),
 				Item {
 					ip: ip.clone(),
 					hosts,
+					group: group.clone(),
 				},
 			);
 		}
@@ -135,48 +169,30 @@ fn hosts_to_lines(hosts: Vec<Host>, ip: &str, enabled: bool) -> Vec<Line> {
 		.collect()
 }
 
-pub fn list_to_lines(list: Vec<Item>, old_lines: Vec<Line>) -> Vec<Line> {
+fn list_to_lines(list: Vec<Item>, old_lines: Vec<Line>) -> Vec<Line> {
 	let mut lines = vec![];
 	let mut ip_hosts_map = list
 		.into_iter()
 		.map(|item| (item.ip, item.hosts))
 		.collect::<IndexMap<String, Vec<Host>>>();
 
-	let mut is_pre_empty = old_lines
-		.first()
-		.is_some_and(|line| matches!(line, Line::Empty));
-
 	for line in old_lines {
-		match line {
-			line @ Line::Empty => {
-				if !is_pre_empty {
-					lines.push(line);
-					is_pre_empty = true;
+		if let Line::Valid { ip, .. } = line {
+			if let Some(hosts) = ip_hosts_map.get_mut(&ip) {
+				if hosts.is_empty() {
+					lines.push(Line::Empty);
+					continue;
 				}
+				let mut new_hosts = vec![];
+				new_hosts.append(hosts);
+				let (enabled, disabled) = hosts_partition(new_hosts);
+				lines.append(&mut hosts_to_lines(enabled, &ip, true));
+				lines.append(&mut hosts_to_lines(disabled, &ip, false));
+			} else {
+				lines.push(Line::Empty);
 			}
-			line @ Line::Other(_) => {
-				lines.push(line);
-				is_pre_empty = false;
-			}
-			Line::Valid { ip, .. } => {
-				if let Some(hosts) = ip_hosts_map.get_mut(&ip) {
-					if hosts.is_empty() {
-						if !is_pre_empty {
-							lines.push(Line::Empty);
-						}
-						is_pre_empty = true;
-						continue;
-					}
-					let mut new_hosts = vec![];
-					new_hosts.append(hosts);
-					let (enabled, disabled) = hosts_partition(new_hosts);
-					lines.extend(hosts_to_lines(enabled, &ip, true));
-					lines.extend(hosts_to_lines(disabled, &ip, false));
-					is_pre_empty = false;
-				} else {
-					is_pre_empty = true;
-				}
-			}
+		} else {
+			lines.push(line);
 		}
 	}
 
@@ -184,40 +200,50 @@ pub fn list_to_lines(list: Vec<Item>, old_lines: Vec<Line>) -> Vec<Line> {
 		if hosts.is_empty() {
 			continue;
 		}
-		let (enabled, disabled) = hosts_partition(hosts);
-		if enabled.len() + disabled.len() > 0 && !is_pre_empty {
-			lines.push(Line::Empty);
-		}
-		lines.extend(hosts_to_lines(enabled, &ip, true));
-		lines.extend(hosts_to_lines(disabled, &ip, false));
-	}
-
-	if !lines.last().is_some_and(|line| matches!(line, Line::Empty)) {
 		lines.push(Line::Empty);
+		let (enabled, disabled) = hosts_partition(hosts);
+		lines.append(&mut hosts_to_lines(enabled, &ip, true));
+		lines.append(&mut hosts_to_lines(disabled, &ip, false));
 	}
 
 	lines
 }
 
-pub fn lines_to_text(lines: &[Line], is_win: bool) -> String {
+fn lines_to_text_impl(lines: &[Line], is_win: bool) -> String {
 	let mut text_lines = vec![];
 
+	let mut is_pre_empty = lines
+		.first()
+		.is_some_and(|line| matches!(line, Line::Empty));
+
 	for line in lines {
-		let text_line = match line {
+		match line {
 			Line::Valid { ip, hosts, enabled } => {
 				let mut vs = vec![];
 				if !enabled {
 					vs.push("#".to_string());
 				}
 				vs.push(ip.clone());
-				vs.extend(hosts.clone());
-				vs.join(" ")
+				vs.append(&mut hosts.clone());
+				text_lines.push(vs.join(" "));
 			}
-			Line::Other(s) => s.clone(),
-			Line::Empty => String::new(),
+			Line::Other(s) => {
+				text_lines.push(s.clone());
+			}
+			Line::Empty => {
+				if !is_pre_empty {
+					text_lines.push(String::new());
+				}
+			}
+			Line::Group(name) => {
+				text_lines.push(format!("#[{}]", name));
+			}
 		};
+		is_pre_empty = matches!(line, Line::Empty);
+	}
 
-		text_lines.push(text_line);
+	if !is_pre_empty {
+		text_lines.push(String::new());
 	}
 
 	let eol = if is_win {
@@ -229,25 +255,141 @@ pub fn lines_to_text(lines: &[Line], is_win: bool) -> String {
 	text_lines.join(eol)
 }
 
+fn lines_to_text(lines: &[Line]) -> String {
+	lines_to_text_impl(lines, cfg!(windows))
+}
+
+fn lines_to_groups(lines: &[Line]) -> Vec<Group> {
+	let mut other_groups = vec![];
+	let mut system_group = Group {
+		name: "System".to_string(),
+		text: String::new(),
+		lines: vec![],
+		list: vec![],
+	};
+	let mut current_group_name: Option<&String> = None;
+	let mut group_lines: Vec<&Line> = vec![];
+
+	for line in lines {
+		if let Some(group_name) = current_group_name {
+			if let Line::Group(name) = line {
+				if name == group_name {
+					let owned_lines = group_lines
+						.clone()
+						.into_iter()
+						.cloned()
+						.collect::<Vec<Line>>();
+					other_groups.push(Group {
+						name: name.clone(),
+						text: lines_to_text(&owned_lines),
+						list: lines_to_list(&owned_lines, name.clone()),
+						lines: owned_lines,
+					});
+					group_lines.clear();
+					current_group_name = None;
+					continue;
+				}
+			}
+			group_lines.push(line);
+		} else if let Line::Group(name) = line {
+			current_group_name = Some(name);
+		} else {
+			system_group.lines.push(line.clone());
+		}
+	}
+
+	if !group_lines.is_empty() {
+		system_group.lines.extend(group_lines.into_iter().cloned());
+	}
+
+	system_group.list = lines_to_list(
+		&system_group.lines,
+		system_group.name.to_ascii_lowercase(),
+	);
+
+	for group in &other_groups {
+		system_group.list.append(&mut group.list.clone());
+	}
+
+	let mut groups = vec![system_group];
+	groups.append(&mut other_groups);
+	groups
+}
+
+fn text_to_groups(text: String) -> Vec<Group> {
+	let lines = text_to_lines(&text);
+	let mut groups = lines_to_groups(&lines);
+
+	groups[0].text = text;
+	groups[0].lines = lines;
+
+	groups
+}
+
 #[cfg(test)]
 mod tests {
 	use insta::{assert_debug_snapshot, assert_snapshot};
 
 	use super::{
-		lines_to_list, lines_to_text, list_to_lines, text_to_lines, Host, Item,
+		lines_to_groups, lines_to_list, lines_to_text_impl, list_to_lines,
+		parse_group_line, parse_valid_line, text_to_groups, text_to_lines,
+		Group, Host, Item, Line,
 	};
 
-	static MOCK_HOSTS: &str = include_str!("../fixture/hosts");
+	#[test]
+	fn test_parse_valid_line() {
+		let cases = [
+			"127.0.0.1 a.com b.com",
+			"#    127.0.0.1     a.com   b.com",
+			"127.0.0.1   a.com  b.com   #   comment",
+		];
+		assert!(cases.iter().all(|s| parse_valid_line(s).is_some_and(|l| {
+			if let Line::Valid { ip, hosts, .. } = l {
+				ip == "127.0.0.1"
+					&& hosts == vec!["a.com".to_string(), "b.com".to_string()]
+			} else {
+				false
+			}
+		})));
+
+		let cases = ["", "foo", "# foo"];
+		assert!(cases.iter().all(|s| parse_valid_line(s).is_none()));
+
+		let cases = ["# 1.1.1.1", "1.1.1.1"];
+		assert!(cases.iter().all(|s| parse_valid_line(s).is_some_and(|l| {
+			if let Line::Other(ss) = l {
+				ss.starts_with('#')
+			} else {
+				false
+			}
+		})));
+	}
+
+	#[test]
+	fn test_parse_group_line() {
+		let cases = ["#[group]", "#   [   group    ]", "#[组]"];
+		assert!(cases.iter().all(|s| parse_group_line(s).is_some_and(|l| {
+			if let Line::Group(name) = l {
+				name == "group" || name == "组"
+			} else {
+				false
+			}
+		})));
+
+		let cases = ["", "group", "# group"];
+		assert!(cases.iter().all(|s| parse_group_line(s).is_none()));
+	}
 
 	#[test]
 	fn test_parser() {
-		let lines = text_to_lines(MOCK_HOSTS);
-		assert_debug_snapshot!("text_to_lines", lines);
+		static MOCK_HOSTS: &str = include_str!("../fixture/hosts");
 
-		let mut list = lines_to_list(&lines);
-		assert_debug_snapshot!("lines_to_list", list);
+		let mut groups = text_to_groups(MOCK_HOSTS.to_string());
+		assert_debug_snapshot!("text_to_groups", groups);
 
-		for item in &mut list {
+		let mut system_group = groups.remove(0);
+
+		for item in &mut system_group.list {
 			if item.ip == "127.0.0.1" {
 				item.hosts.pop();
 				item.hosts.push(Host {
@@ -263,7 +405,7 @@ mod tests {
 			}
 		}
 
-		list.push(Item {
+		system_group.list.push(Item {
 			ip: "2.2.2.2".to_string(),
 			hosts: vec![
 				Host {
@@ -275,15 +417,16 @@ mod tests {
 					enabled: false,
 				},
 			],
+			group: "system".to_string(),
 		});
 
-		let new_lines = list_to_lines(list, lines);
+		let new_lines = list_to_lines(system_group.list, system_group.lines);
 		assert_debug_snapshot!("list_to_lines", new_lines);
 
-		let text = lines_to_text(&new_lines, true);
+		let text = lines_to_text_impl(&new_lines, true);
 		assert_debug_snapshot!("lines_to_text_win", text);
 
-		let text = lines_to_text(&new_lines, false);
+		let text = lines_to_text_impl(&new_lines, false);
 		assert_debug_snapshot!("lines_to_text_unix", text);
 		assert_snapshot!("lines_to_text_human", text);
 	}

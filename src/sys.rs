@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use std::{env, fs, path::PathBuf};
 
 pub fn get_sys_hosts_content() -> String {

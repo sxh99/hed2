@@ -6,8 +6,8 @@ import {
 import { AppContextProvider } from '~/context/app';
 import { ThemeProvider } from '~/context/theme';
 import { AppHeader } from '~/views/app-header';
-import { Profiles } from '~/views/profiles';
 import { Editor } from '~/views/editor';
+import { Profiles } from '~/views/profiles';
 
 export function App() {
   return (
