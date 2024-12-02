@@ -3,21 +3,21 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '~/components/resizable';
-import { AppContextProvider } from '~/context/app';
+import { GlobalContextProvider } from '~/context/global';
 import { ThemeProvider } from '~/context/theme';
 import { AppHeader } from '~/views/app-header';
 import { Editor } from '~/views/editor';
-import { Profiles } from '~/views/profiles';
+import { Groups } from '~/views/groups';
 
 export function App() {
   return (
     <div className="h-screen w-screen flex flex-col">
-      <AppContextProvider>
+      <GlobalContextProvider>
         <ThemeProvider>
           <AppHeader />
           <ResizablePanelGroup direction="horizontal" autoSaveId="main">
             <ResizablePanel defaultSize={20} minSize={20} maxSize={30}>
-              <Profiles />
+              <Groups />
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel defaultSize={80}>
@@ -25,7 +25,7 @@ export function App() {
             </ResizablePanel>
           </ResizablePanelGroup>
         </ThemeProvider>
-      </AppContextProvider>
+      </GlobalContextProvider>
     </div>
   );
 }
