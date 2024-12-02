@@ -11,7 +11,7 @@ import { Groups } from '~/views/groups';
 
 export function App() {
   return (
-    <div className="h-screen w-screen flex flex-col">
+    <div className="h-screen w-screen flex flex-col select-none">
       <GlobalContextProvider>
         <ThemeProvider>
           <AppHeader />

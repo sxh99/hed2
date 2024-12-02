@@ -1,6 +1,6 @@
 import { LoaderCircle, Search, Plus } from 'lucide-react';
 import { useDeferredValue, useEffect, useRef, useState } from 'react';
-import { Button, Input, ScrollArea } from '~/components';
+import { Button, Input, ScrollArea, Switch } from '~/components';
 import { useGlobalState, useGlobalStateAction } from '~/context/global';
 import type { Group } from '~/types';
 import { ipc } from '~/utils/ipc';
@@ -21,7 +21,7 @@ export function Groups() {
         const latestGroups = await ipc.getGroups();
         const mockGroups: Group[] = new Array(20).fill(0).map((_, i) => {
           return {
-            name: `group${i + 1}`.repeat(5),
+            name: `group${i + 1}`.repeat(Math.random() > 0.7 ? 5 : 1),
             text: '',
             list: [],
             system: false,
@@ -70,14 +70,12 @@ export function Groups() {
         <Search className="pointer-events-none absolute left-5 size-4 top-1/2 -translate-y-1/2 select-none opacity-50" />
         <Input
           className="bg-white dark:bg-black pl-8"
-          placeholder="Search profile"
+          placeholder="Search group"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <span className="sr-only">search group</span>
         <Button variant="ghost" size="icon" onClick={handleNewGroup}>
           <Plus />
-          <span className="sr-only">new group</span>
         </Button>
       </div>
       {loading ? (
@@ -85,19 +83,31 @@ export function Groups() {
           <LoaderCircle className="animate-spin" />
         </div>
       ) : (
-        <ScrollArea className="flex-1 px-3 pb-1">
+        <ScrollArea className="flex-1 px-3 pb-2">
           {displayGroups.map((group) => {
             return (
               <Button
-                key={group.name}
-                onClick={() => setGlobalState({ selectedGroup: group })}
+                className="w-full min-h-12 h-auto justify-between mt-1 cursor-pointer"
+                asChild
                 variant={
                   selectedGroup?.name === group.name ? 'default' : 'ghost'
                 }
-                className="w-full min-h-12 justify-start mt-1"
+                key={group.name}
+                onClick={() => setGlobalState({ selectedGroup: group })}
               >
-                <span>{group.name}</span>
-                <span className="sr-only">{group.name}</span>
+                <div>
+                  <div className="whitespace-normal break-all text-left truncate">
+                    {group.name}
+                  </div>
+                  {!group.system && (
+                    <Switch
+                      className="ml-4"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                    />
+                  )}
+                </div>
               </Button>
             );
           })}
