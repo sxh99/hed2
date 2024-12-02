@@ -170,7 +170,7 @@ snapshot_kind: text
                         enabled: false,
                     },
                 ],
-                group: "system",
+                group: "System",
             },
             Item {
                 ip: "127.0.0.1",
@@ -276,7 +276,7 @@ snapshot_kind: text
                         enabled: false,
                     },
                 ],
-                group: "system",
+                group: "System",
             },
             Item {
                 ip: "2402:1200:4f00:1234:0000:5678:9abc:def0",
@@ -286,7 +286,7 @@ snapshot_kind: text
                         enabled: true,
                     },
                 ],
-                group: "system",
+                group: "System",
             },
             Item {
                 ip: "5.5.5.5",
@@ -296,7 +296,7 @@ snapshot_kind: text
                         enabled: true,
                     },
                 ],
-                group: "system",
+                group: "System",
             },
             Item {
                 ip: "3.3.3.3",
@@ -316,7 +316,7 @@ snapshot_kind: text
     },
     Group {
         name: "foo",
-        text: "#[bar]\n3.3.3.3 a.com\n\n# 3.3.3.3 b.com\n#[bar]\n#[baz]\n",
+        text: "#[bar]\r\n3.3.3.3 a.com\r\n\r\n# 3.3.3.3 b.com\r\n#[bar]\r\n#[baz]\r\n",
         lines: [
             Empty,
             Group(

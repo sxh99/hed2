@@ -10,7 +10,7 @@ fn main() {
 
 fn run() {
 	if let Err(err) = tauri::Builder::default()
-		.invoke_handler(tauri::generate_handler![])
+		.invoke_handler(tauri::generate_handler![command::get_groups])
 		.run(tauri::generate_context!())
 	{
 		eprintln!("{}", err);

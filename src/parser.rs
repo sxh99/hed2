@@ -1,8 +1,7 @@
-#![allow(unused)]
-
 use std::{collections::HashSet, net::IpAddr};
 
 use indexmap::IndexMap;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
 pub enum Line {
@@ -16,14 +15,14 @@ pub enum Line {
 	Group(String),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Item {
 	ip: String,
 	hosts: Vec<Host>,
 	group: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Host {
 	content: String,
 	enabled: bool,
@@ -31,10 +30,10 @@ pub struct Host {
 
 #[derive(Debug, Clone)]
 pub struct Group {
-	name: String,
-	text: String,
+	pub name: String,
+	pub text: String,
 	lines: Vec<Line>,
-	list: Vec<Item>,
+	pub list: Vec<Item>,
 }
 
 fn is_ip(s: &str) -> bool {
@@ -105,7 +104,7 @@ fn parse_group_line(line: &str) -> Option<Line> {
 	}
 }
 
-fn lines_to_list(lines: &[Line], group: String) -> Vec<Item> {
+fn lines_to_list(lines: &[Line], group: &str) -> Vec<Item> {
 	let mut item_map: IndexMap<String, Item> = IndexMap::new();
 
 	for line in lines {
@@ -133,7 +132,7 @@ fn lines_to_list(lines: &[Line], group: String) -> Vec<Item> {
 				Item {
 					ip: ip.clone(),
 					hosts,
-					group: group.clone(),
+					group: group.to_string(),
 				},
 			);
 		}
@@ -282,7 +281,7 @@ fn lines_to_groups(lines: &[Line]) -> Vec<Group> {
 					other_groups.push(Group {
 						name: name.clone(),
 						text: lines_to_text(&owned_lines),
-						list: lines_to_list(&owned_lines, name.clone()),
+						list: lines_to_list(&owned_lines, name),
 						lines: owned_lines,
 					});
 					group_lines.clear();
@@ -302,10 +301,7 @@ fn lines_to_groups(lines: &[Line]) -> Vec<Group> {
 		system_group.lines.extend(group_lines.into_iter().cloned());
 	}
 
-	system_group.list = lines_to_list(
-		&system_group.lines,
-		system_group.name.to_ascii_lowercase(),
-	);
+	system_group.list = lines_to_list(&system_group.lines, &system_group.name);
 
 	for group in &other_groups {
 		system_group.list.append(&mut group.list.clone());
@@ -316,7 +312,7 @@ fn lines_to_groups(lines: &[Line]) -> Vec<Group> {
 	groups
 }
 
-fn text_to_groups(text: String) -> Vec<Group> {
+pub fn text_to_groups(text: String) -> Vec<Group> {
 	let lines = text_to_lines(&text);
 	let mut groups = lines_to_groups(&lines);
 
@@ -331,9 +327,8 @@ mod tests {
 	use insta::{assert_debug_snapshot, assert_snapshot};
 
 	use super::{
-		lines_to_groups, lines_to_list, lines_to_text_impl, list_to_lines,
-		parse_group_line, parse_valid_line, text_to_groups, text_to_lines,
-		Group, Host, Item, Line,
+		lines_to_text_impl, list_to_lines, parse_group_line, parse_valid_line,
+		text_to_groups, Host, Item, Line,
 	};
 
 	#[test]
@@ -417,7 +412,7 @@ mod tests {
 					enabled: false,
 				},
 			],
-			group: "system".to_string(),
+			group: "System".to_string(),
 		});
 
 		let new_lines = list_to_lines(system_group.list, system_group.lines);

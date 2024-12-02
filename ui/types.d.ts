@@ -1,19 +1,15 @@
-export interface Profile {
-  // id: number;
+export interface Group {
   name: string;
-  system?: boolean;
-  hostsInfo: HostsInfo;
-}
-
-export interface HostsInfo {
   text: string;
-  lines: Line[];
   list: Item[];
+  system: boolean;
+  textDraft: string;
 }
 
 export interface Item {
   ip: string;
   hosts: Host[];
+  group: string;
 }
 
 export interface Host {

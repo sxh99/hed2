@@ -1,16 +1,21 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { Item } from '~/types';
+import type { Group, Item } from '~/types';
 
-interface TextToListResult {
+interface RawGroup {
+  name: string;
+  text: string;
   list: Item[];
-  lines: unknown[];
 }
 
 export const ipc = {
-  getSysHostsContent(): Promise<string> {
-    return invoke('sys_hosts_content');
-  },
-  textToList(text: string): Promise<TextToListResult> {
-    return invoke('text_to_list', { text });
+  async getGroups(): Promise<Group[]> {
+    const rawGroups: RawGroup[] = await invoke('get_groups');
+    return rawGroups.map((group) => {
+      return {
+        ...group,
+        system: group.name === 'System',
+        textDraft: group.text,
+      };
+    });
   },
 };

@@ -1,3 +1,11 @@
+import { useGlobalState } from '~/context/global';
+
 export function ListEditor() {
-  return <div>list</div>;
+  const { selectedGroup } = useGlobalState();
+
+  if (!selectedGroup) {
+    return null;
+  }
+
+  return <div>{JSON.stringify(selectedGroup.list)}</div>;
 }
