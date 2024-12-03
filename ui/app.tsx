@@ -11,7 +11,7 @@ import { Groups } from '~/views/groups';
 
 export function App() {
   return (
-    <div className="h-screen w-screen flex flex-col select-none">
+    <div className="h-screen w-screen flex flex-col">
       <GlobalContextProvider>
         <ThemeProvider>
           <AppHeader />
@@ -20,7 +20,7 @@ export function App() {
               <Groups />
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={80}>
+            <ResizablePanel className="flex flex-col" defaultSize={80}>
               <Editor />
             </ResizablePanel>
           </ResizablePanelGroup>

@@ -7,5 +7,9 @@ export function TextEditor() {
     return null;
   }
 
-  return <div>{selectedGroup.textDraft}</div>;
+  return (
+    <div className="whitespace-pre overflow-auto flex-1">
+      {selectedGroup.text}
+    </div>
+  );
 }

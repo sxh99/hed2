@@ -382,7 +382,7 @@ mod tests {
 		let mut groups = text_to_groups(MOCK_HOSTS.to_string());
 		assert_debug_snapshot!("text_to_groups", groups);
 
-		let mut system_group = groups.remove(0);
+		let system_group = &mut groups[0];
 
 		for item in &mut system_group.list {
 			if item.ip == "127.0.0.1" {
@@ -415,7 +415,10 @@ mod tests {
 			group: "System".to_string(),
 		});
 
-		let new_lines = list_to_lines(system_group.list, system_group.lines);
+		let new_lines = list_to_lines(
+			system_group.list.clone(),
+			system_group.lines.clone(),
+		);
 		assert_debug_snapshot!("list_to_lines", new_lines);
 
 		let text = lines_to_text_impl(&new_lines, true);
