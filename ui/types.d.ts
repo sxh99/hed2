@@ -4,6 +4,7 @@ export interface Group {
   list: Item[];
   system: boolean;
   textDraft: string;
+  enabled: boolean;
 }
 
 export interface Item {

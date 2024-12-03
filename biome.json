@@ -16,7 +16,7 @@
         "useExhaustiveDependencies": {
           "level": "error",
           "options": {
-            "hooks": [{ "name": "useGlobalStateAction", "stableResult": true }]
+            "hooks": [{ "name": "useGlobalAction", "stableResult": true }]
           }
         }
       }
