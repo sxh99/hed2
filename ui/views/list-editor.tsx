@@ -1,9 +1,8 @@
-import { Check, Ban } from 'lucide-react';
-import { ScrollArea, Badge } from '~/components';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/card';
+import { Check, Ban, FilePenLine } from 'lucide-react';
+import { ScrollArea, Badge, Button } from '~/components';
 import { ToggleGroup, ToggleGroupItem } from '~/components/toggle-group';
 import { useGlobalState } from '~/context/global';
-import type { Host } from '~/types';
+import type { Host, Item } from '~/types';
 
 export function ListEditor() {
   const { selectedGroup } = useGlobalState();
@@ -13,36 +12,43 @@ export function ListEditor() {
   }
 
   return (
-    <ScrollArea className="flex-1 px-3 py-2">
+    <ScrollArea className="flex-1 px-3">
       {selectedGroup.list.map((item) => {
         return (
-          <Card className="mt-2" key={`${item.group}-${item.ip}`}>
-            <CardHeader>
-              <Ip
-                ip={item.ip}
-                group={
-                  selectedGroup.name !== item.group ? item.group : undefined
-                }
-              />
-            </CardHeader>
-            <CardContent>
-              <Hosts hosts={item.hosts} />
-            </CardContent>
-          </Card>
+          <div
+            className="border border-r-2 border-border/50 dark:border-border rounded-md mt-3 p-4 last:mb-3"
+            key={`${item.group}-${item.ip}`}
+          >
+            <Title item={item} selectedGroupName={selectedGroup.name} />
+            <Hosts hosts={item.hosts} />
+          </div>
         );
       })}
     </ScrollArea>
   );
 }
 
-function Ip(props: { ip: string; group?: string }) {
-  const { ip, group } = props;
+function Title(props: { item: Item; selectedGroupName: string }) {
+  const { item, selectedGroupName } = props;
 
   return (
-    <CardTitle className="flex items-center gap-1">
-      {group && <Badge className="text-[12px]">{group}</Badge>}
-      <span>{ip}</span>
-    </CardTitle>
+    <div className="flex justify-between pb-4 group">
+      <div className="flex items-center gap-2">
+        {selectedGroupName !== item.group && (
+          <Badge className="leading-3">{item.group}</Badge>
+        )}
+        <span className="select-all cursor-text text-lg font-semibold">
+          {item.ip}
+        </span>
+        <Button
+          className="group-hover:visible invisible"
+          variant="ghost"
+          size="icon"
+        >
+          <FilePenLine />
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -62,9 +68,9 @@ function Hosts(props: { hosts: Host[] }) {
     >
       {hosts.map((host) => {
         return (
-          <ToggleGroupItem key={host.content} value={host.content}>
-            <span className="select-text cursor-text">
-              {host.content.repeat(5)}
+          <ToggleGroupItem key={host.content} value={host.content} size="lg">
+            <span className="select-all cursor-text">
+              {host.content.repeat(3)}
             </span>
             {host.enabled ? (
               <Check className="text-green-400" />

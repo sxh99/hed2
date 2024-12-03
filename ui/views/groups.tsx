@@ -30,7 +30,7 @@ export function Groups() {
   );
 
   return (
-    <div className="h-full flex flex-col bg-neutral-50 dark:bg-background select-none">
+    <div className="h-full flex flex-col bg-neutral-50 dark:bg-background">
       <div className="h-14 px-3 flex items-center relative gap-1">
         <Search className="pointer-events-none absolute left-5 size-4 top-1/2 -translate-y-1/2 select-none opacity-50" />
         <Input

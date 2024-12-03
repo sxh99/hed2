@@ -15,7 +15,11 @@ export function App() {
       <GlobalContextProvider>
         <ThemeProvider>
           <AppHeader />
-          <ResizablePanelGroup direction="horizontal" autoSaveId="main">
+          <ResizablePanelGroup
+            className="select-none"
+            direction="horizontal"
+            autoSaveId="main"
+          >
             <ResizablePanel defaultSize={20} minSize={20} maxSize={30}>
               <Groups />
             </ResizablePanel>

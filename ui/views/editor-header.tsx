@@ -10,7 +10,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   const { editorKind, onEditorKindChange } = props;
 
   return (
-    <div className="w-full h-14 flex justify-between items-center px-4 py-1 border-b border-border/40 bg-background/95 dark:border-border select-none">
+    <div className="w-full h-14 flex justify-between items-center px-4 py-1 border-b border-border/50 bg-background/95 dark:border-border select-none">
       <Tabs value={editorKind} onValueChange={onEditorKindChange}>
         <TabsList>
           <TabsTrigger value={EditorKind.List}>LIST</TabsTrigger>
