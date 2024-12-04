@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-	parser::{text_to_groups, Item},
+	parser::{is_ip as is_ip_impl, text_to_groups, Item},
 	sys::get_sys_hosts_content,
 };
 
@@ -24,4 +24,9 @@ pub fn get_groups() -> Vec<GroupDTO> {
 			list: group.list,
 		})
 		.collect()
+}
+
+#[tauri::command]
+pub fn is_ip(text: String) -> bool {
+	is_ip_impl(&text)
 }

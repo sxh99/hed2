@@ -1,11 +1,18 @@
 import { Plus, Search } from 'lucide-react';
-import { useDeferredValue, useEffect, useRef, useState } from 'react';
+import { useDeferredValue, useEffect, useState } from 'react';
 import { Button, Input, ScrollArea, Switch } from '~/components';
 import { useGlobalState, useGlobalAction } from '~/context/global';
+import {
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuItem,
+} from '~/components/context-menu';
+import { AdvancedInput } from '~/components/advanced-input';
 
 export function Groups() {
-  const { selectedGroup, groups } = useGlobalState();
-  const { initGroups, setSelectedGroup, addGroup } = useGlobalAction();
+  const { selectedGroupName, groups } = useGlobalState();
+  const { initGroups, setSelectedGroupName, addGroup } = useGlobalAction();
   const [search, setSearch] = useState<string>('');
   const deferredSearch = useDeferredValue(search);
   const [showNewGroup, setShowNewGroup] = useState(false);
@@ -18,11 +25,21 @@ export function Groups() {
     setShowNewGroup(true);
   };
 
+  const handleNewGroupCancel = () => {
+    setShowNewGroup(false);
+  };
+
   const handleNewGroupOk = (name: string) => {
     if (name) {
       addGroup(name);
     }
     setShowNewGroup(false);
+  };
+
+  const handleNewGroupValidate = (name: string) => {
+    if (groups.some((group) => group.name === name)) {
+      return `\`${name}\` already exists`;
+    }
   };
 
   const displayGroups = groups.filter((group) =>
@@ -32,10 +49,10 @@ export function Groups() {
   return (
     <div className="h-full flex flex-col bg-neutral-50 dark:bg-background">
       <div className="h-14 px-3 flex items-center relative gap-1">
-        <Search className="pointer-events-none absolute left-5 size-4 top-1/2 -translate-y-1/2 select-none opacity-50" />
+        <Search className="pointer-events-auto absolute left-5 size-4 top-1/2 -translate-y-1/2 select-none opacity-50" />
         <Input
-          className="bg-white dark:bg-black pl-8"
-          placeholder="Search group"
+          className="bg-white dark:bg-black pl-8 placeholder:italic"
+          placeholder="Search group..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           name="searchGroup"
@@ -47,72 +64,52 @@ export function Groups() {
       <ScrollArea className="flex-1 px-3 pb-2">
         {displayGroups.map((group) => {
           return (
-            <Button
-              className="w-full min-h-12 h-auto justify-between mt-1 cursor-pointer"
-              asChild
-              variant={selectedGroup?.name === group.name ? 'default' : 'ghost'}
-              key={group.name}
-              onClick={() => setSelectedGroup(group)}
-            >
-              <div>
-                <div className="whitespace-normal break-all text-left truncate">
-                  {group.name}
-                </div>
-                {!group.system && (
-                  <Switch
-                    className="ml-4"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                    checked={group.enabled}
-                  />
-                )}
-              </div>
-            </Button>
+            <ContextMenu key={group.name}>
+              <ContextMenuTrigger asChild>
+                <Button
+                  className="w-full min-h-12 h-auto justify-between mt-1 cursor-pointer"
+                  asChild
+                  variant={
+                    selectedGroupName === group.name ? 'default' : 'ghost'
+                  }
+                  onClick={() => setSelectedGroupName(group.name)}
+                >
+                  <div>
+                    <div className="whitespace-normal break-all text-left truncate">
+                      {group.name}
+                    </div>
+                    {!group.system && (
+                      <Switch
+                        className="ml-4"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                        checked={group.enabled}
+                      />
+                    )}
+                  </div>
+                </Button>
+              </ContextMenuTrigger>
+              <ContextMenuContent>
+                <ContextMenuItem disabled={group.system}>Foo</ContextMenuItem>
+                <ContextMenuItem disabled={group.system}>Bar</ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
           );
         })}
-        {showNewGroup && <NewGroupInput onOk={handleNewGroupOk} />}
+        {showNewGroup && (
+          <div className="p-1 mt-1">
+            <AdvancedInput
+              placeholder="Group name"
+              name="groupName"
+              onOk={handleNewGroupOk}
+              onValidate={handleNewGroupValidate}
+              onCancel={handleNewGroupCancel}
+              maxLength={50}
+            />
+          </div>
+        )}
       </ScrollArea>
-    </div>
-  );
-}
-
-function NewGroupInput(props: { onOk: (v: string) => void }) {
-  const { onOk } = props;
-  const [name, setName] = useState('');
-  const divRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (divRef.current) {
-      divRef.current.scrollIntoView({ block: 'nearest' });
-    }
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
-
-  const handleOk = () => {
-    onOk(name.trim());
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleOk();
-    }
-  };
-
-  return (
-    <div className="p-1 mt-1" ref={divRef}>
-      <Input
-        className="bg-white dark:bg-black"
-        placeholder="Group name"
-        ref={inputRef}
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        onBlur={handleOk}
-        onKeyDown={handleKeyDown}
-      />
     </div>
   );
 }
