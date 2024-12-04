@@ -1,5 +1,11 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Ban, Check, EllipsisVertical, FilePenLine } from 'lucide-react';
+import {
+  Ban,
+  Check,
+  EllipsisVertical,
+  FilePenLine,
+  Trash2,
+} from 'lucide-react';
 import { useState } from 'react';
 import { currentGroupAtom, setItemIpAtom } from '~/atom';
 import { Badge, Button, ScrollArea } from '~/components';
@@ -19,6 +25,9 @@ import {
 import { ToggleGroup, ToggleGroupItem } from '~/components/toggle-group';
 import type { Host } from '~/types';
 import { ipc } from '~/utils/ipc';
+import { cn } from '~/utils/cn';
+
+const isMac = navigator.userAgent.includes('Mac');
 
 export function ListEditor() {
   const currentGroup = useAtomValue(currentGroupAtom);
@@ -32,7 +41,10 @@ export function ListEditor() {
       {currentGroup.list.map((item) => {
         return (
           <div
-            className="border border-r border-border/50 dark:border-border rounded-md mt-3 p-4 last:mb-3"
+            className={cn(
+              'border border-border/50 dark:border-border rounded-md mt-3 p-4 last:mb-3',
+              isMac && 'border-r-2',
+            )}
             key={`${item.group}-${item.ip}`}
           >
             <Title
@@ -123,7 +135,10 @@ function Title(props: {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem>Foo</DropdownMenuItem>
+          <DropdownMenuItem className="text-red-500 focus:text-red-500">
+            <Trash2 />
+            Delete
+          </DropdownMenuItem>
           <DropdownMenuItem>Bar</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

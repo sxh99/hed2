@@ -322,6 +322,12 @@ pub fn text_to_groups(text: String) -> Vec<Group> {
 	groups
 }
 
+pub fn list_to_text(list: Vec<Item>, old_text: String) -> String {
+	let lines = text_to_lines(&old_text);
+	let new_lines = list_to_lines(list, lines);
+	lines_to_text(&new_lines)
+}
+
 #[cfg(test)]
 mod tests {
 	use insta::{assert_debug_snapshot, assert_snapshot};

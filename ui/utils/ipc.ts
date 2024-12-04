@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { Group } from '~/types';
+import type { Group, Item } from '~/types';
 import { storage } from './storage';
 
 type GroupDTO = Pick<Group, 'name' | 'text' | 'list'>;
@@ -21,5 +21,9 @@ export const ipc = {
 
   isIp(text: string): Promise<boolean> {
     return invoke('is_ip', { text });
+  },
+
+  updateTextByList(list: Item[], text: string): Promise<string> {
+    return invoke('update_text_by_list', { list, text });
   },
 };

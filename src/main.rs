@@ -12,7 +12,8 @@ fn run() {
 	if let Err(err) = tauri::Builder::default()
 		.invoke_handler(tauri::generate_handler![
 			command::get_groups,
-			command::is_ip
+			command::is_ip,
+			command::update_text_by_list,
 		])
 		.run(tauri::generate_context!())
 	{

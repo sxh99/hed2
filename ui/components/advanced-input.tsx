@@ -35,6 +35,7 @@ export function AdvancedInput(props: AdvancedInputProps) {
   const [value, setValue] = useState(initValue || '');
   const [err, setErr] = useState('');
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -42,7 +43,7 @@ export function AdvancedInput(props: AdvancedInputProps) {
         inputRef.current.select();
       }
     }
-  }, [initSelectAll]);
+  }, []);
 
   const handleOk = async () => {
     if (err) {
