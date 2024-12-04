@@ -36,7 +36,7 @@ pub struct Group {
 	pub list: Vec<Item>,
 }
 
-fn is_ip(s: &str) -> bool {
+pub fn is_ip(s: &str) -> bool {
 	s.parse::<IpAddr>().is_ok()
 }
 
