@@ -1,15 +1,16 @@
-import { useGlobalState } from '~/context/global';
+import { useAtomValue } from 'jotai';
+import { currentGroupAtom } from '~/atom';
 
 export function TextEditor() {
-  const { selectedGroupName, groups } = useGlobalState();
+  const currentGroup = useAtomValue(currentGroupAtom);
 
-  const group = groups.find((group) => group.name === selectedGroupName);
-
-  if (!group) {
+  if (!currentGroup) {
     return null;
   }
 
   return (
-    <div className="whitespace-pre overflow-auto flex-1">{group.textDraft}</div>
+    <div className="whitespace-pre overflow-auto flex-1">
+      {currentGroup.textDraft}
+    </div>
   );
 }

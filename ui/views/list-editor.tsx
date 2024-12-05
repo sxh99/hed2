@@ -1,42 +1,45 @@
+import { useAtomValue, useSetAtom } from 'jotai';
+import { Ban, Check, EllipsisVertical, FilePenLine } from 'lucide-react';
 import { useState } from 'react';
-import { Check, Ban, FilePenLine, EllipsisVertical } from 'lucide-react';
-import { ScrollArea, Badge, Button } from '~/components';
-import { ToggleGroup, ToggleGroupItem } from '~/components/toggle-group';
-import { useGlobalState, useGlobalAction } from '~/context/global';
-import type { Host, Item } from '~/types';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from '~/components/dropdown-menu';
+import { currentGroupAtom, setItemIpAtom } from '~/atom';
+import { Badge, Button, ScrollArea } from '~/components';
+import { AdvancedInput } from '~/components/advanced-input';
 import {
   ContextMenu,
-  ContextMenuTrigger,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuTrigger,
 } from '~/components/context-menu';
-import { AdvancedInput } from '~/components/advanced-input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '~/components/dropdown-menu';
+import { ToggleGroup, ToggleGroupItem } from '~/components/toggle-group';
+import type { Host } from '~/types';
 import { ipc } from '~/utils/ipc';
 
 export function ListEditor() {
-  const { selectedGroupName, groups } = useGlobalState();
+  const currentGroup = useAtomValue(currentGroupAtom);
 
-  const group = groups.find((group) => group.name === selectedGroupName);
-
-  if (!group) {
+  if (!currentGroup) {
     return null;
   }
 
   return (
     <ScrollArea className="flex-1 px-3">
-      {group.list.map((item) => {
+      {currentGroup.list.map((item) => {
         return (
           <div
             className="border border-r border-border/50 dark:border-border rounded-md mt-3 p-4 last:mb-3"
             key={`${item.group}-${item.ip}`}
           >
-            <Title item={item} groupName={group.name} />
+            <Title
+              ip={item.ip}
+              group={item.group}
+              isCurrentSystemGroup={currentGroup.system}
+            />
             <Hosts hosts={item.hosts} />
           </div>
         );
@@ -46,13 +49,14 @@ export function ListEditor() {
 }
 
 function Title(props: {
-  item: Item;
-  groupName: string;
+  ip: string;
+  group: string;
+  isCurrentSystemGroup: boolean;
 }) {
-  const { item, groupName } = props;
+  const { ip, group, isCurrentSystemGroup } = props;
 
   const [showIpInput, setShowIpInput] = useState(false);
-  const { setItemIp } = useGlobalAction();
+  const setItemIp = useSetAtom(setItemIpAtom);
 
   const handleEditIp = () => {
     setShowIpInput(true);
@@ -63,14 +67,14 @@ function Title(props: {
   };
 
   const handleEditIpOk = (newIp: string) => {
-    if (newIp && newIp !== item.ip) {
-      setItemIp(groupName, item.ip, newIp);
+    if (newIp && newIp !== ip) {
+      setItemIp(ip, newIp);
     }
     setShowIpInput(false);
   };
 
   const handleIpValidate = async (newIp: string) => {
-    if (!newIp || newIp === item.ip) {
+    if (!newIp || newIp === ip) {
       return;
     }
     const isIp = await ipc.isIp(newIp);
@@ -79,18 +83,18 @@ function Title(props: {
     }
   };
 
+  const showBedge = isCurrentSystemGroup && group !== 'System';
+
   return (
     <div className="flex justify-between pb-4 group">
       <div className="flex items-center gap-2">
-        {groupName !== item.group && (
-          <Badge className="leading-3">{item.group}</Badge>
-        )}
+        {showBedge && <Badge className="leading-3">{group}</Badge>}
         {showIpInput ? (
           <AdvancedInput
             className="w-[320px]"
             name="newIp"
-            placeholder={item.ip}
-            initValue={item.ip}
+            placeholder={ip}
+            initValue={ip}
             onOk={handleEditIpOk}
             onCancel={handleEditIpCancel}
             onValidate={handleIpValidate}
@@ -98,7 +102,7 @@ function Title(props: {
           />
         ) : (
           <span className="select-text cursor-text text-lg font-semibold">
-            {item.ip}
+            {ip}
           </span>
         )}
         {!showIpInput && (
