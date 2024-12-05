@@ -780,6 +780,10 @@ body {
   height: 100vh;
 }
 
+.h-3 {
+  height: 0.75rem;
+}
+
 .min-h-12 {
   min-height: 3rem;
 }
@@ -993,16 +997,8 @@ body {
   border-left-width: 1px;
 }
 
-.border-r {
-  border-right-width: 1px;
-}
-
 .border-t {
   border-top-width: 1px;
-}
-
-.border-r-2 {
-  border-right-width: 2px;
 }
 
 .border-border\/50 {
@@ -1191,10 +1187,6 @@ body {
   text-align: left;
 }
 
-.text-center {
-  text-align: center;
-}
-
 .text-base {
   font-size: 1rem;
   line-height: 1.5rem;
@@ -1280,6 +1272,11 @@ body {
   color: hsl(var(--primary-foreground));
 }
 
+.text-red-500 {
+  --tw-text-opacity: 1;
+  color: rgb(239 68 68 / var(--tw-text-opacity, 1));
+}
+
 .text-secondary-foreground {
   color: hsl(var(--secondary-foreground));
 }
@@ -1287,11 +1284,6 @@ body {
 .text-slate-400 {
   --tw-text-opacity: 1;
   color: rgb(148 163 184 / var(--tw-text-opacity, 1));
-}
-
-.text-red-500 {
-  --tw-text-opacity: 1;
-  color: rgb(239 68 68 / var(--tw-text-opacity, 1));
 }
 
 .underline-offset-4 {

@@ -2,12 +2,18 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import {
   Ban,
   Check,
+  Copy,
   EllipsisVertical,
   FilePenLine,
   Trash2,
 } from 'lucide-react';
 import { useState } from 'react';
-import { currentGroupAtom, setItemIpAtom } from '~/atom';
+import {
+  currentGroupAtom,
+  deleteItemAtom,
+  setEnabledHostsAtom,
+  setItemIpAtom,
+} from '~/atom';
 import { Badge, Button, ScrollArea } from '~/components';
 import { AdvancedInput } from '~/components/advanced-input';
 import {
@@ -25,9 +31,6 @@ import {
 import { ToggleGroup, ToggleGroupItem } from '~/components/toggle-group';
 import type { Host } from '~/types';
 import { ipc } from '~/utils/ipc';
-import { cn } from '~/utils/cn';
-
-const isMac = navigator.userAgent.includes('Mac');
 
 export function ListEditor() {
   const currentGroup = useAtomValue(currentGroupAtom);
@@ -41,10 +44,7 @@ export function ListEditor() {
       {currentGroup.list.map((item) => {
         return (
           <div
-            className={cn(
-              'border border-border/50 dark:border-border rounded-md mt-3 p-4 last:mb-3',
-              isMac && 'border-r-2',
-            )}
+            className="border border-border/50 dark:border-border rounded-md mt-3 p-4 last:mb-3"
             key={`${item.group}-${item.ip}`}
           >
             <Title
@@ -52,7 +52,7 @@ export function ListEditor() {
               group={item.group}
               isCurrentSystemGroup={currentGroup.system}
             />
-            <Hosts hosts={item.hosts} />
+            <Hosts ip={item.ip} hosts={item.hosts} />
           </div>
         );
       })}
@@ -69,6 +69,7 @@ function Title(props: {
 
   const [showIpInput, setShowIpInput] = useState(false);
   const setItemIp = useSetAtom(setItemIpAtom);
+  const deleteItem = useSetAtom(deleteItemAtom);
 
   const handleEditIp = () => {
     setShowIpInput(true);
@@ -95,6 +96,10 @@ function Title(props: {
     }
   };
 
+  const handleItemDelete = () => {
+    deleteItem(ip);
+  };
+
   const showBedge = isCurrentSystemGroup && group !== 'System';
 
   return (
@@ -110,7 +115,6 @@ function Title(props: {
             onOk={handleEditIpOk}
             onCancel={handleEditIpCancel}
             onValidate={handleIpValidate}
-            initSelectAll
           />
         ) : (
           <span className="select-text cursor-text text-lg font-semibold">
@@ -135,23 +139,32 @@ function Title(props: {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem className="text-red-500 focus:text-red-500">
+          <DropdownMenuItem destructive onClick={handleItemDelete}>
             <Trash2 />
             Delete
           </DropdownMenuItem>
-          <DropdownMenuItem>Bar</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
   );
 }
 
-function Hosts(props: { hosts: Host[] }) {
-  const { hosts } = props;
+function Hosts(props: { ip: string; hosts: Host[] }) {
+  const { ip, hosts } = props;
+
+  const setEnabledHosts = useSetAtom(setEnabledHostsAtom);
 
   const enabledHosts = hosts
     .filter((host) => host.enabled)
     .map((host) => host.content);
+
+  const handleEnabledHostsChange = (v: string[]) => {
+    setEnabledHosts(ip, v);
+  };
+
+  const handleCopy = (v: string) => {
+    navigator.clipboard.writeText(v);
+  };
 
   return (
     <ToggleGroup
@@ -159,6 +172,7 @@ function Hosts(props: { hosts: Host[] }) {
       type="multiple"
       variant="outline"
       value={enabledHosts}
+      onValueChange={handleEnabledHostsChange}
     >
       {hosts.map((host) => {
         return (
@@ -170,10 +184,8 @@ function Hosts(props: { hosts: Host[] }) {
           >
             <ContextMenu>
               <ContextMenuTrigger asChild>
-                <div className="flex items-center gap-1 h-full w-full px-2.5">
-                  <span className="select-text cursor-text">
-                    {host.content.repeat(3)}
-                  </span>
+                <div className="flex items-center gap-2 h-full w-full px-2.5">
+                  <span>{host.content}</span>
                   {host.enabled ? (
                     <Check className="text-green-400" />
                   ) : (
@@ -182,8 +194,14 @@ function Hosts(props: { hosts: Host[] }) {
                 </div>
               </ContextMenuTrigger>
               <ContextMenuContent>
-                <ContextMenuItem>Foo</ContextMenuItem>
-                <ContextMenuItem>Bar</ContextMenuItem>
+                <ContextMenuItem onClick={() => handleCopy(host.content)}>
+                  <Copy />
+                  Copy
+                </ContextMenuItem>
+                <ContextMenuItem destructive>
+                  <Trash2 />
+                  Delete
+                </ContextMenuItem>
               </ContextMenuContent>
             </ContextMenu>
           </ToggleGroupItem>

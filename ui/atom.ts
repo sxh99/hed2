@@ -1,5 +1,6 @@
 import { atom } from 'jotai';
 import type { Group } from '~/types';
+import { findAllGroupsAndItems } from '~/utils/group';
 import { ipc } from '~/utils/ipc';
 
 export const groupsAtom = atom<Group[]>([]);
@@ -38,32 +39,62 @@ export const addGroupAtom = atom(null, (_, set, groupName: string) => {
 
 export const setItemIpAtom = atom(
   null,
-  (get, set, oldIp: string, newIp: string) => {
+  async (get, set, oldIp: string, newIp: string) => {
     const currentGroupName = get(currentGroupNameAtom);
     const groups = get(groupsAtom);
-    const item = findItem(groups, currentGroupName, oldIp);
-    if (item) {
-      item.ip = newIp;
-      if (currentGroupName === 'System') {
-        const anotherItem = findItem(groups, item.group, oldIp);
-        if (anotherItem) {
-          anotherItem.ip = newIp;
-        }
-      } else {
-        const anotherItem = findItem(groups, 'System', oldIp);
-        if (anotherItem) {
-          anotherItem.ip = newIp;
-        }
-      }
-      set(groupsAtom, structuredClone(groups));
-    }
+
+    const targets = findAllGroupsAndItems(groups, currentGroupName, oldIp);
+
+    await Promise.all(
+      targets.map(async ({ group, item }) => {
+        item.ip = newIp;
+        group.textDraft = await ipc.updateTextByList(
+          group.list,
+          group.textDraft,
+        );
+      }),
+    );
+
+    set(groupsAtom, structuredClone(groups));
   },
 );
 
-function findItem(groups: Group[], groupName: string, ip: string) {
-  const targetGroup = groups.find((group) => group.name === groupName);
-  if (!targetGroup) {
-    return;
-  }
-  return targetGroup.list.find((item) => item.ip === ip);
-}
+export const deleteItemAtom = atom(null, async (get, set, ip: string) => {
+  const currentGroupName = get(currentGroupNameAtom);
+  const groups = get(groupsAtom);
+
+  const targets = findAllGroupsAndItems(groups, currentGroupName, ip);
+
+  await Promise.all(
+    targets.map(async ({ group }) => {
+      group.list = group.list.filter((v) => v.ip !== ip);
+      group.textDraft = await ipc.updateTextByList(group.list, group.textDraft);
+    }),
+  );
+
+  set(groupsAtom, structuredClone(groups));
+});
+
+export const setEnabledHostsAtom = atom(
+  null,
+  async (get, set, ip: string, enabledHosts: string[]) => {
+    const currentGroupName = get(currentGroupNameAtom);
+    const groups = get(groupsAtom);
+
+    const targets = findAllGroupsAndItems(groups, currentGroupName, ip);
+
+    await Promise.all(
+      targets.map(async ({ group, item }) => {
+        for (const host of item.hosts) {
+          host.enabled = enabledHosts.includes(host.content);
+        }
+        group.textDraft = await ipc.updateTextByList(
+          group.list,
+          group.textDraft,
+        );
+      }),
+    );
+
+    set(groupsAtom, structuredClone(groups));
+  },
+);
