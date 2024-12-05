@@ -16,7 +16,10 @@
         "useExhaustiveDependencies": {
           "level": "error",
           "options": {
-            "hooks": [{ "name": "useGlobalAction", "stableResult": true }]
+            "hooks": [
+              { "name": "useSetAtom", "stableResult": true },
+              { "name": "useAtom", "stableResult": [1] }
+            ]
           }
         }
       }

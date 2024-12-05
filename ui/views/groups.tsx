@@ -1,50 +1,35 @@
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { Plus, Search } from 'lucide-react';
 import { useDeferredValue, useEffect, useState } from 'react';
+import {
+  addGroupAtom,
+  currentGroupNameAtom,
+  groupsAtom,
+  initGroupsAtom,
+} from '~/atom';
 import { Button, Input, ScrollArea, Switch } from '~/components';
-import { useGlobalState, useGlobalAction } from '~/context/global';
+import { AdvancedInput } from '~/components/advanced-input';
 import {
   ContextMenu,
-  ContextMenuTrigger,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuTrigger,
 } from '~/components/context-menu';
-import { AdvancedInput } from '~/components/advanced-input';
+import type { Group } from '~/types';
 
-export function Groups() {
-  const { selectedGroupName, groups } = useGlobalState();
-  const { initGroups, setSelectedGroupName, addGroup } = useGlobalAction();
+export function GroupPanel() {
   const [search, setSearch] = useState<string>('');
   const deferredSearch = useDeferredValue(search);
-  const [showNewGroup, setShowNewGroup] = useState(false);
+  const [showNewGroupInput, setShowNewGroupInput] = useState(false);
+  const initGroups = useSetAtom(initGroupsAtom);
 
   useEffect(() => {
     initGroups();
   }, []);
 
-  const handleNewGroup = () => {
-    setShowNewGroup(true);
+  const handleAddGroupClick = () => {
+    setShowNewGroupInput(true);
   };
-
-  const handleNewGroupCancel = () => {
-    setShowNewGroup(false);
-  };
-
-  const handleNewGroupOk = (name: string) => {
-    if (name) {
-      addGroup(name);
-    }
-    setShowNewGroup(false);
-  };
-
-  const handleNewGroupValidate = (name: string) => {
-    if (groups.some((group) => group.name === name)) {
-      return `\`${name}\` already exists`;
-    }
-  };
-
-  const displayGroups = groups.filter((group) =>
-    group.name.includes(deferredSearch),
-  );
 
   return (
     <div className="h-full flex flex-col bg-neutral-50 dark:bg-background">
@@ -57,59 +42,116 @@ export function Groups() {
           onChange={(e) => setSearch(e.target.value)}
           name="searchGroup"
         />
-        <Button variant="ghost" size="icon" onClick={handleNewGroup}>
+        <Button variant="ghost" size="icon" onClick={handleAddGroupClick}>
           <Plus />
         </Button>
       </div>
       <ScrollArea className="flex-1 px-3 pb-2">
-        {displayGroups.map((group) => {
-          return (
-            <ContextMenu key={group.name}>
-              <ContextMenuTrigger asChild>
-                <Button
-                  className="w-full min-h-12 h-auto justify-between mt-1 cursor-pointer"
-                  asChild
-                  variant={
-                    selectedGroupName === group.name ? 'default' : 'ghost'
-                  }
-                  onClick={() => setSelectedGroupName(group.name)}
-                >
-                  <div>
-                    <div className="whitespace-normal break-all text-left truncate">
-                      {group.name}
-                    </div>
-                    {!group.system && (
-                      <Switch
-                        className="ml-4"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                        checked={group.enabled}
-                      />
-                    )}
-                  </div>
-                </Button>
-              </ContextMenuTrigger>
-              <ContextMenuContent>
-                <ContextMenuItem disabled={group.system}>Foo</ContextMenuItem>
-                <ContextMenuItem disabled={group.system}>Bar</ContextMenuItem>
-              </ContextMenuContent>
-            </ContextMenu>
-          );
-        })}
-        {showNewGroup && (
-          <div className="p-1 mt-1">
-            <AdvancedInput
-              placeholder="Group name"
-              name="groupName"
-              onOk={handleNewGroupOk}
-              onValidate={handleNewGroupValidate}
-              onCancel={handleNewGroupCancel}
-              maxLength={50}
-            />
-          </div>
-        )}
+        <GroupList search={deferredSearch} />
+        <NewGroupInput
+          show={showNewGroupInput}
+          onShowChange={setShowNewGroupInput}
+        />
       </ScrollArea>
+    </div>
+  );
+}
+
+function GroupList(props: { search: string }) {
+  const { search } = props;
+
+  const groups = useAtomValue(groupsAtom);
+
+  return groups
+    .filter((group) => group.name.includes(search))
+    .map((group) => <GroupButton key={group.name} group={group} />);
+}
+
+function GroupButton(props: { group: Group }) {
+  const { group } = props;
+
+  const [currentGroupName, setCurrentGroupName] = useAtom(currentGroupNameAtom);
+
+  const handleClick = () => {
+    if (group.name === currentGroupName) {
+      return;
+    }
+    setCurrentGroupName(group.name);
+  };
+
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        <Button
+          className="w-full min-h-12 h-auto justify-between mt-1 cursor-pointer"
+          asChild
+          variant={currentGroupName === group.name ? 'default' : 'ghost'}
+          onClick={handleClick}
+        >
+          <div>
+            <div className="whitespace-normal break-all text-left truncate">
+              {group.name}
+            </div>
+            {!group.system && (
+              <Switch
+                className="ml-4"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                checked={group.enabled}
+              />
+            )}
+          </div>
+        </Button>
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuItem disabled={group.system}>Foo</ContextMenuItem>
+        <ContextMenuItem disabled={group.system}>Bar</ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
+  );
+}
+
+function NewGroupInput(props: {
+  show: boolean;
+  onShowChange: (v: boolean) => void;
+}) {
+  const { show, onShowChange } = props;
+
+  const groups = useAtomValue(groupsAtom);
+  const addGroup = useSetAtom(addGroupAtom);
+
+  const handleNewGroupCancel = () => {
+    onShowChange(false);
+  };
+
+  const handleNewGroupOk = (name: string) => {
+    if (name) {
+      addGroup(name);
+    }
+    onShowChange(false);
+  };
+
+  const handleNewGroupValidate = (name: string) => {
+    if (groups.some((group) => group.name === name)) {
+      return `\`${name}\` already exists`;
+    }
+  };
+
+  if (!show) {
+    return null;
+  }
+
+  return (
+    <div className="p-1 mt-1">
+      <AdvancedInput
+        placeholder="Group name"
+        name="groupName"
+        onOk={handleNewGroupOk}
+        onValidate={handleNewGroupValidate}
+        onCancel={handleNewGroupCancel}
+        maxLength={50}
+      />
     </div>
   );
 }
