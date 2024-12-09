@@ -7,7 +7,7 @@ import {
   FilePenLine,
   Trash2,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   currentGroupAtom,
   deleteItemAtom,
@@ -34,6 +34,7 @@ import { ipc } from '~/utils/ipc';
 
 export function ListEditor() {
   const currentGroup = useAtomValue(currentGroupAtom);
+  const setCurrentGroup = useSetAtom(currentGroupAtom);
 
   if (!currentGroup) {
     return null;
@@ -80,14 +81,14 @@ function Title(props: {
   };
 
   const handleEditIpOk = (newIp: string) => {
-    if (newIp && newIp !== ip) {
+    if (newIp !== ip) {
       setItemIp(ip, newIp);
     }
     setShowIpInput(false);
   };
 
   const handleIpValidate = async (newIp: string) => {
-    if (!newIp || newIp === ip) {
+    if (newIp === ip) {
       return;
     }
     const isIp = await ipc.isIp(newIp);
@@ -115,6 +116,7 @@ function Title(props: {
             onOk={handleEditIpOk}
             onCancel={handleEditIpCancel}
             onValidate={handleIpValidate}
+            selectAllWhenMounted
           />
         ) : (
           <span className="select-text cursor-text text-lg font-semibold">

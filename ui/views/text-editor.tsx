@@ -10,7 +10,7 @@ export function TextEditor() {
 
   return (
     <div className="whitespace-pre overflow-auto flex-1">
-      {currentGroup.textDraft}
+      {currentGroup.text}
     </div>
   );
 }
