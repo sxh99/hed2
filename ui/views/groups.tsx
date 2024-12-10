@@ -1,14 +1,14 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { Plus, Search, FilePenLine, Trash2 } from 'lucide-react';
-import { useDeferredValue, useEffect, useState } from 'react';
+import { useDeferredValue, useState } from 'react';
 import {
   addGroupAtom,
   currentGroupNameAtom,
   groupsAtom,
-  initGroupsAtom,
   renameGroupAtom,
   toggleGroupEnableAtom,
   deleteGroupAtom,
+  groupNamesAtom,
 } from '~/atom';
 import { Button, Input, ScrollArea, Switch } from '~/components';
 import { AdvancedInput } from '~/components/advanced-input';
@@ -19,17 +19,12 @@ import {
   ContextMenuTrigger,
 } from '~/components/context-menu';
 import type { Group } from '~/types';
-import { isGroupExists } from '~/utils/group';
+import { checkGroupExists } from '~/utils/group';
 
 export function GroupPanel() {
   const [search, setSearch] = useState<string>('');
   const deferredSearch = useDeferredValue(search);
   const [showNewGroupInput, setShowNewGroupInput] = useState(false);
-  const initGroups = useSetAtom(initGroupsAtom);
-
-  useEffect(() => {
-    initGroups();
-  }, []);
 
   const handleAddGroupClick = () => {
     setShowNewGroupInput(true);
@@ -75,7 +70,7 @@ function GroupButton(props: { group: Group }) {
   const { group } = props;
 
   const [currentGroupName, setCurrentGroupName] = useAtom(currentGroupNameAtom);
-  const groups = useAtomValue(groupsAtom);
+  const groupNames = useAtomValue(groupNamesAtom);
   const renameGroup = useSetAtom(renameGroupAtom);
   const [renameInputVisible, setRenameInputVisible] = useState(false);
   const toggleGroupEnable = useSetAtom(toggleGroupEnableAtom);
@@ -107,7 +102,7 @@ function GroupButton(props: { group: Group }) {
     if (newName === group.name) {
       return;
     }
-    return isGroupExists(groups, newName);
+    return checkGroupExists(groupNames, newName);
   };
 
   const handleToggleGroupEnable = () => {
@@ -185,7 +180,7 @@ function NewGroupInput(props: {
 }) {
   const { show, onShowChange } = props;
 
-  const groups = useAtomValue(groupsAtom);
+  const groupNames = useAtomValue(groupNamesAtom);
   const addGroup = useSetAtom(addGroupAtom);
 
   const handleNewGroupCancel = () => {
@@ -198,7 +193,7 @@ function NewGroupInput(props: {
   };
 
   const handleNewGroupValidate = (name: string) => {
-    return isGroupExists(groups, name);
+    return checkGroupExists(groupNames, name);
   };
 
   if (!show) {

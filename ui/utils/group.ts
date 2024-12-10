@@ -1,7 +1,7 @@
 import type { Group, Item } from '~/types';
 
-export function isGroupExists(groups: Group[], name: string) {
-  if (groups.some((group) => group.name === name)) {
+export function checkGroupExists(groupNames: string[], name: string) {
+  if (groupNames.includes(name)) {
     return `\`${name}\` already exists`;
   }
 }

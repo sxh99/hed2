@@ -46,8 +46,19 @@ export const storage = {
   },
 
   deleteDisabledGroup(groupName: string) {
-    let storageGroups = getStorageGroups();
-    storageGroups = storageGroups.filter((g) => g.name !== groupName);
-    setStorageGroups(storageGroups);
+    const storageGroups = getStorageGroups();
+    setStorageGroups(storageGroups.filter((g) => g.name !== groupName));
+  },
+
+  modifyDisabledGroup(newGroup: Group) {
+    const storageGroups = getStorageGroups();
+    setStorageGroups(
+      storageGroups.map((group) => {
+        if (group.name === newGroup.name) {
+          return newGroup;
+        }
+        return group;
+      }),
+    );
   },
 };

@@ -1088,6 +1088,10 @@ body {
   fill: #ef4444;
 }
 
+.fill-primary {
+  fill: hsl(var(--primary));
+}
+
 .p-1 {
   padding: 0.25rem;
 }
