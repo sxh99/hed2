@@ -2,7 +2,7 @@ import { useSetAtom } from 'jotai';
 import { RefreshCcw } from 'lucide-react';
 import { useEffect } from 'react';
 import { initGroupsAtom } from '~/atom';
-import { Button } from '~/components';
+import { Button, CommonHeader } from '~/components';
 import { Icons } from '~/components/icons';
 import {
   Tooltip,
@@ -14,7 +14,7 @@ import { ThemeToggle } from './theme-toggle';
 
 export function AppHeader() {
   return (
-    <header className="w-full h-14 flex justify-between items-center px-4 py-1 border-b border-border/50 dark:border-border">
+    <CommonHeader>
       <div>
         <span className="font-bold text-lg">Hed2</span>
         <span className="font-light text-xs ml-2">0.1.0</span>
@@ -24,7 +24,7 @@ export function AppHeader() {
         <ViewGitHubButton />
         <ThemeToggle />
       </div>
-    </header>
+    </CommonHeader>
   );
 }
 

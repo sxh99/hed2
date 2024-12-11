@@ -14,8 +14,7 @@ import {
   removeSameGroupItemAtom,
   setSameGroupItemAtom,
 } from '~/atom';
-import { Badge, Button, ScrollArea } from '~/components';
-import { AdvancedInput } from '~/components/advanced-input';
+import { Badge, Button, ScrollArea, AdvancedInput } from '~/components';
 import {
   ContextMenu,
   ContextMenuContent,

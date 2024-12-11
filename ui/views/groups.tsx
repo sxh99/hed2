@@ -10,8 +10,7 @@ import {
   setSystemGroupWhenToggleEnableAtom,
   setSystemGroupWhenRemoveAtom,
 } from '~/atom';
-import { Button, Input, ScrollArea, Switch } from '~/components';
-import { AdvancedInput } from '~/components/advanced-input';
+import { Button, Input, ScrollArea, Switch, AdvancedInput } from '~/components';
 import {
   ContextMenu,
   ContextMenuContent,
