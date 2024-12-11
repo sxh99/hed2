@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
+import { SYSTEM_GROUP_NAME } from '~/consts';
 import type { Group, Item } from '~/types';
 import { storage } from './storage';
-import { SYSTEM_GROUP_NAME } from '~/consts';
 
 type RawGroup = Pick<Group, 'name' | 'text' | 'list'>;
 

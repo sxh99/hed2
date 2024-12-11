@@ -1080,16 +1080,12 @@ body {
   fill: currentColor;
 }
 
-.fill-neutral-300 {
-  fill: #d4d4d4;
+.fill-primary {
+  fill: hsl(var(--primary));
 }
 
 .fill-red-500 {
   fill: #ef4444;
-}
-
-.fill-primary {
-  fill: hsl(var(--primary));
 }
 
 .p-1 {
@@ -1775,10 +1771,6 @@ body {
 .dark\:bg-slate-100:is(.dark *) {
   --tw-bg-opacity: 1;
   background-color: rgb(241 245 249 / var(--tw-bg-opacity, 1));
-}
-
-.dark\:fill-slate-800:is(.dark *) {
-  fill: #1e293b;
 }
 
 .dark\:data-\[state\=unchecked\]\:bg-slate-400[data-state="unchecked"]:is(.dark *) {

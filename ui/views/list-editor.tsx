@@ -1,4 +1,4 @@
-import { useAtomValue, useSetAtom, type PrimitiveAtom, useAtom } from 'jotai';
+import { type PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   Ban,
   Check,
@@ -10,10 +10,8 @@ import {
 import { useState } from 'react';
 import {
   currentGroupAtom,
-  deleteItemAtom,
-  setEnabledHostsAtom,
-  setItemIpAtom,
   itemAtomsAtom,
+  removeSameGroupItemAtom,
   setSameGroupItemAtom,
 } from '~/atom';
 import { Badge, Button, ScrollArea } from '~/components';
@@ -31,9 +29,9 @@ import {
   DropdownMenuTrigger,
 } from '~/components/dropdown-menu';
 import { ToggleGroup, ToggleGroupItem } from '~/components/toggle-group';
-import type { Host, Item } from '~/types';
+import { NOT_EXISTS_GROUP_NAME, SYSTEM_GROUP_NAME } from '~/consts';
+import type { Item } from '~/types';
 import { ipc } from '~/utils/ipc';
-import { NOT_EXISTS_GROUP_NAME } from '~/consts';
 
 export function ListEditor() {
   const currentGroup = useAtomValue(currentGroupAtom);
@@ -50,18 +48,30 @@ export function ListEditor() {
 }
 
 function List() {
-  const itemAtoms = useAtomValue(itemAtomsAtom);
+  const [itemAtoms, setItems] = useAtom(itemAtomsAtom);
+
+  const handleItemRemove = (itemAtom: PrimitiveAtom<Item>) => {
+    setItems({ type: 'remove', atom: itemAtom });
+  };
 
   return itemAtoms.map((itemAtom) => (
-    <ListItem key={`${itemAtom}`} itemAtom={itemAtom} />
+    <ListItem
+      key={`${itemAtom}`}
+      itemAtom={itemAtom}
+      onItemRemove={handleItemRemove}
+    />
   ));
 }
 
-function ListItem(props: { itemAtom: PrimitiveAtom<Item> }) {
-  const { itemAtom } = props;
+function ListItem(props: {
+  itemAtom: PrimitiveAtom<Item>;
+  onItemRemove: (itamAtom: PrimitiveAtom<Item>) => void;
+}) {
+  const { itemAtom, onItemRemove } = props;
 
   const [item, setItem] = useAtom(itemAtom);
   const setSameGroupItem = useSetAtom(setSameGroupItemAtom);
+  const removeSameGroupItem = useSetAtom(removeSameGroupItemAtom);
 
   const handleItemChange = (v: Partial<Item>) => {
     const newItem = { ...item, ...v };
@@ -69,10 +79,20 @@ function ListItem(props: { itemAtom: PrimitiveAtom<Item> }) {
     setSameGroupItem(item.ip, newItem);
   };
 
+  const handleItemRemove = () => {
+    onItemRemove(itemAtom);
+    removeSameGroupItem(item);
+  };
+
   return (
     <div className="border border-border/50 dark:border-border rounded-md mt-3 p-4 last:mb-3">
-      <Title ip={item.ip} group={item.group} onItemChagne={handleItemChange} />
-      <Hosts ip={item.ip} hosts={item.hosts} />
+      <Title
+        ip={item.ip}
+        group={item.group}
+        onItemChagne={handleItemChange}
+        onItemRemove={handleItemRemove}
+      />
+      <Hosts hosts={item.hosts} onItemChagne={handleItemChange} />
     </div>
   );
 }
@@ -80,9 +100,10 @@ function ListItem(props: { itemAtom: PrimitiveAtom<Item> }) {
 function Title(
   props: Pick<Item, 'ip' | 'group'> & {
     onItemChagne: (v: Partial<Item>) => void;
+    onItemRemove: () => void;
   },
 ) {
-  const { ip, group, onItemChagne } = props;
+  const { ip, group, onItemChagne, onItemRemove } = props;
 
   const currentGroup = useAtomValue(currentGroupAtom);
   const [showIpInput, setShowIpInput] = useState(false);
@@ -112,11 +133,7 @@ function Title(
     }
   };
 
-  const handleItemDelete = () => {
-    // deleteItem(ip);
-  };
-
-  const showBedge = currentGroup.system && group !== 'System';
+  const showBedge = currentGroup.system && group !== SYSTEM_GROUP_NAME;
 
   return (
     <div className="flex justify-between pb-4 group">
@@ -156,9 +173,9 @@ function Title(
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem destructive onClick={handleItemDelete}>
+          <DropdownMenuItem destructive onClick={onItemRemove}>
             <Trash2 />
-            Delete
+            Remove
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -166,21 +183,31 @@ function Title(
   );
 }
 
-function Hosts(props: { ip: string; hosts: Host[] }) {
-  const { ip, hosts } = props;
-
-  const setEnabledHosts = useSetAtom(setEnabledHostsAtom);
+function Hosts(
+  props: Pick<Item, 'hosts'> & {
+    onItemChagne: (v: Partial<Item>) => void;
+  },
+) {
+  const { hosts, onItemChagne } = props;
 
   const enabledHosts = hosts
     .filter((host) => host.enabled)
     .map((host) => host.content);
 
-  const handleEnabledHostsChange = (v: string[]) => {
-    setEnabledHosts(ip, v);
+  const handleEnabledHostsChange = (enabledContents: string[]) => {
+    onItemChagne({
+      hosts: hosts.map((host) => {
+        return { ...host, enabled: enabledContents.includes(host.content) };
+      }),
+    });
   };
 
   const handleCopy = (v: string) => {
     navigator.clipboard.writeText(v);
+  };
+
+  const handleHostRemove = (v: string) => {
+    onItemChagne({ hosts: hosts.filter((host) => host.content !== v) });
   };
 
   return (
@@ -211,13 +238,24 @@ function Hosts(props: { ip: string; hosts: Host[] }) {
                 </div>
               </ContextMenuTrigger>
               <ContextMenuContent>
-                <ContextMenuItem onClick={() => handleCopy(host.content)}>
+                <ContextMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopy(host.content);
+                  }}
+                >
                   <Copy />
                   Copy
                 </ContextMenuItem>
-                <ContextMenuItem destructive>
+                <ContextMenuItem
+                  destructive
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleHostRemove(host.content);
+                  }}
+                >
                   <Trash2 />
-                  Delete
+                  Remove
                 </ContextMenuItem>
               </ContextMenuContent>
             </ContextMenu>

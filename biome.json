@@ -21,6 +21,9 @@
               { "name": "useAtom", "stableResult": [1] }
             ]
           }
+        },
+        "noUnusedImports": {
+          "level": "error"
         }
       }
     }

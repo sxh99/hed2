@@ -1,17 +1,24 @@
 import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { splitAtom } from 'jotai/utils';
+import { NOT_EXISTS_GROUP, SYSTEM_GROUP_NAME } from '~/consts';
 import type { Group, Item } from '~/types';
-import { findTargetGroupsAndItems } from '~/utils/group';
 import { ipc } from '~/utils/ipc';
 import { storage } from '~/utils/storage';
-import { SYSTEM_GROUP_NAME, NOT_EXISTS_GROUP } from '~/consts';
 
 export const groupsAtom = atom<Group[]>([]);
 
 export const currentGroupNameAtom = atom('');
 
 export const systemHostsTextDraftAtom = atom('');
+
+const updateTextByListAtom = atom(null, async (get, set, list: Item[]) => {
+  const newText = await ipc.updateTextByList(
+    list,
+    get(systemHostsTextDraftAtom),
+  );
+  set(systemHostsTextDraftAtom, newText);
+});
 
 export const currentGroupAtom = atom(
   (get) => {
@@ -24,16 +31,20 @@ export const currentGroupAtom = atom(
   },
   (get, set, newGroup: Group) => {
     const groups = get(groupsAtom);
-    set(
-      groupsAtom,
-      groups.map((group) => {
-        if (group.name === newGroup.name) {
-          return { ...newGroup };
-        }
-        return group;
-      }),
-    );
-    if (!newGroup.enabled) {
+    const newGroups = groups.map((group) => {
+      if (group.name === newGroup.name) {
+        return { ...newGroup };
+      }
+      return group;
+    });
+    set(groupsAtom, newGroups);
+    if (newGroup.enabled) {
+      const systemGroup = newGroups.find((group) => group.system);
+      if (!systemGroup) {
+        return;
+      }
+      set(updateTextByListAtom, systemGroup.list);
+    } else {
       storage.modifyDisabledGroup(newGroup);
     }
   },
@@ -47,19 +58,6 @@ export const itemAtomsAtom = splitAtom(
   currentGroupListAtom,
   (item) => `${item.group}-${item.ip}`,
 );
-
-export const groupNamesAtom = atom((get) => {
-  const groups = get(groupsAtom);
-  return groups.map((g) => g.name);
-});
-
-const updateTextByListAtom = atom(null, async (get, set, list: Item[]) => {
-  const newText = await ipc.updateTextByList(
-    list,
-    get(systemHostsTextDraftAtom),
-  );
-  set(systemHostsTextDraftAtom, newText);
-});
 
 export const initGroupsAtom = atom(null, async (_, set) => {
   const groups = await ipc.getGroups();
@@ -110,6 +108,7 @@ export const renameGroupAtom = atom(
         }
         return item;
       });
+      set(updateTextByListAtom, systemGroup.list);
     } else {
       storage.renameDisabledGroup(oldName, newName);
     }
@@ -128,7 +127,7 @@ export const renameGroupAtom = atom(
 
 export const toggleGroupEnableAtom = atom(
   null,
-  async (get, set, groupName: string) => {
+  (get, set, groupName: string) => {
     const groups = get(groupsAtom);
 
     const targetGroup = groups.find((g) => g.name === groupName);
@@ -146,6 +145,7 @@ export const toggleGroupEnableAtom = atom(
     if (targetGroup.enabled) {
       systemGroup.list = [...systemGroup.list, ...targetGroup.list];
       storage.deleteDisabledGroup(targetGroup.name);
+      set(updateTextByListAtom, systemGroup.list);
     } else {
       systemGroup.list = systemGroup.list.filter(
         (item) => item.group !== targetGroup.name,
@@ -180,10 +180,10 @@ export const deleteGroupAtom = atom(
       if (!systemGroup) {
         return;
       }
-
       systemGroup.list = systemGroup.list.filter(
         (item) => item.group !== targetGroup.name,
       );
+      set(updateTextByListAtom, systemGroup.list);
     } else {
       storage.deleteDisabledGroup(targetGroup.name);
     }
@@ -244,58 +244,36 @@ export const setSameGroupItemAtom = atom(
   },
 );
 
-export const setItemIpAtom = atom(
+export const removeSameGroupItemAtom = atom(
   null,
-  async (get, set, oldIp: string, newIp: string) => {
-    const currentGroupName = get(currentGroupNameAtom);
+  (get, set, removedItem: Item) => {
+    const currentGroup = get(currentGroupAtom);
     const groups = get(groupsAtom);
 
-    const targets = findTargetGroupsAndItems(groups, currentGroupName, oldIp);
-
-    await Promise.all(
-      targets.map(async ({ group, item }) => {
-        item.ip = newIp;
-        group.text = await ipc.updateTextByList(group.list, group.text);
-      }),
-    );
-
-    set(groupsAtom, structuredClone(groups));
-  },
-);
-
-export const deleteItemAtom = atom(null, async (get, set, ip: string) => {
-  const currentGroupName = get(currentGroupNameAtom);
-  const groups = get(groupsAtom);
-
-  const targets = findTargetGroupsAndItems(groups, currentGroupName, ip);
-
-  await Promise.all(
-    targets.map(async ({ group }) => {
-      group.list = group.list.filter((v) => v.ip !== ip);
-      group.text = await ipc.updateTextByList(group.list, group.text);
-    }),
-  );
-
-  set(groupsAtom, structuredClone(groups));
-});
-
-export const setEnabledHostsAtom = atom(
-  null,
-  async (get, set, ip: string, enabledHosts: string[]) => {
-    const currentGroupName = get(currentGroupNameAtom);
-    const groups = get(groupsAtom);
-
-    const targets = findTargetGroupsAndItems(groups, currentGroupName, ip);
-
-    await Promise.all(
-      targets.map(async ({ group, item }) => {
-        for (const host of item.hosts) {
-          host.enabled = enabledHosts.includes(host.content);
-        }
-        group.text = await ipc.updateTextByList(group.list, group.text);
-      }),
-    );
-
-    set(groupsAtom, structuredClone(groups));
+    if (currentGroup.system && removedItem.group !== currentGroup.name) {
+      set(
+        groupsAtom,
+        groups.map((group) => {
+          return group.name === removedItem.group
+            ? {
+                ...group,
+                list: group.list.filter((item) => item.ip !== removedItem.ip),
+              }
+            : group;
+        }),
+      );
+    } else if (!currentGroup.system && currentGroup.enabled) {
+      set(
+        groupsAtom,
+        groups.map((group) => {
+          return group.system
+            ? {
+                ...group,
+                list: group.list.filter((item) => item.ip !== removedItem.ip),
+              }
+            : group;
+        }),
+      );
+    }
   },
 );

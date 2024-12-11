@@ -1,16 +1,16 @@
-import { useEffect } from 'react';
 import { useSetAtom } from 'jotai';
 import { RefreshCcw } from 'lucide-react';
+import { useEffect } from 'react';
+import { initGroupsAtom } from '~/atom';
 import { Button } from '~/components';
 import { Icons } from '~/components/icons';
-import { ThemeToggle } from './theme-toggle';
-import { initGroupsAtom } from '~/atom';
 import {
   Tooltip,
-  TooltipTrigger,
-  TooltipContent,
   TooltipArrow,
+  TooltipContent,
+  TooltipTrigger,
 } from '~/components/tooltip';
+import { ThemeToggle } from './theme-toggle';
 
 export function AppHeader() {
   return (

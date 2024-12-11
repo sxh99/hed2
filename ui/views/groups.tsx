@@ -1,14 +1,13 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { Plus, Search, FilePenLine, Trash2 } from 'lucide-react';
+import { FilePenLine, Plus, Search, Trash2 } from 'lucide-react';
 import { useDeferredValue, useState } from 'react';
 import {
   addGroupAtom,
   currentGroupNameAtom,
+  deleteGroupAtom,
   groupsAtom,
   renameGroupAtom,
   toggleGroupEnableAtom,
-  deleteGroupAtom,
-  groupNamesAtom,
 } from '~/atom';
 import { Button, Input, ScrollArea, Switch } from '~/components';
 import { AdvancedInput } from '~/components/advanced-input';
@@ -70,7 +69,7 @@ function GroupButton(props: { group: Group }) {
   const { group } = props;
 
   const [currentGroupName, setCurrentGroupName] = useAtom(currentGroupNameAtom);
-  const groupNames = useAtomValue(groupNamesAtom);
+  const groups = useAtomValue(groupsAtom);
   const renameGroup = useSetAtom(renameGroupAtom);
   const [renameInputVisible, setRenameInputVisible] = useState(false);
   const toggleGroupEnable = useSetAtom(toggleGroupEnableAtom);
@@ -102,7 +101,7 @@ function GroupButton(props: { group: Group }) {
     if (newName === group.name) {
       return;
     }
-    return checkGroupExists(groupNames, newName);
+    return checkGroupExists(groups, newName);
   };
 
   const handleToggleGroupEnable = () => {
@@ -180,7 +179,7 @@ function NewGroupInput(props: {
 }) {
   const { show, onShowChange } = props;
 
-  const groupNames = useAtomValue(groupNamesAtom);
+  const groups = useAtomValue(groupsAtom);
   const addGroup = useSetAtom(addGroupAtom);
 
   const handleNewGroupCancel = () => {
@@ -193,7 +192,7 @@ function NewGroupInput(props: {
   };
 
   const handleNewGroupValidate = (name: string) => {
-    return checkGroupExists(groupNames, name);
+    return checkGroupExists(groups, name);
   };
 
   if (!show) {
