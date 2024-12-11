@@ -641,6 +641,14 @@ body {
   pointer-events: auto;
 }
 
+.\!visible {
+  visibility: visible !important;
+}
+
+.visible {
+  visibility: visible;
+}
+
 .invisible {
   visibility: hidden;
 }
@@ -830,6 +838,14 @@ body {
 
 .w-screen {
   width: 100vw;
+}
+
+.w-10 {
+  width: 2.5rem;
+}
+
+.w-\[300px\] {
+  width: 300px;
 }
 
 .min-w-10 {

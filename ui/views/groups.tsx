@@ -19,15 +19,12 @@ import {
 } from '~/components/context-menu';
 import type { Group } from '~/types';
 import { checkGroupExists } from '~/utils/group';
+import { useBoolean } from '~/hooks';
 
 export function GroupPanel() {
   const [search, setSearch] = useState<string>('');
   const deferredSearch = useDeferredValue(search);
-  const [showNewGroupInput, setShowNewGroupInput] = useState(false);
-
-  const handleAddGroupClick = () => {
-    setShowNewGroupInput(true);
-  };
+  const newGroupInputVisible = useBoolean();
 
   return (
     <div className="h-full flex flex-col bg-neutral-50 dark:bg-background">
@@ -40,15 +37,15 @@ export function GroupPanel() {
           onChange={(e) => setSearch(e.target.value)}
           name="searchGroup"
         />
-        <Button variant="ghost" size="icon" onClick={handleAddGroupClick}>
+        <Button variant="outline" size="icon" onClick={newGroupInputVisible.on}>
           <Plus />
         </Button>
       </div>
       <ScrollArea className="flex-1 px-3 pb-2">
         <GroupList search={deferredSearch} />
         <NewGroupInput
-          show={showNewGroupInput}
-          onShowChange={setShowNewGroupInput}
+          visible={newGroupInputVisible.value}
+          onUnmounted={newGroupInputVisible.off}
         />
       </ScrollArea>
     </div>
@@ -71,7 +68,7 @@ function GroupButton(props: { group: Group }) {
   const [currentGroupName, setCurrentGroupName] = useAtom(currentGroupNameAtom);
   const groups = useAtomValue(groupsAtom);
   const renameGroup = useSetAtom(renameGroupAtom);
-  const [renameInputVisible, setRenameInputVisible] = useState(false);
+  const renameInputVisible = useBoolean();
   const toggleGroupEnable = useSetAtom(toggleGroupEnableAtom);
   const deleteGroup = useSetAtom(deleteGroupAtom);
 
@@ -82,19 +79,11 @@ function GroupButton(props: { group: Group }) {
     setCurrentGroupName(group.name);
   };
 
-  const handleGroupRename = () => {
-    setRenameInputVisible(true);
-  };
-
   const handleGroupRenameOk = (newName: string) => {
     if (newName !== group.name) {
       renameGroup(group.name, newName);
     }
-    setRenameInputVisible(false);
-  };
-
-  const handleGroupRenameCancel = () => {
-    setRenameInputVisible(false);
+    renameInputVisible.off();
   };
 
   const handleGroupRenameValidate = (newName: string) => {
@@ -112,7 +101,7 @@ function GroupButton(props: { group: Group }) {
     deleteGroup(group.name);
   };
 
-  if (renameInputVisible) {
+  if (renameInputVisible.value) {
     return (
       <div className="px-0.5 pt-2.5 pb-1">
         <AdvancedInput
@@ -120,7 +109,7 @@ function GroupButton(props: { group: Group }) {
           placeholder={group.name}
           initValue={group.name}
           onOk={handleGroupRenameOk}
-          onCancel={handleGroupRenameCancel}
+          onCancel={renameInputVisible.off}
           onValidate={handleGroupRenameValidate}
           maxLength={50}
           selectAllWhenMounted
@@ -156,7 +145,10 @@ function GroupButton(props: { group: Group }) {
         </Button>
       </ContextMenuTrigger>
       <ContextMenuContent>
-        <ContextMenuItem disabled={group.system} onClick={handleGroupRename}>
+        <ContextMenuItem
+          disabled={group.system}
+          onClick={renameInputVisible.on}
+        >
           <FilePenLine />
           Rename
         </ContextMenuItem>
@@ -174,28 +166,24 @@ function GroupButton(props: { group: Group }) {
 }
 
 function NewGroupInput(props: {
-  show: boolean;
-  onShowChange: (v: boolean) => void;
+  visible: boolean;
+  onUnmounted: () => void;
 }) {
-  const { show, onShowChange } = props;
+  const { visible, onUnmounted } = props;
 
   const groups = useAtomValue(groupsAtom);
   const addGroup = useSetAtom(addGroupAtom);
 
-  const handleNewGroupCancel = () => {
-    onShowChange(false);
-  };
-
   const handleNewGroupOk = (name: string) => {
     addGroup(name);
-    onShowChange(false);
+    onUnmounted();
   };
 
   const handleNewGroupValidate = (name: string) => {
     return checkGroupExists(groups, name);
   };
 
-  if (!show) {
+  if (!visible) {
     return null;
   }
 
@@ -206,7 +194,7 @@ function NewGroupInput(props: {
         name="groupName"
         onOk={handleNewGroupOk}
         onValidate={handleNewGroupValidate}
-        onCancel={handleNewGroupCancel}
+        onCancel={onUnmounted}
         maxLength={50}
       />
     </div>
