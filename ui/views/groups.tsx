@@ -1,13 +1,14 @@
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom, type PrimitiveAtom } from 'jotai';
 import { FilePenLine, Plus, Search, Trash2 } from 'lucide-react';
 import { useDeferredValue, useState } from 'react';
 import {
   addGroupAtom,
   currentGroupNameAtom,
-  deleteGroupAtom,
   groupsAtom,
-  renameGroupAtom,
-  toggleGroupEnableAtom,
+  groupAtomsAtom,
+  setSystemGroupWhenRenameAtom,
+  setSystemGroupWhenToggleEnableAtom,
+  setSystemGroupWhenRemoveAtom,
 } from '~/atom';
 import { Button, Input, ScrollArea, Switch } from '~/components';
 import { AdvancedInput } from '~/components/advanced-input';
@@ -22,7 +23,7 @@ import { checkGroupExists } from '~/utils/group';
 import { useBoolean } from '~/hooks';
 
 export function GroupPanel() {
-  const [search, setSearch] = useState<string>('');
+  const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
   const newGroupInputVisible = useBoolean();
 
@@ -55,22 +56,42 @@ export function GroupPanel() {
 function GroupList(props: { search: string }) {
   const { search } = props;
 
-  const groups = useAtomValue(groupsAtom);
+  const [groupAtoms, setGroupAtoms] = useAtom(groupAtomsAtom);
 
-  return groups
-    .filter((group) => group.name.includes(search))
-    .map((group) => <GroupButton key={group.name} group={group} />);
+  const handleGroupRemove = (groupAtom: PrimitiveAtom<Group>) => {
+    setGroupAtoms({ type: 'remove', atom: groupAtom });
+  };
+
+  return groupAtoms.map((groupAtom) => (
+    <GroupButton
+      key={`${groupAtom}`}
+      groupAtom={groupAtom}
+      search={search}
+      onGroupRemove={handleGroupRemove}
+    />
+  ));
 }
 
-function GroupButton(props: { group: Group }) {
-  const { group } = props;
+function GroupButton(props: {
+  groupAtom: PrimitiveAtom<Group>;
+  search: string;
+  onGroupRemove: (groupAtom: PrimitiveAtom<Group>) => void;
+}) {
+  const { groupAtom, search, onGroupRemove } = props;
 
+  const [group, setGroup] = useAtom(groupAtom);
   const [currentGroupName, setCurrentGroupName] = useAtom(currentGroupNameAtom);
   const groups = useAtomValue(groupsAtom);
-  const renameGroup = useSetAtom(renameGroupAtom);
   const renameInputVisible = useBoolean();
-  const toggleGroupEnable = useSetAtom(toggleGroupEnableAtom);
-  const deleteGroup = useSetAtom(deleteGroupAtom);
+  const setSystemGroupWhenRename = useSetAtom(setSystemGroupWhenRenameAtom);
+  const setSystemGroupWhenToggleEnable = useSetAtom(
+    setSystemGroupWhenToggleEnableAtom,
+  );
+  const setSystemGroupWhenRemove = useSetAtom(setSystemGroupWhenRemoveAtom);
+
+  if (!group.name.includes(search)) {
+    return null;
+  }
 
   const handleClick = () => {
     if (group.name === currentGroupName) {
@@ -81,7 +102,8 @@ function GroupButton(props: { group: Group }) {
 
   const handleGroupRenameOk = (newName: string) => {
     if (newName !== group.name) {
-      renameGroup(group.name, newName);
+      setGroup({ ...group, name: newName });
+      setSystemGroupWhenRename(group.name, newName, group.enabled);
     }
     renameInputVisible.off();
   };
@@ -94,11 +116,14 @@ function GroupButton(props: { group: Group }) {
   };
 
   const handleToggleGroupEnable = () => {
-    toggleGroupEnable(group.name);
+    const newGroup = { ...group, enabled: !group.enabled };
+    setGroup(newGroup);
+    setSystemGroupWhenToggleEnable(newGroup);
   };
 
-  const handleDeleteGroup = () => {
-    deleteGroup(group.name);
+  const handleGroupRemove = () => {
+    onGroupRemove(groupAtom);
+    setSystemGroupWhenRemove(group.name, group.enabled);
   };
 
   if (renameInputVisible.value) {
@@ -155,10 +180,10 @@ function GroupButton(props: { group: Group }) {
         <ContextMenuItem
           disabled={group.system}
           destructive
-          onClick={handleDeleteGroup}
+          onClick={handleGroupRemove}
         >
           <Trash2 />
-          Delete
+          Remove
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

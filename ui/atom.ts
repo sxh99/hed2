@@ -8,6 +8,8 @@ import { storage } from '~/utils/storage';
 
 export const groupsAtom = atom<Group[]>([]);
 
+export const groupAtomsAtom = splitAtom(groupsAtom, (group) => group.name);
+
 export const currentGroupNameAtom = atom('');
 
 export const systemHostsTextDraftAtom = atom('');
@@ -82,23 +84,15 @@ export const addGroupAtom = atom(null, (_, set, groupName: string) => {
   storage.addDisabledGroup(newGroup);
 });
 
-export const renameGroupAtom = atom(
+export const setSystemGroupWhenRenameAtom = atom(
   null,
-  (get, set, oldName: string, newName: string) => {
+  (get, set, oldName: string, newName: string, enabled: boolean) => {
     const groups = get(groupsAtom);
-
-    const targetGroup = groups.find((g) => g.name === oldName);
-    if (!targetGroup) {
+    const systemGroup = groups.find((g) => g.system);
+    if (!systemGroup) {
       return;
     }
-
-    targetGroup.name = newName;
-
-    if (targetGroup.enabled) {
-      const systemGroup = groups.find((g) => g.system);
-      if (!systemGroup) {
-        return;
-      }
+    if (enabled) {
       systemGroup.list = systemGroup.list.map((item) => {
         if (item.group === oldName) {
           return {
@@ -108,96 +102,71 @@ export const renameGroupAtom = atom(
         }
         return item;
       });
+      set(
+        groupsAtom,
+        groups.map((group) => {
+          return group.system ? { ...systemGroup } : group;
+        }),
+      );
       set(updateTextByListAtom, systemGroup.list);
     } else {
       storage.renameDisabledGroup(oldName, newName);
     }
-
-    set(
-      groupsAtom,
-      groups.map((group) => {
-        if (group.name === targetGroup.name || group.system) {
-          return { ...group };
-        }
-        return group;
-      }),
-    );
   },
 );
 
-export const toggleGroupEnableAtom = atom(
+export const setSystemGroupWhenToggleEnableAtom = atom(
   null,
-  (get, set, groupName: string) => {
+  (get, set, changedGroup: Group) => {
     const groups = get(groupsAtom);
-
-    const targetGroup = groups.find((g) => g.name === groupName);
-    if (!targetGroup) {
-      return;
-    }
-
-    targetGroup.enabled = !targetGroup.enabled;
-
     const systemGroup = groups.find((g) => g.system);
     if (!systemGroup) {
       return;
     }
 
-    if (targetGroup.enabled) {
-      systemGroup.list = [...systemGroup.list, ...targetGroup.list];
-      storage.deleteDisabledGroup(targetGroup.name);
+    if (changedGroup.enabled) {
+      systemGroup.list = [...systemGroup.list, ...changedGroup.list];
+      storage.deleteDisabledGroup(changedGroup.name);
       set(updateTextByListAtom, systemGroup.list);
     } else {
       systemGroup.list = systemGroup.list.filter(
-        (item) => item.group !== targetGroup.name,
+        (item) => item.group !== changedGroup.name,
       );
-      storage.addDisabledGroup(targetGroup);
+      storage.addDisabledGroup(changedGroup);
     }
 
     set(
       groupsAtom,
       groups.map((group) => {
-        if (group.name === targetGroup.name || group.system) {
-          return { ...group };
-        }
-        return group;
+        return group.system ? { ...systemGroup } : group;
       }),
     );
   },
 );
 
-export const deleteGroupAtom = atom(
+export const setSystemGroupWhenRemoveAtom = atom(
   null,
-  async (get, set, groupName: string) => {
+  (get, set, groupName: string, enabled: boolean) => {
     const groups = get(groupsAtom);
-
-    const targetGroup = groups.find((g) => g.name === groupName);
-    if (!targetGroup) {
+    const systemGroup = groups.find((g) => g.system);
+    if (!systemGroup) {
       return;
     }
 
-    if (targetGroup.enabled) {
-      const systemGroup = groups.find((g) => g.system);
-      if (!systemGroup) {
-        return;
-      }
+    if (enabled) {
       systemGroup.list = systemGroup.list.filter(
-        (item) => item.group !== targetGroup.name,
+        (item) => item.group !== groupName,
       );
       set(updateTextByListAtom, systemGroup.list);
     } else {
-      storage.deleteDisabledGroup(targetGroup.name);
+      storage.deleteDisabledGroup(groupName);
     }
 
     set(
       groupsAtom,
-      groups
-        .filter((group) => group.name !== groupName)
-        .map((group) => {
-          if (group.system) {
-            return { ...group };
-          }
-          return group;
-        }),
+      groups.map((group) => {
+        return group.system ? { ...systemGroup } : group;
+      }),
     );
 
     if (get(currentGroupNameAtom) === groupName) {
