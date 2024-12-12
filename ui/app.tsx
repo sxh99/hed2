@@ -24,7 +24,7 @@ export function App() {
               <GroupPanel />
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel className="flex flex-col" defaultSize={80}>
+            <ResizablePanel defaultSize={80}>
               <Editor />
             </ResizablePanel>
           </ResizablePanelGroup>

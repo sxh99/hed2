@@ -38,14 +38,17 @@ import { ToggleGroup, ToggleGroupItem } from '~/components/toggle-group';
 import { SYSTEM_GROUP_NAME } from '~/consts';
 import { useBoolean, useSearch } from '~/hooks';
 import type { Item } from '~/types';
+import { cn } from '~/utils/cn';
 import { ipc } from '~/utils/ipc';
 import { EditorKindToggle } from './editor-kind-toggle';
 
-export function ListEditor() {
+export function ListEditor(props: { className?: string }) {
+  const { className } = props;
+
   const search = useSearch();
 
   return (
-    <>
+    <div className={cn('flex flex-col h-full', className)}>
       <CommonHeader>
         <EditorKindToggle />
         <SearchInput
@@ -62,7 +65,7 @@ export function ListEditor() {
       <ScrollArea className="flex-1 px-3">
         <List search={search.deferredValue} />
       </ScrollArea>
-    </>
+    </div>
   );
 }
 

@@ -665,20 +665,12 @@ body {
   left: 0.5rem;
 }
 
-.left-5 {
-  left: 1.25rem;
+.left-2\.5 {
+  left: 0.625rem;
 }
 
 .top-1\/2 {
   top: 50%;
-}
-
-.left-1 {
-  left: 0.25rem;
-}
-
-.left-2\.5 {
-  left: 0.625rem;
 }
 
 .z-10 {
@@ -804,6 +796,10 @@ body {
   min-height: 2.25rem;
 }
 
+.w-1\/2 {
+  width: 50%;
+}
+
 .w-10 {
   width: 2.5rem;
 }
@@ -826,6 +822,10 @@ body {
 
 .w-4 {
   width: 1rem;
+}
+
+.w-50-1 {
+  width: calc(50% - 1px);
 }
 
 .w-9 {
@@ -856,18 +856,6 @@ body {
   width: 100vw;
 }
 
-.w-3\/5 {
-  width: 60%;
-}
-
-.w-4\/6 {
-  width: 66.666667%;
-}
-
-.w-1\/2 {
-  width: 50%;
-}
-
 .min-w-10 {
   min-width: 2.5rem;
 }
@@ -890,6 +878,18 @@ body {
 
 .shrink-0 {
   flex-shrink: 0;
+}
+
+.grow-0 {
+  flex-grow: 0;
+}
+
+.basis-1\/2 {
+  flex-basis: 50%;
+}
+
+.basis-0 {
+  flex-basis: 0px;
 }
 
 .-translate-y-1\/2 {
@@ -947,18 +947,6 @@ body {
 
 .justify-between {
   justify-content: space-between;
-}
-
-.justify-around {
-  justify-content: space-around;
-}
-
-.justify-evenly {
-  justify-content: space-evenly;
-}
-
-.justify-stretch {
-  justify-content: stretch;
 }
 
 .gap-1 {
