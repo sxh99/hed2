@@ -1,48 +1,50 @@
-import { useAtom, useAtomValue, useSetAtom, type PrimitiveAtom } from 'jotai';
-import { FilePenLine, Plus, Search, Trash2 } from 'lucide-react';
-import { useDeferredValue, useState } from 'react';
+import { type PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { FilePenLine, Plus, Trash2 } from 'lucide-react';
 import {
   addGroupAtom,
   currentGroupNameAtom,
-  groupsAtom,
   groupAtomsAtom,
+  groupsAtom,
+  setSystemGroupWhenRemoveAtom,
   setSystemGroupWhenRenameAtom,
   setSystemGroupWhenToggleEnableAtom,
-  setSystemGroupWhenRemoveAtom,
 } from '~/atom';
-import { Button, Input, ScrollArea, Switch, AdvancedInput } from '~/components';
+import {
+  Button,
+  InputWithValidate,
+  ScrollArea,
+  SearchInput,
+  Switch,
+} from '~/components';
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
 } from '~/components/context-menu';
+import { useBoolean, useSearch } from '~/hooks';
 import type { Group } from '~/types';
 import { checkGroupExists } from '~/utils/group';
-import { useBoolean } from '~/hooks';
 
 export function GroupPanel() {
-  const [search, setSearch] = useState('');
-  const deferredSearch = useDeferredValue(search);
+  const search = useSearch();
   const newGroupInputVisible = useBoolean();
 
   return (
     <div className="h-full flex flex-col bg-neutral-50 dark:bg-background">
-      <div className="h-14 px-3 flex items-center relative gap-1">
-        <Search className="pointer-events-auto absolute left-5 size-4 top-1/2 -translate-y-1/2 select-none opacity-50" />
-        <Input
-          className="bg-white dark:bg-black pl-8 placeholder:italic"
-          placeholder="Search group..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+      <div className="h-14 px-3 flex items-center gap-1">
+        <SearchInput
           name="searchGroup"
+          placeholder="Search group..."
+          value={search.value}
+          onValueChange={search.setValue}
         />
         <Button variant="outline" size="icon" onClick={newGroupInputVisible.on}>
           <Plus />
         </Button>
       </div>
       <ScrollArea className="flex-1 px-3 pb-2">
-        <GroupList search={deferredSearch} />
+        <GroupList search={search.deferredValue} />
         <NewGroupInput
           visible={newGroupInputVisible.value}
           onUnmounted={newGroupInputVisible.off}
@@ -128,7 +130,7 @@ function GroupButton(props: {
   if (renameInputVisible.value) {
     return (
       <div className="px-0.5 pt-2.5 pb-1">
-        <AdvancedInput
+        <InputWithValidate
           name="newGroupName"
           placeholder={group.name}
           initValue={group.name}
@@ -213,7 +215,7 @@ function NewGroupInput(props: {
 
   return (
     <div className="px-0.5 py-1 mt-1">
-      <AdvancedInput
+      <InputWithValidate
         placeholder="Group name"
         name="groupName"
         onOk={handleNewGroupOk}

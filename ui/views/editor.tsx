@@ -1,18 +1,29 @@
-import { useState } from 'react';
-import { EditorKind } from '~/consts';
-import { EditorBody } from './editor-body';
-import { EditorHeader } from './editor-header';
+import { useAtom, useAtomValue } from 'jotai';
+import { currentGroupAtom, editorCfgAtom } from '~/atom';
+import { EditorKind, NOT_EXISTS_GROUP_NAME } from '~/consts';
+import { ListEditor } from './list-editor';
+import { TextEditor } from './text-editor';
 
 export function Editor() {
-  const [editorKind, setEditorKind] = useState<string>(EditorKind.List);
+  const currentGroup = useAtomValue(currentGroupAtom);
+  const [editorCfg, setEditorCfg] = useAtom(editorCfgAtom);
 
-  return (
-    <>
-      <EditorHeader
-        editorKind={editorKind}
-        onEditorKindChange={setEditorKind}
-      />
-      <EditorBody editorKind={editorKind} />
-    </>
-  );
+  if (currentGroup.name === NOT_EXISTS_GROUP_NAME) {
+    return null;
+  }
+
+  if (editorCfg.showAll) {
+    return (
+      <>
+        <ListEditor />
+        <TextEditor />
+      </>
+    );
+  }
+
+  if (editorCfg.kind === EditorKind.List) {
+    return <ListEditor />;
+  }
+
+  return <TextEditor />;
 }

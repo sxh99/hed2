@@ -8,19 +8,19 @@ import {
   TooltipTrigger,
 } from './tooltip';
 
-interface AdvancedInputProps
+interface InputWithValidateProps
   extends Pick<
     React.ComponentProps<'input'>,
     'className' | 'placeholder' | 'name' | 'maxLength'
   > {
   initValue?: string;
   onOk: (v: string) => void;
-  onValidate?: (v: string) => string | Promise<string | undefined> | undefined;
-  onCancel?: () => void;
+  onValidate: (v: string) => string | Promise<string | undefined> | undefined;
+  onCancel: () => void;
   selectAllWhenMounted?: boolean;
 }
 
-export function AdvancedInput(props: AdvancedInputProps) {
+export function InputWithValidate(props: InputWithValidateProps) {
   const {
     className,
     initValue,
@@ -50,23 +50,21 @@ export function AdvancedInput(props: AdvancedInputProps) {
       return;
     }
     const finalValue = value.trim();
-    if (!finalValue && onCancel) {
+    if (!finalValue) {
       onCancel();
       return;
     }
-    if (onValidate) {
-      const ret = onValidate(finalValue);
-      if (ret instanceof Promise) {
-        const err = await ret;
-        if (err) {
-          setErr(err);
-          return;
-        }
-      } else {
-        if (ret) {
-          setErr(ret);
-          return;
-        }
+    const ret = onValidate(finalValue);
+    if (ret instanceof Promise) {
+      const err = await ret;
+      if (err) {
+        setErr(err);
+        return;
+      }
+    } else {
+      if (ret) {
+        setErr(ret);
+        return;
       }
     }
     onOk(finalValue);
@@ -92,7 +90,7 @@ export function AdvancedInput(props: AdvancedInputProps) {
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               handleOk();
-            } else if (e.key === 'Escape' && onCancel) {
+            } else if (e.key === 'Escape') {
               onCancel();
             }
           }}

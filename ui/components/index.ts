@@ -4,5 +4,6 @@ export { Separator } from './separator';
 export { ScrollArea } from './scroll-area';
 export { Switch } from './switch';
 export { Badge } from './badge';
-export { AdvancedInput } from './advanced-input';
+export { InputWithValidate } from './input-with-validate';
 export { CommonHeader } from './common-header';
+export { SearchInput } from './search-input';

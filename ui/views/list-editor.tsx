@@ -5,8 +5,8 @@ import {
   Copy,
   EllipsisVertical,
   FilePenLine,
-  Trash2,
   Plus,
+  Trash2,
 } from 'lucide-react';
 import {
   currentGroupAtom,
@@ -14,7 +14,14 @@ import {
   removeSameGroupItemAtom,
   setSameGroupItemAtom,
 } from '~/atom';
-import { Badge, Button, ScrollArea, AdvancedInput } from '~/components';
+import {
+  Badge,
+  Button,
+  CommonHeader,
+  InputWithValidate,
+  ScrollArea,
+  SearchInput,
+} from '~/components';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -28,26 +35,39 @@ import {
   DropdownMenuTrigger,
 } from '~/components/dropdown-menu';
 import { ToggleGroup, ToggleGroupItem } from '~/components/toggle-group';
-import { NOT_EXISTS_GROUP_NAME, SYSTEM_GROUP_NAME } from '~/consts';
+import { SYSTEM_GROUP_NAME } from '~/consts';
+import { useBoolean, useSearch } from '~/hooks';
 import type { Item } from '~/types';
 import { ipc } from '~/utils/ipc';
-import { useBoolean } from '~/hooks';
+import { EditorKindToggle } from './editor-kind-toggle';
 
 export function ListEditor() {
-  const currentGroup = useAtomValue(currentGroupAtom);
-
-  if (currentGroup.name === NOT_EXISTS_GROUP_NAME) {
-    return null;
-  }
+  const search = useSearch();
 
   return (
-    <ScrollArea className="flex-1 px-3">
-      <List />
-    </ScrollArea>
+    <>
+      <CommonHeader>
+        <EditorKindToggle />
+        <SearchInput
+          className="w-1/2"
+          name="searchItem"
+          placeholder="Search ip or host..."
+          value={search.value}
+          onValueChange={search.setValue}
+        />
+        <Button variant="outline" size="icon">
+          <Plus />
+        </Button>
+      </CommonHeader>
+      <ScrollArea className="flex-1 px-3">
+        <List search={search.deferredValue} />
+      </ScrollArea>
+    </>
   );
 }
 
-function List() {
+function List(props: { search: string }) {
+  const { search } = props;
   const [itemAtoms, setItems] = useAtom(itemAtomsAtom);
 
   const handleItemRemove = (itemAtom: PrimitiveAtom<Item>) => {
@@ -59,6 +79,7 @@ function List() {
       key={`${itemAtom}`}
       itemAtom={itemAtom}
       onItemRemove={handleItemRemove}
+      search={search}
     />
   ));
 }
@@ -66,12 +87,22 @@ function List() {
 function ListItem(props: {
   itemAtom: PrimitiveAtom<Item>;
   onItemRemove: (itamAtom: PrimitiveAtom<Item>) => void;
+  search: string;
 }) {
-  const { itemAtom, onItemRemove } = props;
+  const { itemAtom, onItemRemove, search } = props;
 
   const [item, setItem] = useAtom(itemAtom);
   const setSameGroupItem = useSetAtom(setSameGroupItemAtom);
   const removeSameGroupItem = useSetAtom(removeSameGroupItemAtom);
+
+  if (
+    !(
+      item.ip.includes(search) ||
+      item.hosts.some((item) => item.content.includes(search))
+    )
+  ) {
+    return null;
+  }
 
   const handleItemChange = (v: Partial<Item>) => {
     const newItem = { ...item, ...v };
@@ -132,7 +163,7 @@ function Title(
       <div className="flex items-center gap-2">
         {showBedge && <Badge className="leading-3">{group}</Badge>}
         {ipInputVisible.value ? (
-          <AdvancedInput
+          <InputWithValidate
             className="w-[320px]"
             name="newIp"
             placeholder={ip}
@@ -239,7 +270,7 @@ function Hosts(
         />
       ))}
       {newHostInputVisible.value ? (
-        <AdvancedInput
+        <InputWithValidate
           className="w-[300px]"
           name="newHost"
           placeholder="new host"
@@ -287,7 +318,7 @@ function Host(props: {
 
   if (editHostInputVisible.value) {
     return (
-      <AdvancedInput
+      <InputWithValidate
         className="w-[300px]"
         name="editHost"
         placeholder={host.content}

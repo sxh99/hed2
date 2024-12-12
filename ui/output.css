@@ -673,6 +673,14 @@ body {
   top: 50%;
 }
 
+.left-1 {
+  left: 0.25rem;
+}
+
+.left-2\.5 {
+  left: 0.625rem;
+}
+
 .z-10 {
   z-index: 10;
 }
@@ -848,6 +856,18 @@ body {
   width: 100vw;
 }
 
+.w-3\/5 {
+  width: 60%;
+}
+
+.w-4\/6 {
+  width: 66.666667%;
+}
+
+.w-1\/2 {
+  width: 50%;
+}
+
 .min-w-10 {
   min-width: 2.5rem;
 }
@@ -927,6 +947,18 @@ body {
 
 .justify-between {
   justify-content: space-between;
+}
+
+.justify-around {
+  justify-content: space-around;
+}
+
+.justify-evenly {
+  justify-content: space-evenly;
+}
+
+.justify-stretch {
+  justify-content: stretch;
 }
 
 .gap-1 {
@@ -1035,10 +1067,6 @@ body {
 
 .bg-background {
   background-color: hsl(var(--background));
-}
-
-.bg-background\/95 {
-  background-color: hsl(var(--background) / 0.95);
 }
 
 .bg-border {

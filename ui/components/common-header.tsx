@@ -1,8 +1,6 @@
 import { cn } from '~/utils/cn';
 
-export function CommonHeader(
-  props: React.ButtonHTMLAttributes<HTMLDivElement>,
-) {
+export function CommonHeader(props: React.ComponentProps<'div'>) {
   const { className, ...restProps } = props;
   return (
     <div
