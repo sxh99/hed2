@@ -11,7 +11,7 @@ import {
 } from '~/atom';
 import {
   Button,
-  InputWithValidate,
+  EditInput,
   ScrollArea,
   SearchInput,
   Switch,
@@ -21,7 +21,7 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
-} from '~/components/context-menu';
+} from '~/components/shadcn/context-menu';
 import { useBoolean, useSearch } from '~/hooks';
 import type { Group } from '~/types';
 import { checkGroupExists } from '~/utils/group';
@@ -34,6 +34,7 @@ export function GroupPanel() {
     <div className="h-full flex flex-col bg-neutral-50 dark:bg-background">
       <div className="h-14 px-3 flex items-center gap-1">
         <SearchInput
+          className="flex-1"
           name="searchGroup"
           placeholder="Search group..."
           value={search.value}
@@ -130,7 +131,7 @@ function GroupButton(props: {
   if (renameInputVisible.value) {
     return (
       <div className="px-0.5 pt-2.5 pb-1">
-        <InputWithValidate
+        <EditInput
           name="newGroupName"
           placeholder={group.name}
           initValue={group.name}
@@ -215,7 +216,7 @@ function NewGroupInput(props: {
 
   return (
     <div className="px-0.5 py-1 mt-1">
-      <InputWithValidate
+      <EditInput
         placeholder="Group name"
         name="groupName"
         onOk={handleNewGroupOk}

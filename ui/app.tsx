@@ -2,8 +2,8 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from '~/components/resizable';
-import { TooltipProvider } from '~/components/tooltip';
+} from '~/components/shadcn/resizable';
+import { TooltipProvider } from '~/components/shadcn/tooltip';
 import { ThemeProvider } from '~/context/theme';
 import { AppHeader } from '~/views/app-header';
 import { Editor } from '~/views/editor';

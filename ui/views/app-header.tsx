@@ -3,13 +3,13 @@ import { RefreshCcw } from 'lucide-react';
 import { useEffect } from 'react';
 import { initGroupsAtom } from '~/atom';
 import { Button, CommonHeader } from '~/components';
-import { Icons } from '~/components/icons';
+import { GitHub } from '~/components/icons';
 import {
   Tooltip,
   TooltipArrow,
   TooltipContent,
   TooltipTrigger,
-} from '~/components/tooltip';
+} from '~/components/shadcn/tooltip';
 import { ThemeToggle } from './theme-toggle';
 
 export function AppHeader() {
@@ -55,7 +55,7 @@ function ViewGitHubButton() {
     <Tooltip>
       <TooltipTrigger asChild>
         <Button variant="ghost" size="icon">
-          <Icons.GitHub />
+          <GitHub />
         </Button>
       </TooltipTrigger>
       <TooltipContent>

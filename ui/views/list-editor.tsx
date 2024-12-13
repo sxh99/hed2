@@ -8,7 +8,9 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
+import { useRef } from 'react';
 import {
+  addGroupItemAtom,
   currentGroupAtom,
   itemAtomsAtom,
   removeSameGroupItemAtom,
@@ -18,26 +20,38 @@ import {
   Badge,
   Button,
   CommonHeader,
-  InputWithValidate,
+  EditInput,
+  Input,
   ScrollArea,
   SearchInput,
+  Textarea,
 } from '~/components';
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
-} from '~/components/context-menu';
+} from '~/components/shadcn/context-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '~/components/shadcn/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/dropdown-menu';
-import { ToggleGroup, ToggleGroupItem } from '~/components/toggle-group';
+} from '~/components/shadcn/dropdown-menu';
+import { ToggleGroup, ToggleGroupItem } from '~/components/shadcn/toggle-group';
+import { Form, FormItem } from '~/components/simple-form';
 import { SYSTEM_GROUP_NAME } from '~/consts';
 import { useBoolean, useSearch } from '~/hooks';
-import type { Item } from '~/types';
+import type { Item, ItemFormValue } from '~/types';
 import { cn } from '~/utils/cn';
 import { ipc } from '~/utils/ipc';
 import { EditorKindToggle } from './editor-kind-toggle';
@@ -58,14 +72,77 @@ export function ListEditor(props: { className?: string }) {
           value={search.value}
           onValueChange={search.setValue}
         />
-        <Button variant="outline" size="icon">
-          <Plus />
-        </Button>
+        <NewItemDialog />
       </CommonHeader>
       <ScrollArea className="flex-1 px-3">
         <List search={search.deferredValue} />
       </ScrollArea>
     </div>
+  );
+}
+
+function NewItemDialog() {
+  const open = useBoolean();
+  const formRef = useRef<HTMLFormElement>(null);
+  const addGroupItem = useSetAtom(addGroupItemAtom);
+  const currentGroup = useAtomValue(currentGroupAtom);
+
+  const handleFormValidate = async (v: ItemFormValue) => {
+    if (!v.ip) {
+      return { field: 'ip', err: 'ip is required' };
+    }
+    if (currentGroup.list.some((item) => item.ip === v.ip)) {
+      return { field: 'ip', err: `\`${v.ip}\` is already exists` };
+    }
+    const isIp = await ipc.isIp(v.ip);
+    if (!isIp) {
+      return { field: 'ip', err: `\`${v.ip}\` is not a valid ip` };
+    }
+  };
+
+  const handleSubmit = (v: ItemFormValue) => {
+    addGroupItem(v);
+    open.off();
+  };
+
+  return (
+    <Dialog open={open.value} onOpenChange={open.set}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Plus />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>New item</DialogTitle>
+          <DialogDescription>Create a new item</DialogDescription>
+        </DialogHeader>
+        <Form
+          ref={formRef}
+          onValidate={handleFormValidate}
+          onSubmit={handleSubmit}
+        >
+          <FormItem name="ip" label="Ip" required>
+            <Input />
+          </FormItem>
+          <FormItem name="hosts" label="Hosts">
+            <Textarea className="resize-none" rows={4} />
+          </FormItem>
+        </Form>
+        <DialogFooter>
+          <Button variant="secondary" onClick={open.off}>
+            Close
+          </Button>
+          <Button
+            onClick={() => {
+              formRef.current?.requestSubmit();
+            }}
+          >
+            Ok
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -166,7 +243,7 @@ function Title(
       <div className="flex items-center gap-2">
         {showBedge && <Badge className="leading-3">{group}</Badge>}
         {ipInputVisible.value ? (
-          <InputWithValidate
+          <EditInput
             className="w-[320px]"
             name="newIp"
             placeholder={ip}
@@ -273,7 +350,7 @@ function Hosts(
         />
       ))}
       {newHostInputVisible.value ? (
-        <InputWithValidate
+        <EditInput
           className="w-[300px]"
           name="newHost"
           placeholder="new host"
@@ -321,7 +398,7 @@ function Host(props: {
 
   if (editHostInputVisible.value) {
     return (
-      <InputWithValidate
+      <EditInput
         className="w-[300px]"
         name="editHost"
         placeholder={host.content}

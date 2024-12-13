@@ -29,9 +29,9 @@ export function Editor() {
   if (editorCfg.showAll) {
     return (
       <div className="flex h-full w-full">
-        <ListEditor className="w-50-1" />
+        <ListEditor className="w-1/2-1" />
         <Separator orientation="vertical" />
-        <TextEditor className="w-50-1" />
+        <TextEditor className="w-1/2-1" />
       </div>
     );
   }

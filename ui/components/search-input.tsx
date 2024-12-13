@@ -1,6 +1,6 @@
 import { Search } from 'lucide-react';
-import { Input } from '~/components';
 import { cn } from '~/utils/cn';
+import { Input } from './shadcn/input';
 
 interface SearchInputProps
   extends Pick<

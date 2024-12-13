@@ -2,7 +2,7 @@ import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { splitAtom } from 'jotai/utils';
 import { NOT_EXISTS_GROUP } from '~/consts';
-import type { Group, Item } from '~/types';
+import type { Group, Item, ItemFormValue } from '~/types';
 import { storage } from '~/utils/storage';
 import { currentGroupNameAtom } from './current-group-name';
 import { groupsAtom, updateTextByListAtom } from './groups';
@@ -117,3 +117,41 @@ export const removeSameGroupItemAtom = atom(
     }
   },
 );
+
+export const addGroupItemAtom = atom(null, (get, set, v: ItemFormValue) => {
+  const currentGroup = get(currentGroupAtom);
+
+  const newItem: Item = {
+    ip: v.ip,
+    hosts: v.hosts
+      .split('\n')
+      .filter((s) => s.length)
+      .flatMap((s) => {
+        return s.split(' ').filter((s) => s.length);
+      })
+      .map((s) => {
+        return {
+          content: s,
+          enabled: false,
+        };
+      }),
+    group: currentGroup.name,
+  };
+
+  set(currentGroupListAtom, (list) => [...list, newItem]);
+
+  if (!currentGroup.system && currentGroup.enabled) {
+    const groups = get(groupsAtom);
+    set(
+      groupsAtom,
+      groups.map((group) => {
+        return group.system
+          ? {
+              ...group,
+              list: [...group.list, newItem],
+            }
+          : group;
+      }),
+    );
+  }
+});

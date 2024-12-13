@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { currentGroupAtom, systemHostsTextDraftAtom } from '~/atom';
-import { CommonHeader } from '~/components';
+import { CommonHeader, Textarea } from '~/components';
 import { cn } from '~/utils/cn';
 import { EditorKindToggle } from './editor-kind-toggle';
 
@@ -19,9 +19,9 @@ export function TextEditor(props: { className?: string }) {
       <CommonHeader>
         <EditorKindToggle />
       </CommonHeader>
-      <div className="whitespace-pre overflow-auto flex-1">
+      <Textarea className="whitespace-pre overflow-auto flex-1">
         {currentGroup.system ? systemHostsTextDraft : currentGroup.text}
-      </div>
+      </Textarea>
     </div>
   );
 }

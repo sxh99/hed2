@@ -16,3 +16,8 @@ export interface Host {
   content: string;
   enabled: boolean;
 }
+
+export interface ItemFormValue {
+  ip: string;
+  hosts: string;
+}

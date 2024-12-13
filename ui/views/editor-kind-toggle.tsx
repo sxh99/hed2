@@ -1,7 +1,8 @@
 import { useAtom } from 'jotai';
 import { editorCfgAtom } from '~/atom';
-import { Tabs, TabsList, TabsTrigger } from '~/components/tabs';
+import { Tabs, TabsList, TabsTrigger } from '~/components/shadcn/tabs';
 import { EditorKind } from '~/consts';
+import { cn } from '~/utils/cn';
 
 export function EditorKindToggle() {
   const [editorCfg, setEditorCfg] = useAtom(editorCfgAtom);
@@ -11,7 +12,11 @@ export function EditorKindToggle() {
   };
 
   return (
-    <Tabs value={editorCfg.kind} onValueChange={handleChange}>
+    <Tabs
+      value={editorCfg.kind}
+      onValueChange={handleChange}
+      className={cn(editorCfg.showAll && 'invisible')}
+    >
       <TabsList>
         <TabsTrigger value={EditorKind.List}>
           {EditorKind.List.toUpperCase()}

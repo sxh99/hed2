@@ -11,5 +11,8 @@ export function useBoolean() {
     off() {
       setValue(false);
     },
+    set(v: boolean) {
+      setValue(v);
+    },
   };
 }

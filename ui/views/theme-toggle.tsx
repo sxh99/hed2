@@ -1,5 +1,5 @@
 import { Moon, Sun, TvMinimal } from 'lucide-react';
-import { Button } from '~/components/button';
+import { Button } from '~/components/shadcn/button';
 import { useTheme } from '~/context/theme';
 
 export function ThemeToggle() {

@@ -1,6 +1,4 @@
-type IconProps = React.HTMLAttributes<SVGElement>;
-
-function GitHub(props: IconProps) {
+export function GitHub(props: React.ComponentProps<'svg'>) {
   return (
     <svg viewBox="0 0 438.549 438.549" {...props}>
       <title>GitHub</title>
@@ -11,7 +9,3 @@ function GitHub(props: IconProps) {
     </svg>
   );
 }
-
-export const Icons = {
-  GitHub,
-};

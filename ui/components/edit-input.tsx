@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
-import { Input } from './input';
+import { Input } from './shadcn/input';
 import {
   Tooltip,
   TooltipArrow,
   TooltipContent,
   TooltipTrigger,
-} from './tooltip';
+} from './shadcn/tooltip';
 
-interface InputWithValidateProps
+interface EditInputProps
   extends Pick<
     React.ComponentProps<'input'>,
     'className' | 'placeholder' | 'name' | 'maxLength'
@@ -20,7 +20,7 @@ interface InputWithValidateProps
   selectAllWhenMounted?: boolean;
 }
 
-export function InputWithValidate(props: InputWithValidateProps) {
+export function EditInput(props: EditInputProps) {
   const {
     className,
     initValue,
@@ -55,14 +55,14 @@ export function InputWithValidate(props: InputWithValidateProps) {
       return;
     }
     const ret = onValidate(finalValue);
-    if (ret instanceof Promise) {
-      const err = await ret;
-      if (err) {
-        setErr(err);
-        return;
-      }
-    } else {
-      if (ret) {
+    if (ret) {
+      if (ret instanceof Promise) {
+        const err = await ret;
+        if (err) {
+          setErr(err);
+          return;
+        }
+      } else {
         setErr(ret);
         return;
       }

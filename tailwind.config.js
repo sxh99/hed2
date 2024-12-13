@@ -47,7 +47,7 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       width: {
-        '50-1': 'calc(50% - 1px)',
+        '1/2-1': 'calc(50% - 1px)',
       },
     },
   },
