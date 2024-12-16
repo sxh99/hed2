@@ -43,18 +43,60 @@ pub fn is_ip(s: &str) -> bool {
 fn text_to_lines(text: &str) -> Vec<Line> {
 	let mut lines = vec![];
 
-	for l in text.lines() {
-		let line = l.trim();
+	for line in text.lines() {
+		let tokens = line.split_whitespace().collect::<Vec<&str>>();
 
-		if line.is_empty() {
+		if tokens.is_empty() {
 			lines.push(Line::Empty);
-		} else if let Some(valid_line) = parse_valid_line(line) {
-			lines.push(valid_line);
-		} else if let Some(group_line) = parse_group_line(line) {
-			lines.push(group_line);
-		} else {
-			lines.push(Line::Other(line.to_string()));
+			continue;
 		}
+
+		if tokens.len() == 1 {
+			if let Some(stripped) = tokens[0].strip_prefix("#[") {
+				if let Some(group) = stripped.strip_suffix("]") {
+					lines.push(Line::Group(group.trim().to_string()));
+					continue;
+				}
+			}
+		}
+
+		let enabled = tokens[0] != "#";
+		let may_ip = if enabled {
+			tokens[0]
+		} else {
+			tokens[1]
+		};
+
+		if is_ip(may_ip) {
+			let mut hosts = vec![];
+			let skip = if enabled {
+				1
+			} else {
+				2
+			};
+
+			for host in tokens.iter().skip(skip) {
+				if let Some(idx) = host.find('#') {
+					let slice = &host[0..idx];
+					if !slice.is_empty() {
+						hosts.push(slice.to_string());
+					}
+					break;
+				}
+				hosts.push(host.to_string());
+			}
+
+			if !hosts.is_empty() {
+				lines.push(Line::Valid {
+					ip: may_ip.to_string(),
+					hosts,
+					enabled,
+				});
+				continue;
+			}
+		}
+
+		lines.push(Line::Other(line.to_string()));
 	}
 
 	lines
@@ -334,8 +376,10 @@ mod tests {
 
 	use super::{
 		lines_to_text_impl, list_to_lines, parse_group_line, parse_valid_line,
-		text_to_groups, Host, Item, Line,
+		text_to_groups, text_to_lines, Host, Item, Line,
 	};
+
+	static MOCK_HOSTS: &str = include_str!("../fixture/hosts");
 
 	#[test]
 	fn test_parse_valid_line() {
@@ -382,9 +426,13 @@ mod tests {
 	}
 
 	#[test]
-	fn test_parser() {
-		static MOCK_HOSTS: &str = include_str!("../fixture/hosts");
+	fn test_text_to_lines() {
+		let lines = text_to_lines(MOCK_HOSTS);
+		assert_debug_snapshot!("text_to_lines", lines);
+	}
 
+	#[test]
+	fn test_parser() {
 		let mut groups = text_to_groups(MOCK_HOSTS.to_string());
 		assert_debug_snapshot!("text_to_groups", groups);
 
