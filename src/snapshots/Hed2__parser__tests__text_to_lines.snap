@@ -1,6 +1,6 @@
 ---
 source: src/parser.rs
-expression: new_lines
+expression: lines
 snapshot_kind: text
 ---
 [
@@ -19,37 +19,17 @@ snapshot_kind: text
         ],
         enabled: true,
     },
-    Empty,
+    Valid {
+        ip: "1.1.1.1",
+        hosts: [
+            "bar.com",
+        ],
+        enabled: false,
+    },
     Empty,
     Other(
         "#   中文内容",
     ),
-    Valid {
-        ip: "127.0.0.1",
-        hosts: [
-            "a.com",
-            "c.com",
-            "b.com",
-            "f.com",
-            "e.com",
-            "h.com",
-            "g.com",
-            "i.com",
-            "k.com",
-            "j.com",
-        ],
-        enabled: true,
-    },
-    Valid {
-        ip: "127.0.0.1",
-        hosts: [
-            "l.com",
-            "m.com",
-            "n.com",
-            "o.com",
-        ],
-        enabled: true,
-    },
     Valid {
         ip: "127.0.0.1",
         hosts: [
@@ -66,34 +46,51 @@ snapshot_kind: text
         ],
         enabled: false,
     },
+    Empty,
+    Valid {
+        ip: "127.0.0.1",
+        hosts: [
+            "a.com",
+            "c.com",
+            "b.com",
+            "f.com",
+            "e.com",
+            "h.com",
+            "g.com",
+            "i.com",
+            "k.com",
+            "j.com",
+            "l.com",
+            "m.com",
+            "n.com",
+        ],
+        enabled: true,
+    },
+    Empty,
+    Other(
+        "# comment",
+    ),
+    Other(
+        "# comment",
+    ),
+    Other(
+        "# comment",
+    ),
+    Other(
+        "# comment",
+    ),
+    Other(
+        "# comment",
+    ),
+    Empty,
     Valid {
         ip: "127.0.0.1",
         hosts: [
             "11.com",
-            "13.com",
+            "12.com",
         ],
         enabled: false,
     },
-    Empty,
-    Empty,
-    Empty,
-    Other(
-        "# comment",
-    ),
-    Other(
-        "# comment",
-    ),
-    Other(
-        "# comment",
-    ),
-    Other(
-        "# comment",
-    ),
-    Other(
-        "# comment",
-    ),
-    Empty,
-    Empty,
     Empty,
     Empty,
     Valid {
@@ -126,6 +123,7 @@ snapshot_kind: text
         ],
         enabled: true,
     },
+    Empty,
     Valid {
         ip: "3.3.3.3",
         hosts: [
@@ -133,8 +131,6 @@ snapshot_kind: text
         ],
         enabled: false,
     },
-    Empty,
-    Empty,
     Group(
         "bar",
     ),
@@ -160,19 +156,4 @@ snapshot_kind: text
     Other(
         "#abcdefg",
     ),
-    Empty,
-    Valid {
-        ip: "2.2.2.2",
-        hosts: [
-            "foo.com",
-        ],
-        enabled: true,
-    },
-    Valid {
-        ip: "2.2.2.2",
-        hosts: [
-            "bar.com",
-        ],
-        enabled: false,
-    },
 ]

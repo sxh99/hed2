@@ -46,6 +46,9 @@ export default {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      width: {
+        '1/2-1': 'calc(50% - 1px)',
+      },
     },
   },
   plugins: [tailwindcssAnimate],

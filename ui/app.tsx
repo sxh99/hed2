@@ -2,8 +2,8 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from '~/components/resizable';
-import { TooltipProvider } from '~/components/tooltip';
+} from '~/components/shadcn/resizable';
+import { TooltipProvider } from '~/components/shadcn/tooltip';
 import { ThemeProvider } from '~/context/theme';
 import { AppHeader } from '~/views/app-header';
 import { Editor } from '~/views/editor';
@@ -13,7 +13,7 @@ export function App() {
   return (
     <div className="h-screen w-screen flex flex-col">
       <ThemeProvider>
-        <TooltipProvider>
+        <TooltipProvider delayDuration={100}>
           <AppHeader />
           <ResizablePanelGroup
             className="select-none"
@@ -24,7 +24,7 @@ export function App() {
               <GroupPanel />
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel className="flex flex-col" defaultSize={80}>
+            <ResizablePanel defaultSize={80}>
               <Editor />
             </ResizablePanel>
           </ResizablePanelGroup>

@@ -3,7 +3,6 @@ export interface Group {
   text: string;
   list: Item[];
   system: boolean;
-  textDraft: string;
   enabled: boolean;
 }
 
@@ -16,4 +15,9 @@ export interface Item {
 export interface Host {
   content: string;
   enabled: boolean;
+}
+
+export interface ItemFormValue {
+  ip: string;
+  hosts: string;
 }
