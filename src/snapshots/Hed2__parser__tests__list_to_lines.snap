@@ -15,18 +15,6 @@ snapshot_kind: text
     Valid {
         ip: "1.1.1.1",
         hosts: [
-            "foo.com",
-        ],
-        enabled: true,
-    },
-    Empty,
-    Empty,
-    Other(
-        "#   中文内容",
-    ),
-    Valid {
-        ip: "127.0.0.1",
-        hosts: [
             "a.com",
             "c.com",
             "b.com",
@@ -41,7 +29,7 @@ snapshot_kind: text
         enabled: true,
     },
     Valid {
-        ip: "127.0.0.1",
+        ip: "1.1.1.1",
         hosts: [
             "l.com",
             "m.com",
@@ -51,7 +39,7 @@ snapshot_kind: text
         enabled: true,
     },
     Valid {
-        ip: "127.0.0.1",
+        ip: "1.1.1.1",
         hosts: [
             "1.com",
             "2.com",
@@ -67,13 +55,14 @@ snapshot_kind: text
         enabled: false,
     },
     Valid {
-        ip: "127.0.0.1",
+        ip: "1.1.1.1",
         hosts: [
             "11.com",
             "13.com",
         ],
         enabled: false,
     },
+    Empty,
     Empty,
     Empty,
     Empty,
@@ -122,43 +111,59 @@ snapshot_kind: text
     Valid {
         ip: "3.3.3.3",
         hosts: [
-            "a.com",
+            "c.com",
         ],
         enabled: true,
-    },
-    Valid {
-        ip: "3.3.3.3",
-        hosts: [
-            "b.com",
-        ],
-        enabled: false,
     },
     Empty,
     Empty,
     Group(
         "bar",
-    ),
-    Group(
-        "baz",
     ),
     Empty,
     Group(
         "foo",
     ),
     Empty,
-    Group(
-        "bar",
+    Other(
+        "#abcdefg",
     ),
+    Empty,
+    Group(
+        "foo",
+    ),
+    Empty,
     Valid {
         ip: "5.5.5.5",
         hosts: [
             "a.com",
+            "c.com",
         ],
         enabled: true,
     },
+    Group(
+        "foo",
+    ),
     Empty,
-    Other(
-        "#abcdefg",
+    Group(
+        "System",
+    ),
+    Empty,
+    Group(
+        "System",
+    ),
+    Empty,
+    Group(
+        "baz",
+    ),
+    Empty,
+    Empty,
+    Group(
+        "foo",
+    ),
+    Empty,
+    Group(
+        "foo",
     ),
     Empty,
     Valid {

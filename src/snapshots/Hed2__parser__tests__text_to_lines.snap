@@ -15,24 +15,6 @@ snapshot_kind: text
     Valid {
         ip: "1.1.1.1",
         hosts: [
-            "foo.com",
-        ],
-        enabled: true,
-    },
-    Valid {
-        ip: "1.1.1.1",
-        hosts: [
-            "bar.com",
-        ],
-        enabled: false,
-    },
-    Empty,
-    Other(
-        "#   中文内容",
-    ),
-    Valid {
-        ip: "127.0.0.1",
-        hosts: [
             "1.com",
             "2.com",
             "3.com",
@@ -48,12 +30,18 @@ snapshot_kind: text
     },
     Empty,
     Valid {
-        ip: "127.0.0.1",
+        ip: "1.1.1.1",
         hosts: [
             "a.com",
             "c.com",
             "b.com",
             "f.com",
+        ],
+        enabled: true,
+    },
+    Valid {
+        ip: "1.1.1.1",
+        hosts: [
             "e.com",
             "h.com",
             "g.com",
@@ -84,7 +72,7 @@ snapshot_kind: text
     ),
     Empty,
     Valid {
-        ip: "127.0.0.1",
+        ip: "1.1.1.1",
         hosts: [
             "11.com",
             "12.com",
@@ -134,16 +122,52 @@ snapshot_kind: text
     Group(
         "bar",
     ),
-    Group(
-        "baz",
-    ),
     Empty,
     Group(
         "foo",
     ),
     Empty,
+    Other(
+        "#abcdefg",
+    ),
+    Empty,
     Group(
-        "bar",
+        "foo",
+    ),
+    Valid {
+        ip: "3.3.3.3",
+        hosts: [
+            "e.com",
+        ],
+        enabled: true,
+    },
+    Valid {
+        ip: "5.5.5.5",
+        hosts: [
+            "a.com",
+        ],
+        enabled: true,
+    },
+    Group(
+        "foo",
+    ),
+    Empty,
+    Group(
+        "System",
+    ),
+    Valid {
+        ip: "3.3.3.3",
+        hosts: [
+            "c.com",
+        ],
+        enabled: true,
+    },
+    Group(
+        "System",
+    ),
+    Empty,
+    Group(
+        "baz",
     ),
     Valid {
         ip: "5.5.5.5",
@@ -153,7 +177,17 @@ snapshot_kind: text
         enabled: true,
     },
     Empty,
-    Other(
-        "#abcdefg",
+    Group(
+        "foo",
+    ),
+    Valid {
+        ip: "5.5.5.5",
+        hosts: [
+            "c.com",
+        ],
+        enabled: true,
+    },
+    Group(
+        "foo",
     ),
 ]

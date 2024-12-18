@@ -8,20 +8,6 @@ snapshot_kind: text
         ip: "1.1.1.1",
         hosts: [
             Host {
-                content: "foo.com",
-                enabled: true,
-            },
-            Host {
-                content: "bar.com",
-                enabled: false,
-            },
-        ],
-        group: "System",
-    },
-    Item {
-        ip: "127.0.0.1",
-        hosts: [
-            Host {
                 content: "1.com",
                 enabled: false,
             },
@@ -145,6 +131,30 @@ snapshot_kind: text
                 content: "b.com",
                 enabled: false,
             },
+            Host {
+                content: "e.com",
+                enabled: true,
+            },
+        ],
+        group: "foo",
+    },
+    Item {
+        ip: "5.5.5.5",
+        hosts: [
+            Host {
+                content: "a.com",
+                enabled: true,
+            },
+        ],
+        group: "foo",
+    },
+    Item {
+        ip: "3.3.3.3",
+        hosts: [
+            Host {
+                content: "c.com",
+                enabled: true,
+            },
         ],
         group: "System",
     },
@@ -153,6 +163,10 @@ snapshot_kind: text
         hosts: [
             Host {
                 content: "a.com",
+                enabled: true,
+            },
+            Host {
+                content: "c.com",
                 enabled: true,
             },
         ],
