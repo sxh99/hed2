@@ -21,7 +21,7 @@ snapshot_kind: text
 
 2402:1200:4f00:1234:0000:5678:9abc:def0 b.com
 
-# 4.4.4.4
+4.4.4.4
 # 4.4.4.4
 
 #[foo]
@@ -37,6 +37,8 @@ snapshot_kind: text
 
 #[bar]
 5.5.5.5 a.com
+
+#abcdefg
 
 2.2.2.2 foo.com
 # 2.2.2.2 bar.com

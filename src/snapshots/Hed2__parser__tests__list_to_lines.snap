@@ -106,7 +106,7 @@ snapshot_kind: text
     Empty,
     Empty,
     Other(
-        "# 4.4.4.4",
+        "4.4.4.4",
     ),
     Other(
         "# 4.4.4.4",
@@ -156,6 +156,10 @@ snapshot_kind: text
         ],
         enabled: true,
     },
+    Empty,
+    Other(
+        "#abcdefg",
+    ),
     Empty,
     Valid {
         ip: "2.2.2.2",
