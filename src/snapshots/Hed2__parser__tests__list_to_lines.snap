@@ -111,9 +111,19 @@ snapshot_kind: text
     Valid {
         ip: "3.3.3.3",
         hosts: [
+            "a.com",
+            "e.com",
+            "d.com",
             "c.com",
         ],
         enabled: true,
+    },
+    Valid {
+        ip: "3.3.3.3",
+        hosts: [
+            "b.com",
+        ],
+        enabled: false,
     },
     Empty,
     Empty,
@@ -136,6 +146,7 @@ snapshot_kind: text
     Valid {
         ip: "5.5.5.5",
         hosts: [
+            "a.com",
             "a.com",
             "c.com",
         ],

@@ -141,8 +141,8 @@ fn lines_to_list(lines: &[Line], group: Option<&str>) -> Vec<Item> {
 			Line::Group(name) => {
 				if group.is_some()
 					|| name == SYSTEM_GROUP_NAME
-					|| current_group != SYSTEM_GROUP_NAME
-						&& current_group != name
+					|| (current_group != SYSTEM_GROUP_NAME
+						&& current_group != name)
 				{
 					continue;
 				}
@@ -192,42 +192,50 @@ fn lines_to_list(lines: &[Line], group: Option<&str>) -> Vec<Item> {
 }
 
 pub fn text_to_groups(text: String) -> Vec<Group> {
-	let lines = text_to_lines(&text);
-	let mut group_map: IndexMap<String, Group> = IndexMap::new();
-	let mut current_group: Option<&String> = None;
-	let mut group_lines: Vec<&Line> = vec![];
+	use std::ops::Range;
 
-	for line in &lines {
-		if let Some(cur_group_name) = current_group {
-			if let Line::Group(new_group_name) = line {
+	let lines = text_to_lines(&text);
+	let mut range_map: IndexMap<String, Vec<Range<usize>>> = IndexMap::new();
+	let mut current_range: Range<usize> = 0..0;
+	let mut current_group: Option<&String> = None;
+
+	for (idx, line) in lines.iter().enumerate() {
+		if let Line::Group(new_group_name) = line {
+			if let Some(cur_group_name) = current_group {
 				if new_group_name == cur_group_name {
-					let owned_lines = group_lines
-						.clone()
-						.into_iter()
-						.cloned()
-						.collect::<Vec<Line>>();
-					let text = lines_to_text(&owned_lines);
-					group_map
-						.entry(new_group_name.clone())
-						.and_modify(|group| {
-							group.text = format!("{}\n{}", group.text, text);
-						})
-						.or_insert(Group {
-							name: new_group_name.clone(),
-							text,
-							list: vec![],
-						});
-					group_lines.clear();
 					current_group = None;
-					continue;
+					current_range.end = idx;
+					range_map
+						.entry(new_group_name.clone())
+						.and_modify(|ranges| {
+							ranges.push(current_range.clone());
+						})
+						.or_insert(vec![current_range.clone()]);
+					current_range = 0..0;
 				}
-			}
-			group_lines.push(line);
-		} else if let Line::Group(name) = line {
-			if name != SYSTEM_GROUP_NAME {
-				current_group = Some(name);
+			} else if new_group_name != SYSTEM_GROUP_NAME {
+				current_group = Some(new_group_name);
+				current_range.start = idx + 1;
 			}
 		}
+	}
+
+	let raw_lines = text.lines().collect::<Vec<&str>>();
+	let mut group_map: IndexMap<String, Group> = IndexMap::new();
+
+	for (group, ranges) in range_map {
+		let mut ss: Vec<&str> = vec![];
+		for range in ranges {
+			ss.extend(&raw_lines[range]);
+		}
+		group_map.insert(
+			group.clone(),
+			Group {
+				name: group,
+				text: ss.join("\n"),
+				list: vec![],
+			},
+		);
 	}
 
 	let system_group = Group {
@@ -242,6 +250,7 @@ pub fn text_to_groups(text: String) -> Vec<Group> {
 	}
 	let mut groups = vec![system_group];
 	groups.append(&mut group_map.into_values().collect::<Vec<Group>>());
+
 	groups
 }
 
@@ -262,10 +271,16 @@ fn hosts_to_lines(hosts: Vec<Host>, ip: &str, enabled: bool) -> Vec<Line> {
 
 fn list_to_lines(list: Vec<Item>, old_lines: Vec<Line>) -> Vec<Line> {
 	let mut lines = vec![];
-	let mut hosts_map = list
-		.into_iter()
-		.map(|item| (item.ip, item.hosts))
-		.collect::<IndexMap<String, Vec<Host>>>();
+	let mut hosts_map: IndexMap<String, Vec<Host>> = IndexMap::new();
+
+	for mut item in list {
+		hosts_map
+			.entry(item.ip)
+			.and_modify(|hosts| {
+				hosts.append(&mut item.hosts);
+			})
+			.or_insert(item.hosts);
+	}
 
 	for line in old_lines {
 		if let Line::Valid { ip, .. } = line {
