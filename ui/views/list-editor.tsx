@@ -49,7 +49,7 @@ import {
 } from '~/components/shadcn/dropdown-menu';
 import { ToggleGroup, ToggleGroupItem } from '~/components/shadcn/toggle-group';
 import { Form, FormItem } from '~/components/simple-form';
-import { SYSTEM_GROUP_NAME } from '~/consts';
+import { SYSTEM_GROUP_NAME, IS_MAC } from '~/consts';
 import { useBoolean, useSearch } from '~/hooks';
 import type { Item, ItemFormValue } from '~/types';
 import { cn } from '~/utils/cn';
@@ -199,7 +199,12 @@ function ListItem(props: {
   };
 
   return (
-    <div className="border border-border/50 dark:border-border rounded-md mt-3 p-4 last:mb-3">
+    <div
+      className={cn(
+        'border border-border/50 dark:border-border rounded-md mt-3 p-4 last:mb-3',
+        IS_MAC && 'border-r-2',
+      )}
+    >
       <Title
         ip={item.ip}
         group={item.group}
@@ -420,6 +425,7 @@ function Host(props: {
         onCancel={editHostInputVisible.off}
         onValidate={handleEditHostValidate}
         selectAllWhenMounted
+        preventAutoBlur={IS_MAC}
       />
     );
   }

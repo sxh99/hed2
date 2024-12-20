@@ -18,6 +18,7 @@ interface EditInputProps
   onValidate: (v: string) => string | Promise<string | undefined> | undefined;
   onCancel: () => void;
   selectAllWhenMounted?: boolean;
+  preventAutoBlur?: boolean;
 }
 
 export function EditInput(props: EditInputProps) {
@@ -28,12 +29,14 @@ export function EditInput(props: EditInputProps) {
     onValidate,
     onCancel,
     selectAllWhenMounted,
+    preventAutoBlur,
     ...restProps
   } = props;
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState(initValue || '');
   const [err, setErr] = useState('');
+  const autoBlurBugInMacFlag = useRef(false);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
@@ -86,7 +89,14 @@ export function EditInput(props: EditInputProps) {
             }
             setValue(e.target.value);
           }}
-          onBlur={handleOk}
+          onBlur={() => {
+            if (preventAutoBlur && !autoBlurBugInMacFlag.current) {
+              autoBlurBugInMacFlag.current = true;
+              inputRef.current?.focus();
+              return;
+            }
+            handleOk();
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               handleOk();

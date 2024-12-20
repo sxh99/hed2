@@ -16,3 +16,5 @@ export const NOT_EXISTS_GROUP: Group = {
   system: false,
   enabled: false,
 };
+
+export const IS_MAC = navigator.userAgent.includes('Mac');

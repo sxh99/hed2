@@ -252,7 +252,9 @@ function GroupSwitch(props: {
   if (disabled) {
     return (
       <Tooltip>
-        <TooltipTrigger asChild>{switchEle}</TooltipTrigger>
+        <TooltipTrigger asChild>
+          <div>{switchEle}</div>
+        </TooltipTrigger>
         <TooltipContent>
           <TooltipArrow />
           Please add some items

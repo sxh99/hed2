@@ -44,7 +44,7 @@ function RefreshButton() {
       </TooltipTrigger>
       <TooltipContent>
         <TooltipArrow />
-        Refresh groups
+        Refresh
       </TooltipContent>
     </Tooltip>
   );
