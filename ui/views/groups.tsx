@@ -25,6 +25,12 @@ import {
 import { useBoolean, useSearch } from '~/hooks';
 import type { Group } from '~/types';
 import { checkGroupExists } from '~/utils/group';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipArrow,
+} from '~/components/shadcn/tooltip';
 
 export function GroupPanel() {
   const search = useSearch();
@@ -117,8 +123,8 @@ function GroupButton(props: {
     return checkGroupExists(groups, newName);
   };
 
-  const handleToggleGroupEnable = () => {
-    const newGroup = { ...group, enabled: !group.enabled };
+  const handleToggleGroupEnable = (checked: boolean) => {
+    const newGroup = { ...group, enabled: checked };
     setGroup(newGroup);
     setSystemGroupWhenToggleEnable(newGroup);
   };
@@ -158,16 +164,7 @@ function GroupButton(props: {
             <div className="whitespace-normal break-all text-left truncate">
               {group.name}
             </div>
-            {!group.system && (
-              <Switch
-                className="ml-4"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                checked={group.enabled}
-                onCheckedChange={handleToggleGroupEnable}
-              />
-            )}
+            <GroupSwitch group={group} onToggle={handleToggleGroupEnable} />
           </div>
         </Button>
       </ContextMenuTrigger>
@@ -226,4 +223,43 @@ function NewGroupInput(props: {
       />
     </div>
   );
+}
+
+function GroupSwitch(props: {
+  group: Group;
+  onToggle: (v: boolean) => void;
+}) {
+  const { group, onToggle } = props;
+
+  if (group.system) {
+    return null;
+  }
+
+  const disabled = !group.enabled && !group.list.length;
+
+  const switchEle = (
+    <Switch
+      className="ml-4"
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+      checked={group.enabled}
+      onCheckedChange={onToggle}
+      disabled={disabled}
+    />
+  );
+
+  if (disabled) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{switchEle}</TooltipTrigger>
+        <TooltipContent>
+          <TooltipArrow />
+          Please add some items
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return switchEle;
 }

@@ -1,26 +1,30 @@
 import { atom } from 'jotai';
 import { splitAtom } from 'jotai/utils';
 import { SYSTEM_GROUP_NAME } from '~/consts';
-import type { Group, Item } from '~/types';
+import type { Group } from '~/types';
 import { ipc } from '~/utils/ipc';
 import { storage } from '~/utils/storage';
 import { currentGroupNameAtom } from './current-group-name';
+import {
+  systemHostsDraftAtom,
+  updateSystemHostsDraftAtom,
+} from './system-hosts-draft';
 
 export const groupsAtom = atom<Group[]>([]);
 
-export const groupAtomsAtom = splitAtom(groupsAtom, (group) => group.name);
-
-export const systemHostsTextDraftAtom = atom('');
-
-export const updateTextByListAtom = atom(
-  null,
-  async (get, set, list: Item[]) => {
-    const newText = await ipc.updateTextByList(
-      list,
-      get(systemHostsTextDraftAtom),
-    );
-    set(systemHostsTextDraftAtom, newText);
+const groupsWithWriterAtom = atom(
+  (get) => {
+    return get(groupsAtom);
   },
+  (_, set, newGroups: Group[]) => {
+    console.log(newGroups);
+    set(groupsAtom, newGroups);
+  },
+);
+
+export const groupAtomsAtom = splitAtom(
+  groupsWithWriterAtom,
+  (group) => group.name,
 );
 
 export const initGroupsAtom = atom(null, async (_, set) => {
@@ -28,9 +32,21 @@ export const initGroupsAtom = atom(null, async (_, set) => {
   const systemGroup = groups.find((profile) => profile.system);
   if (systemGroup) {
     set(currentGroupNameAtom, systemGroup.name);
-    set(systemHostsTextDraftAtom, systemGroup.text);
+    set(systemHostsDraftAtom, systemGroup.text);
   }
-  set(groupsAtom, groups);
+  const enabledGroupNames = new Set(groups.map((group) => group.name));
+  const disabledGroups = storage.getDisabledGroups();
+  let hasRepeatName = false;
+  for (const group of disabledGroups) {
+    if (enabledGroupNames.has(group.name)) {
+      group.name = `${group.name}-disabled`;
+      hasRepeatName = true;
+    }
+  }
+  set(groupsAtom, [...groups, ...disabledGroups]);
+  if (hasRepeatName) {
+    storage.setDisabledGroups(disabledGroups);
+  }
 });
 
 export const addGroupAtom = atom(null, (_, set, groupName: string) => {
@@ -70,7 +86,7 @@ export const setSystemGroupWhenRenameAtom = atom(
           return group.system ? { ...systemGroup } : group;
         }),
       );
-      set(updateTextByListAtom, systemGroup.list);
+      set(updateSystemHostsDraftAtom, systemGroup.list);
     } else {
       storage.renameDisabledGroup(oldName, newName);
     }
@@ -89,7 +105,7 @@ export const setSystemGroupWhenToggleEnableAtom = atom(
     if (changedGroup.enabled) {
       systemGroup.list = [...systemGroup.list, ...changedGroup.list];
       storage.deleteDisabledGroup(changedGroup.name);
-      set(updateTextByListAtom, systemGroup.list);
+      set(updateSystemHostsDraftAtom, systemGroup.list);
     } else {
       systemGroup.list = systemGroup.list.filter(
         (item) => item.group !== changedGroup.name,
@@ -119,7 +135,7 @@ export const setSystemGroupWhenRemoveAtom = atom(
       systemGroup.list = systemGroup.list.filter(
         (item) => item.group !== groupName,
       );
-      set(updateTextByListAtom, systemGroup.list);
+      set(updateSystemHostsDraftAtom, systemGroup.list);
     } else {
       storage.deleteDisabledGroup(groupName);
     }
@@ -133,6 +149,32 @@ export const setSystemGroupWhenRemoveAtom = atom(
 
     if (get(currentGroupNameAtom) === groupName) {
       set(currentGroupNameAtom, SYSTEM_GROUP_NAME);
+    }
+  },
+);
+
+export const updateGroupTextAtom = atom(
+  null,
+  async (get, set, name: string) => {
+    const groups = get(groupsAtom);
+    const targetGroup = groups.find((group) => group.name === name);
+    if (!targetGroup) {
+      return;
+    }
+    targetGroup.text = await ipc.updateTextByList(
+      targetGroup.list,
+      targetGroup.text,
+      targetGroup.name,
+    );
+    const newGroups = groups.map((group) => {
+      if (group.name === targetGroup.name) {
+        return { ...targetGroup };
+      }
+      return group;
+    });
+    set(groupsAtom, newGroups);
+    if (!targetGroup.enabled) {
+      storage.modifyDisabledGroup(targetGroup);
     }
   },
 );

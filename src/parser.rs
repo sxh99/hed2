@@ -330,7 +330,10 @@ fn list_to_lines(list: Vec<Item>, old_lines: Vec<Line>) -> Vec<Line> {
 						let mut new_items = vec![];
 						new_items.append(items);
 						lines.push(Line::Group(group.clone()));
-						for item in new_items {
+						for (i, item) in new_items.into_iter().enumerate() {
+							if i != 0 {
+								lines.push(Line::Empty);
+							}
 							lines
 								.append(&mut hosts_chunk(item.hosts, &item.ip));
 						}
@@ -350,6 +353,7 @@ fn list_to_lines(list: Vec<Item>, old_lines: Vec<Line>) -> Vec<Line> {
 		if hosts.is_empty() {
 			continue;
 		}
+		lines.push(Line::Empty);
 		lines.append(&mut hosts_chunk(hosts, &ip));
 	}
 
@@ -359,7 +363,10 @@ fn list_to_lines(list: Vec<Item>, old_lines: Vec<Line>) -> Vec<Line> {
 		}
 		lines.push(Line::Empty);
 		lines.push(Line::Group(group.clone()));
-		for item in items {
+		for (i, item) in items.into_iter().enumerate() {
+			if i != 0 {
+				lines.push(Line::Empty);
+			}
 			lines.append(&mut hosts_chunk(item.hosts, &item.ip));
 		}
 		lines.push(Line::Group(group.clone()));
@@ -408,8 +415,16 @@ fn lines_to_text(lines: &[Line]) -> String {
 	text_lines.join("\n")
 }
 
-pub fn list_to_text(list: Vec<Item>, old_text: String) -> String {
-	let lines = text_to_lines(&old_text);
+pub fn list_to_text(
+	list: Vec<Item>,
+	old_text: String,
+	group: Option<String>,
+) -> String {
+	let mut lines = text_to_lines(&old_text);
+	if let Some(group) = group {
+		lines.insert(0, Line::Group(group.clone()));
+		lines.push(Line::Group(group));
+	}
 	let new_lines = list_to_lines(list, lines);
 	lines_to_text(&new_lines)
 }

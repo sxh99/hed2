@@ -24,6 +24,7 @@ snapshot_kind: text
 #[foo]
 3.3.3.3 a.com e.com d.com
 # 3.3.3.3 b.com
+
 5.5.5.5 a.com
 #[foo]
 
