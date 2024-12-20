@@ -5,7 +5,8 @@ import { NOT_EXISTS_GROUP } from '~/consts';
 import type { Group, Item, ItemFormValue } from '~/types';
 import { storage } from '~/utils/storage';
 import { currentGroupNameAtom } from './current-group-name';
-import { groupsAtom, updateTextByListAtom } from './groups';
+import { groupsAtom, updateGroupTextAtom } from './groups';
+import { updateSystemHostsDraftAtom } from './system-hosts-draft';
 
 export const currentGroupAtom = atom(
   (get) => {
@@ -18,6 +19,9 @@ export const currentGroupAtom = atom(
   },
   (get, set, newGroup: Group) => {
     const groups = get(groupsAtom);
+    if (!newGroup.system && newGroup.enabled && !newGroup.list.length) {
+      newGroup.enabled = false;
+    }
     const newGroups = groups.map((group) => {
       if (group.name === newGroup.name) {
         return { ...newGroup };
@@ -30,9 +34,12 @@ export const currentGroupAtom = atom(
       if (!systemGroup) {
         return;
       }
-      set(updateTextByListAtom, systemGroup.list);
+      set(updateSystemHostsDraftAtom, systemGroup.list);
     } else {
       storage.modifyDisabledGroup(newGroup);
+    }
+    if (!newGroup.system) {
+      set(updateGroupTextAtom, newGroup.name);
     }
   },
 );
@@ -91,29 +98,47 @@ export const removeSameGroupItemAtom = atom(
     const groups = get(groupsAtom);
 
     if (currentGroup.system && removedItem.group !== currentGroup.name) {
+      const targetGroup = groups.find(
+        (group) => group.name === removedItem.group,
+      );
+      if (!targetGroup) {
+        return;
+      }
+      targetGroup.list = targetGroup.list.filter(
+        (item) => item.ip !== removedItem.ip,
+      );
+      if (
+        targetGroup.enabled &&
+        targetGroup.enabled &&
+        !targetGroup.list.length
+      ) {
+        targetGroup.enabled = false;
+      }
       set(
         groupsAtom,
         groups.map((group) => {
-          return group.name === removedItem.group
-            ? {
-                ...group,
-                list: group.list.filter((item) => item.ip !== removedItem.ip),
-              }
-            : group;
+          return group.name === targetGroup.name ? { ...targetGroup } : group;
         }),
       );
+      if (!targetGroup.enabled) {
+        storage.modifyDisabledGroup(targetGroup);
+      }
+      set(updateGroupTextAtom, targetGroup.name);
     } else if (!currentGroup.system && currentGroup.enabled) {
+      const systemGroup = groups.find((group) => group.system);
+      if (!systemGroup) {
+        return;
+      }
+      systemGroup.list = systemGroup.list.filter(
+        (item) => item.ip !== removedItem.ip,
+      );
       set(
         groupsAtom,
         groups.map((group) => {
-          return group.system
-            ? {
-                ...group,
-                list: group.list.filter((item) => item.ip !== removedItem.ip),
-              }
-            : group;
+          return group.system ? { ...systemGroup } : group;
         }),
       );
+      set(updateSystemHostsDraftAtom, systemGroup.list);
     }
   },
 );

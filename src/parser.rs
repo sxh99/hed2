@@ -3,7 +3,7 @@ use std::{collections::HashSet, net::IpAddr};
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
-const SYSTEM_GROUP_NAME: &str = "System";
+const SYSTEM_GROUP: &str = "System";
 
 #[derive(Debug, Clone)]
 pub enum Line {
@@ -109,8 +109,8 @@ fn text_to_lines(text: &str) -> Vec<Line> {
 
 fn lines_to_list(lines: &[Line], group: Option<&str>) -> Vec<Item> {
 	let mut item_map: IndexMap<String, Item> = IndexMap::new();
-	let mut current_group = group.unwrap_or(SYSTEM_GROUP_NAME);
 	let mut tmp_map: IndexMap<String, Item> = IndexMap::new();
+	let mut current_group = group.unwrap_or(SYSTEM_GROUP);
 
 	for line in lines {
 		match line {
@@ -140,22 +140,20 @@ fn lines_to_list(lines: &[Line], group: Option<&str>) -> Vec<Item> {
 			}
 			Line::Group(name) => {
 				if group.is_some()
-					|| name == SYSTEM_GROUP_NAME
-					|| current_group != SYSTEM_GROUP_NAME
-						&& current_group != name
+					|| name == SYSTEM_GROUP
+					|| (current_group != SYSTEM_GROUP && current_group != name)
 				{
 					continue;
 				}
-				let t = tmp_map.clone();
-				tmp_map.clear();
-				for (k, mut v) in t {
+				for (k, mut v) in tmp_map.clone() {
 					item_map
 						.entry(k)
 						.and_modify(|item| item.hosts.append(&mut v.hosts))
 						.or_insert(v);
 				}
+				tmp_map.clear();
 				if current_group == name {
-					current_group = SYSTEM_GROUP_NAME;
+					current_group = SYSTEM_GROUP;
 				} else {
 					current_group = name;
 				}
@@ -167,7 +165,7 @@ fn lines_to_list(lines: &[Line], group: Option<&str>) -> Vec<Item> {
 	if !tmp_map.is_empty() {
 		for (k, mut v) in tmp_map {
 			if group.is_none() {
-				v.group = SYSTEM_GROUP_NAME.to_string();
+				v.group = SYSTEM_GROUP.to_string();
 			}
 			item_map
 				.entry(k)
@@ -192,46 +190,58 @@ fn lines_to_list(lines: &[Line], group: Option<&str>) -> Vec<Item> {
 }
 
 pub fn text_to_groups(text: String) -> Vec<Group> {
-	let lines = text_to_lines(&text);
-	let mut group_map: IndexMap<String, Group> = IndexMap::new();
-	let mut current_group: Option<&String> = None;
-	let mut group_lines: Vec<&Line> = vec![];
+	use std::ops::Range;
 
-	for line in &lines {
-		if let Some(cur_group_name) = current_group {
-			if let Line::Group(new_group_name) = line {
-				if new_group_name == cur_group_name {
-					let owned_lines = group_lines
-						.clone()
-						.into_iter()
-						.cloned()
-						.collect::<Vec<Line>>();
-					let text = lines_to_text(&owned_lines);
-					group_map
-						.entry(new_group_name.clone())
-						.and_modify(|group| {
-							group.text = format!("{}\n{}", group.text, text);
-						})
-						.or_insert(Group {
-							name: new_group_name.clone(),
-							text,
-							list: vec![],
-						});
-					group_lines.clear();
-					current_group = None;
-					continue;
-				}
+	let lines = text_to_lines(&text);
+	let mut range_map: IndexMap<String, Vec<Range<usize>>> = IndexMap::new();
+	let mut current_range: Range<usize> = 0..0;
+	let mut current_group: Option<&String> = None;
+
+	for (idx, line) in lines.iter().enumerate() {
+		let Line::Group(group) = line else {
+			continue;
+		};
+		if group == SYSTEM_GROUP {
+			continue;
+		}
+		if let Some(pre_group) = current_group {
+			if group == pre_group {
+				current_group = None;
+				current_range.end = idx;
+				range_map
+					.entry(group.clone())
+					.and_modify(|ranges| {
+						ranges.push(current_range.clone());
+					})
+					.or_insert(vec![current_range.clone()]);
+				current_range = 0..0;
 			}
-			group_lines.push(line);
-		} else if let Line::Group(name) = line {
-			if name != SYSTEM_GROUP_NAME {
-				current_group = Some(name);
-			}
+		} else {
+			current_group = Some(group);
+			current_range.start = idx + 1;
 		}
 	}
 
+	let raw_lines = text.lines().collect::<Vec<&str>>();
+	let mut group_map: IndexMap<String, Group> = IndexMap::new();
+
+	for (group, ranges) in range_map {
+		let mut vs: Vec<&str> = vec![];
+		for range in ranges {
+			vs.extend(&raw_lines[range]);
+		}
+		group_map.insert(
+			group.clone(),
+			Group {
+				name: group,
+				text: vs.join("\n"),
+				list: vec![],
+			},
+		);
+	}
+
 	let system_group = Group {
-		name: SYSTEM_GROUP_NAME.to_string(),
+		name: SYSTEM_GROUP.to_string(),
 		text,
 		list: lines_to_list(&lines, None),
 	};
@@ -242,59 +252,124 @@ pub fn text_to_groups(text: String) -> Vec<Group> {
 	}
 	let mut groups = vec![system_group];
 	groups.append(&mut group_map.into_values().collect::<Vec<Group>>());
+
 	groups
 }
 
-fn hosts_partition(hosts: Vec<Host>) -> (Vec<Host>, Vec<Host>) {
-	hosts.into_iter().partition(|host| host.enabled)
-}
+fn hosts_chunk(hosts: Vec<Host>, ip: &str) -> Vec<Line> {
+	let mut lines = vec![];
 
-fn hosts_to_lines(hosts: Vec<Host>, ip: &str, enabled: bool) -> Vec<Line> {
-	hosts
-		.chunks(10)
-		.map(|chunk| Line::Valid {
-			ip: ip.to_string(),
-			hosts: chunk.iter().cloned().map(|host| host.content).collect(),
-			enabled,
-		})
-		.collect()
+	let (enabled_hosts, disabled_hosts): (Vec<_>, Vec<_>) =
+		hosts.into_iter().partition(|host| host.enabled);
+
+	let map_fn = |chunk: &[Host], enabled: bool| Line::Valid {
+		ip: ip.to_string(),
+		hosts: chunk.iter().cloned().map(|host| host.content).collect(),
+		enabled,
+	};
+
+	lines.extend(enabled_hosts.chunks(10).map(|chunk| map_fn(chunk, true)));
+	lines.extend(disabled_hosts.chunks(10).map(|chunk| map_fn(chunk, false)));
+
+	lines
 }
 
 fn list_to_lines(list: Vec<Item>, old_lines: Vec<Line>) -> Vec<Line> {
 	let mut lines = vec![];
-	let mut hosts_map = list
-		.into_iter()
-		.map(|item| (item.ip, item.hosts))
-		.collect::<IndexMap<String, Vec<Host>>>();
+	let mut sys_hosts_map: IndexMap<String, Vec<Host>> = IndexMap::new();
+	let mut other_item_map: IndexMap<String, Vec<Item>> = IndexMap::new();
 
-	for line in old_lines {
-		if let Line::Valid { ip, .. } = line {
-			if let Some(hosts) = hosts_map.get_mut(&ip) {
-				if hosts.is_empty() {
-					lines.push(Line::Empty);
-					continue;
-				}
-				let mut new_hosts = vec![];
-				new_hosts.append(hosts);
-				let (enabled, disabled) = hosts_partition(new_hosts);
-				lines.append(&mut hosts_to_lines(enabled, &ip, true));
-				lines.append(&mut hosts_to_lines(disabled, &ip, false));
-			} else {
-				lines.push(Line::Empty);
-			}
+	for mut item in list {
+		if item.group == SYSTEM_GROUP {
+			sys_hosts_map
+				.entry(item.ip)
+				.and_modify(|hosts| {
+					hosts.append(&mut item.hosts);
+				})
+				.or_insert(item.hosts);
+		} else if let Some(items) = other_item_map.get_mut(&item.group) {
+			items.push(item);
 		} else {
-			lines.push(line);
+			other_item_map.insert(item.group.clone(), vec![item]);
 		}
 	}
 
-	for (ip, hosts) in hosts_map {
+	let mut current_group: Option<String> = None;
+
+	for line in old_lines {
+		match line {
+			Line::Valid { ip, .. } => {
+				if current_group.is_some() {
+					continue;
+				}
+				if let Some(hosts) = sys_hosts_map.get_mut(&ip) {
+					if hosts.is_empty() {
+						lines.push(Line::Empty);
+						continue;
+					}
+					let mut new_hosts = vec![];
+					new_hosts.append(hosts);
+					lines.append(&mut hosts_chunk(new_hosts, &ip));
+				} else {
+					lines.push(Line::Empty);
+				}
+			}
+			Line::Group(group) => {
+				if group == SYSTEM_GROUP {
+					continue;
+				}
+				if let Some(pre_group) = &current_group {
+					if *pre_group == group {
+						current_group = None;
+						let Some(items) = other_item_map.get_mut(&group) else {
+							continue;
+						};
+						if items.is_empty() {
+							continue;
+						}
+						let mut new_items = vec![];
+						new_items.append(items);
+						lines.push(Line::Group(group.clone()));
+						for (i, item) in new_items.into_iter().enumerate() {
+							if i != 0 {
+								lines.push(Line::Empty);
+							}
+							lines
+								.append(&mut hosts_chunk(item.hosts, &item.ip));
+						}
+						lines.push(Line::Group(group.clone()));
+					}
+				} else {
+					current_group = Some(group);
+				}
+			}
+			_ => {
+				lines.push(line);
+			}
+		}
+	}
+
+	for (ip, hosts) in sys_hosts_map {
 		if hosts.is_empty() {
 			continue;
 		}
 		lines.push(Line::Empty);
-		let (enabled, disabled) = hosts_partition(hosts);
-		lines.append(&mut hosts_to_lines(enabled, &ip, true));
-		lines.append(&mut hosts_to_lines(disabled, &ip, false));
+		lines.append(&mut hosts_chunk(hosts, &ip));
+	}
+
+	for (group, items) in other_item_map {
+		if items.is_empty() {
+			continue;
+		}
+		lines.push(Line::Empty);
+		lines.push(Line::Group(group.clone()));
+		for (i, item) in items.into_iter().enumerate() {
+			if i != 0 {
+				lines.push(Line::Empty);
+			}
+			lines.append(&mut hosts_chunk(item.hosts, &item.ip));
+		}
+		lines.push(Line::Group(group.clone()));
 	}
 
 	lines
@@ -340,8 +415,16 @@ fn lines_to_text(lines: &[Line]) -> String {
 	text_lines.join("\n")
 }
 
-pub fn list_to_text(list: Vec<Item>, old_text: String) -> String {
-	let lines = text_to_lines(&old_text);
+pub fn list_to_text(
+	list: Vec<Item>,
+	old_text: String,
+	group: Option<String>,
+) -> String {
+	let mut lines = text_to_lines(&old_text);
+	if let Some(group) = group {
+		lines.insert(0, Line::Group(group.clone()));
+		lines.push(Line::Group(group));
+	}
 	let new_lines = list_to_lines(list, lines);
 	lines_to_text(&new_lines)
 }

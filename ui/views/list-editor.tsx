@@ -98,6 +98,9 @@ function NewItemDialog() {
     if (!isIp) {
       return { field: 'ip', err: `\`${v.ip}\` is not a valid ip` };
     }
+    if (!v.hosts) {
+      return { field: 'hosts', err: 'hosts is required' };
+    }
   };
 
   const handleSubmit = (v: ItemFormValue) => {
@@ -125,7 +128,7 @@ function NewItemDialog() {
           <FormItem name="ip" label="Ip" required>
             <Input />
           </FormItem>
-          <FormItem name="hosts" label="Hosts">
+          <FormItem name="hosts" label="Hosts" required>
             <Textarea className="resize-none" rows={4} />
           </FormItem>
         </Form>
@@ -203,7 +206,11 @@ function ListItem(props: {
         onItemChagne={handleItemChange}
         onItemRemove={handleItemRemove}
       />
-      <Hosts hosts={item.hosts} onItemChagne={handleItemChange} />
+      <Hosts
+        hosts={item.hosts}
+        onItemChagne={handleItemChange}
+        onItemRemove={handleItemRemove}
+      />
     </div>
   );
 }
@@ -289,9 +296,10 @@ function Title(
 function Hosts(
   props: Pick<Item, 'hosts'> & {
     onItemChagne: (v: Partial<Item>) => void;
+    onItemRemove: () => void;
   },
 ) {
-  const { hosts, onItemChagne } = props;
+  const { hosts, onItemChagne, onItemRemove } = props;
 
   const newHostInputVisible = useBoolean();
 
@@ -308,7 +316,12 @@ function Hosts(
   };
 
   const handleHostRemove = (v: string) => {
-    onItemChagne({ hosts: hosts.filter((host) => host.content !== v) });
+    const newHosts = hosts.filter((host) => host.content !== v);
+    if (!newHosts.length) {
+      onItemRemove();
+      return;
+    }
+    onItemChagne({ hosts: newHosts });
   };
 
   const handleNewHostOk = (v: string) => {

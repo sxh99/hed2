@@ -98,7 +98,7 @@ export function EditInput(props: EditInputProps) {
         />
       </TooltipTrigger>
       <TooltipContent className="bg-red-500">
-        <TooltipArrow className="fill-red-500 dark:fill-bg-500" />
+        <TooltipArrow className="fill-red-500" />
         {err}
       </TooltipContent>
     </Tooltip>

@@ -25,6 +25,10 @@ export const storage = {
     });
   },
 
+  setDisabledGroups(groups: Group[]) {
+    setStorageGroups(groups);
+  },
+
   renameDisabledGroup(oldName: string, newName: string) {
     const storageGroups = getStorageGroups();
     const targetGroup = storageGroups.find((g) => g.name === oldName);
@@ -51,14 +55,19 @@ export const storage = {
   },
 
   modifyDisabledGroup(newGroup: Group) {
-    const storageGroups = getStorageGroups();
-    setStorageGroups(
-      storageGroups.map((group) => {
-        if (group.name === newGroup.name) {
-          return newGroup;
-        }
-        return group;
-      }),
-    );
+    const groups = getStorageGroups();
+    if (groups.some((group) => group.name === newGroup.name)) {
+      setStorageGroups(
+        groups.map((group) => {
+          if (group.name === newGroup.name) {
+            return newGroup;
+          }
+          return group;
+        }),
+      );
+    } else {
+      groups.push(newGroup);
+      setStorageGroups(groups);
+    }
   },
 };

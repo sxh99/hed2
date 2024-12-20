@@ -101,13 +101,45 @@ snapshot_kind: text
         "# 4.4.4.4",
     ),
     Empty,
+    Empty,
+    Empty,
+    Empty,
+    Group(
+        "foo",
+    ),
+    Valid {
+        ip: "3.3.3.3",
+        hosts: [
+            "a.com",
+            "e.com",
+            "d.com",
+        ],
+        enabled: true,
+    },
+    Valid {
+        ip: "3.3.3.3",
+        hosts: [
+            "b.com",
+        ],
+        enabled: false,
+    },
+    Empty,
+    Valid {
+        ip: "5.5.5.5",
+        hosts: [
+            "a.com",
+        ],
+        enabled: true,
+    },
     Group(
         "foo",
     ),
     Empty,
-    Group(
-        "bar",
+    Other(
+        "#abcdefg",
     ),
+    Empty,
+    Empty,
     Valid {
         ip: "3.3.3.3",
         hosts: [
@@ -117,21 +149,6 @@ snapshot_kind: text
     },
     Empty,
     Empty,
-    Group(
-        "bar",
-    ),
-    Empty,
-    Group(
-        "foo",
-    ),
-    Empty,
-    Other(
-        "#abcdefg",
-    ),
-    Empty,
-    Group(
-        "foo",
-    ),
     Empty,
     Valid {
         ip: "5.5.5.5",
@@ -141,31 +158,10 @@ snapshot_kind: text
         ],
         enabled: true,
     },
-    Group(
-        "foo",
-    ),
     Empty,
     Group(
-        "System",
+        "Another Group",
     ),
-    Empty,
-    Group(
-        "System",
-    ),
-    Empty,
-    Group(
-        "baz",
-    ),
-    Empty,
-    Empty,
-    Group(
-        "foo",
-    ),
-    Empty,
-    Group(
-        "foo",
-    ),
-    Empty,
     Valid {
         ip: "2.2.2.2",
         hosts: [
@@ -180,4 +176,7 @@ snapshot_kind: text
         ],
         enabled: false,
     },
+    Group(
+        "Another Group",
+    ),
 ]

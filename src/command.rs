@@ -15,6 +15,10 @@ pub fn is_ip(text: String) -> bool {
 }
 
 #[tauri::command]
-pub fn update_text_by_list(list: Vec<Item>, text: String) -> String {
-	list_to_text(list, text)
+pub fn update_text_by_list(
+	list: Vec<Item>,
+	text: String,
+	group: Option<String>,
+) -> String {
+	list_to_text(list, text, group)
 }
