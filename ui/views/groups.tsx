@@ -5,9 +5,6 @@ import {
   currentGroupNameAtom,
   groupAtomsAtom,
   groupsAtom,
-  setSystemGroupWhenRemoveAtom,
-  setSystemGroupWhenRenameAtom,
-  setSystemGroupWhenToggleEnableAtom,
 } from '~/atom';
 import {
   Button,
@@ -22,15 +19,15 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from '~/components/shadcn/context-menu';
+import {
+  Tooltip,
+  TooltipArrow,
+  TooltipContent,
+  TooltipTrigger,
+} from '~/components/shadcn/tooltip';
 import { useBoolean, useSearch } from '~/hooks';
 import type { Group } from '~/types';
 import { checkGroupExists } from '~/utils/group';
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipArrow,
-} from '~/components/shadcn/tooltip';
 
 export function GroupPanel() {
   const search = useSearch();
@@ -54,7 +51,7 @@ export function GroupPanel() {
         <GroupList search={search.deferredValue} />
         <NewGroupInput
           visible={newGroupInputVisible.value}
-          onUnmounted={newGroupInputVisible.off}
+          onCancel={newGroupInputVisible.off}
         />
       </ScrollArea>
     </div>
@@ -91,11 +88,6 @@ function GroupButton(props: {
   const [currentGroupName, setCurrentGroupName] = useAtom(currentGroupNameAtom);
   const groups = useAtomValue(groupsAtom);
   const renameInputVisible = useBoolean();
-  const setSystemGroupWhenRename = useSetAtom(setSystemGroupWhenRenameAtom);
-  const setSystemGroupWhenToggleEnable = useSetAtom(
-    setSystemGroupWhenToggleEnableAtom,
-  );
-  const setSystemGroupWhenRemove = useSetAtom(setSystemGroupWhenRemoveAtom);
 
   if (!group.name.includes(search)) {
     return null;
@@ -111,7 +103,6 @@ function GroupButton(props: {
   const handleGroupRenameOk = (newName: string) => {
     if (newName !== group.name) {
       setGroup({ ...group, name: newName });
-      setSystemGroupWhenRename(group.name, newName, group.enabled);
     }
     renameInputVisible.off();
   };
@@ -126,12 +117,10 @@ function GroupButton(props: {
   const handleToggleGroupEnable = (checked: boolean) => {
     const newGroup = { ...group, enabled: checked };
     setGroup(newGroup);
-    setSystemGroupWhenToggleEnable(newGroup);
   };
 
   const handleGroupRemove = () => {
     onGroupRemove(groupAtom);
-    setSystemGroupWhenRemove(group.name, group.enabled);
   };
 
   if (renameInputVisible.value) {
@@ -191,16 +180,16 @@ function GroupButton(props: {
 
 function NewGroupInput(props: {
   visible: boolean;
-  onUnmounted: () => void;
+  onCancel: () => void;
 }) {
-  const { visible, onUnmounted } = props;
+  const { visible, onCancel } = props;
 
   const groups = useAtomValue(groupsAtom);
   const addGroup = useSetAtom(addGroupAtom);
 
   const handleNewGroupOk = (name: string) => {
     addGroup(name);
-    onUnmounted();
+    onCancel();
   };
 
   const handleNewGroupValidate = (name: string) => {
@@ -218,7 +207,7 @@ function NewGroupInput(props: {
         name="groupName"
         onOk={handleNewGroupOk}
         onValidate={handleNewGroupValidate}
-        onCancel={onUnmounted}
+        onCancel={onCancel}
         maxLength={50}
       />
     </div>

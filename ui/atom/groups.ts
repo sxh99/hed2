@@ -1,24 +1,67 @@
 import { atom } from 'jotai';
 import { splitAtom } from 'jotai/utils';
+import { xorWith } from 'lodash';
 import { SYSTEM_GROUP_NAME } from '~/consts';
 import type { Group } from '~/types';
 import { ipc } from '~/utils/ipc';
 import { storage } from '~/utils/storage';
-import { currentGroupNameAtom } from './current-group-name';
 import {
+  currentGroupNameAtom,
+  groupsAtom,
   systemHostsDraftAtom,
-  updateSystemHostsDraftAtom,
-} from './system-hosts-draft';
+} from './primitive';
+import { updateSystemHostsDraftAtom } from './system-hosts-draft';
 
-export const groupsAtom = atom<Group[]>([]);
-
-const groupsWithWriterAtom = atom(
+export const groupsWithWriterAtom = atom(
   (get) => {
     return get(groupsAtom);
   },
-  (_, set, newGroups: Group[]) => {
-    console.log(newGroups);
-    set(groupsAtom, newGroups);
+  (get, set, newGroups: Group[]) => {
+    const groups = get(groupsAtom);
+    const systemGroup = newGroups.find((group) => group.system);
+    if (systemGroup) {
+      const xor = xorWith(groups, newGroups, (a, b) => {
+        return a.name === b.name && a.enabled === b.enabled;
+      });
+      if (xor.length === 1) {
+        const removed = xor[0];
+        systemGroup.list = systemGroup.list.filter(
+          (item) => item.group !== removed.name,
+        );
+        if (get(currentGroupNameAtom) === removed.name) {
+          set(currentGroupNameAtom, SYSTEM_GROUP_NAME);
+        }
+      } else if (xor.length === 2) {
+        const [previous, current] = xor;
+        if (previous.name !== current.name) {
+          current.list = current.list.map((item) => {
+            return { ...item, group: current.name };
+          });
+          systemGroup.list = systemGroup.list.map((item) => {
+            return item.group === previous.name
+              ? { ...item, group: current.name }
+              : item;
+          });
+          if (get(currentGroupNameAtom) === previous.name) {
+            set(currentGroupNameAtom, current.name);
+          }
+        } else if (!previous.enabled && current.enabled) {
+          systemGroup.list = [...systemGroup.list, ...current.list];
+        } else if (previous.enabled && !current.enabled) {
+          systemGroup.list = systemGroup.list.filter(
+            (item) => item.group !== current.name,
+          );
+        }
+      }
+    }
+    set(
+      groupsAtom,
+      newGroups.map((group) => {
+        return group.system ? { ...group } : group;
+      }),
+    );
+    set(updateSystemHostsDraftAtom);
+    storage.setDisabledGroups(newGroups.filter((group) => !group.enabled));
   },
 );
 
@@ -49,7 +92,7 @@ export const initGroupsAtom = atom(null, async (_, set) => {
   }
 });
 
-export const addGroupAtom = atom(null, (_, set, groupName: string) => {
+export const addGroupAtom = atom(null, (get, set, groupName: string) => {
   const newGroup: Group = {
     name: groupName,
     text: '',
@@ -59,99 +102,7 @@ export const addGroupAtom = atom(null, (_, set, groupName: string) => {
   };
   set(groupsAtom, (groups) => [...groups, newGroup]);
   set(currentGroupNameAtom, groupName);
-  storage.addDisabledGroup(newGroup);
 });
-
-export const setSystemGroupWhenRenameAtom = atom(
-  null,
-  (get, set, oldName: string, newName: string, enabled: boolean) => {
-    const groups = get(groupsAtom);
-    const systemGroup = groups.find((g) => g.system);
-    if (!systemGroup) {
-      return;
-    }
-    if (enabled) {
-      systemGroup.list = systemGroup.list.map((item) => {
-        if (item.group === oldName) {
-          return {
-            ...item,
-            group: newName,
-          };
-        }
-        return item;
-      });
-      set(
-        groupsAtom,
-        groups.map((group) => {
-          return group.system ? { ...systemGroup } : group;
-        }),
-      );
-      set(updateSystemHostsDraftAtom, systemGroup.list);
-    } else {
-      storage.renameDisabledGroup(oldName, newName);
-    }
-  },
-);
-
-export const setSystemGroupWhenToggleEnableAtom = atom(
-  null,
-  (get, set, changedGroup: Group) => {
-    const groups = get(groupsAtom);
-    const systemGroup = groups.find((g) => g.system);
-    if (!systemGroup) {
-      return;
-    }
-
-    if (changedGroup.enabled) {
-      systemGroup.list = [...systemGroup.list, ...changedGroup.list];
-      storage.deleteDisabledGroup(changedGroup.name);
-      set(updateSystemHostsDraftAtom, systemGroup.list);
-    } else {
-      systemGroup.list = systemGroup.list.filter(
-        (item) => item.group !== changedGroup.name,
-      );
-      storage.addDisabledGroup(changedGroup);
-    }
-
-    set(
-      groupsAtom,
-      groups.map((group) => {
-        return group.system ? { ...systemGroup } : group;
-      }),
-    );
-  },
-);
-
-export const setSystemGroupWhenRemoveAtom = atom(
-  null,
-  (get, set, groupName: string, enabled: boolean) => {
-    const groups = get(groupsAtom);
-    const systemGroup = groups.find((g) => g.system);
-    if (!systemGroup) {
-      return;
-    }
-
-    if (enabled) {
-      systemGroup.list = systemGroup.list.filter(
-        (item) => item.group !== groupName,
-      );
-      set(updateSystemHostsDraftAtom, systemGroup.list);
-    } else {
-      storage.deleteDisabledGroup(groupName);
-    }
-
-    set(
-      groupsAtom,
-      groups.map((group) => {
-        return group.system ? { ...systemGroup } : group;
-      }),
-    );
-
-    if (get(currentGroupNameAtom) === groupName) {
-      set(currentGroupNameAtom, SYSTEM_GROUP_NAME);
-    }
-  },
-);
 
 export const updateGroupTextAtom = atom(
   null,
@@ -176,5 +127,31 @@ export const updateGroupTextAtom = atom(
     if (!targetGroup.enabled) {
       storage.modifyDisabledGroup(targetGroup);
     }
+  },
+);
+
+export const updateGroupsTextAtom = atom(
+  null,
+  async (get, set, groupNames: string[]) => {
+    const nameSet = new Set(groupNames);
+    const groups = get(groupsAtom);
+    const targetGroups = groups.filter(
+      (group) => !group.system && nameSet.has(group.name),
+    );
+    await Promise.all(
+      targetGroups.map(async (group) => {
+        group.text = await ipc.updateTextByList(
+          group.list,
+          group.text,
+          group.name,
+        );
+      }),
+    );
+    set(
+      groupsAtom,
+      groups.map((group) => {
+        return nameSet.has(group.name) ? { ...group } : group;
+      }),
+    );
   },
 );

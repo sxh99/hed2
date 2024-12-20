@@ -21,3 +21,8 @@ export interface ItemFormValue {
   ip: string;
   hosts: string;
 }
+
+export interface EditorCfg {
+  kind: string;
+  showAll: boolean;
+}

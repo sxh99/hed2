@@ -9,13 +9,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useRef } from 'react';
-import {
-  addGroupItemAtom,
-  currentGroupAtom,
-  itemAtomsAtom,
-  removeSameGroupItemAtom,
-  setSameGroupItemAtom,
-} from '~/atom';
+import { addGroupItemAtom, currentGroupAtom, itemAtomsAtom } from '~/atom';
 import {
   Badge,
   Button,
@@ -49,7 +43,7 @@ import {
 } from '~/components/shadcn/dropdown-menu';
 import { ToggleGroup, ToggleGroupItem } from '~/components/shadcn/toggle-group';
 import { Form, FormItem } from '~/components/simple-form';
-import { SYSTEM_GROUP_NAME, IS_MAC } from '~/consts';
+import { IS_MAC, SYSTEM_GROUP_NAME } from '~/consts';
 import { useBoolean, useSearch } from '~/hooks';
 import type { Item, ItemFormValue } from '~/types';
 import { cn } from '~/utils/cn';
@@ -175,8 +169,6 @@ function ListItem(props: {
   const { itemAtom, onItemRemove, search } = props;
 
   const [item, setItem] = useAtom(itemAtom);
-  const setSameGroupItem = useSetAtom(setSameGroupItemAtom);
-  const removeSameGroupItem = useSetAtom(removeSameGroupItemAtom);
 
   if (
     !(
@@ -190,12 +182,10 @@ function ListItem(props: {
   const handleItemChange = (v: Partial<Item>) => {
     const newItem = { ...item, ...v };
     setItem(newItem);
-    setSameGroupItem(item.ip, newItem);
   };
 
   const handleItemRemove = () => {
     onItemRemove(itemAtom);
-    removeSameGroupItem(item);
   };
 
   return (

@@ -2,14 +2,12 @@ import type { Group } from '~/types';
 
 const DISABLED_GROUPS_KEY = 'disabled-groups';
 
-type StoreGroup = Pick<Group, 'name' | 'text' | 'list'>;
-
-function getStorageGroups(): StoreGroup[] {
+function getStorageGroups(): Group[] {
   const str = localStorage.getItem(DISABLED_GROUPS_KEY);
   return str ? JSON.parse(str) : [];
 }
 
-function setStorageGroups(groups: StoreGroup[]) {
+function setStorageGroups(groups: Group[]) {
   localStorage.setItem(DISABLED_GROUPS_KEY, JSON.stringify(groups));
 }
 
@@ -45,6 +43,8 @@ export const storage = {
       name: group.name,
       list: group.list,
       text: group.text,
+      enabled: false,
+      system: false,
     });
     setStorageGroups(storageGroups);
   },

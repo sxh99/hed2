@@ -4,8 +4,12 @@ import { splitAtom } from 'jotai/utils';
 import { NOT_EXISTS_GROUP } from '~/consts';
 import type { Group, Item, ItemFormValue } from '~/types';
 import { storage } from '~/utils/storage';
-import { currentGroupNameAtom } from './current-group-name';
-import { groupsAtom, updateGroupTextAtom } from './groups';
+import {
+  groupsWithWriterAtom,
+  updateGroupTextAtom,
+  updateGroupsTextAtom,
+} from './groups';
+import { currentGroupNameAtom, groupsAtom } from './primitive';
 import { updateSystemHostsDraftAtom } from './system-hosts-draft';
 
 export const currentGroupAtom = atom(
@@ -19,28 +23,54 @@ export const currentGroupAtom = atom(
   },
   (get, set, newGroup: Group) => {
     const groups = get(groupsAtom);
-    if (!newGroup.system && newGroup.enabled && !newGroup.list.length) {
-      newGroup.enabled = false;
-    }
-    const newGroups = groups.map((group) => {
-      if (group.name === newGroup.name) {
-        return { ...newGroup };
+    if (newGroup.system) {
+      const enabledGroupNames = new Set(
+        groups
+          .filter((group) => group.enabled && !group.system)
+          .map((group) => group.name),
+      );
+      const map: Map<string, Item[]> = new Map();
+      for (const item of newGroup.list) {
+        if (!enabledGroupNames.has(item.group)) {
+          continue;
+        }
+        const list = map.get(item.group);
+        if (list) {
+          list.push(item);
+        } else {
+          map.set(item.group, [item]);
+        }
       }
-      return group;
-    });
-    set(groupsAtom, newGroups);
-    if (newGroup.enabled) {
-      const systemGroup = newGroups.find((group) => group.system);
-      if (!systemGroup) {
-        return;
+      for (const group of groups) {
+        if (!group.enabled) {
+          continue;
+        }
+        const newList = map.get(group.name);
+        if (!newList) {
+          continue;
+        }
+        group.list = [...newList];
       }
-      set(updateSystemHostsDraftAtom, systemGroup.list);
-    } else {
-      storage.modifyDisabledGroup(newGroup);
+      set(
+        groupsWithWriterAtom,
+        groups.map((group) => {
+          if (group.name === newGroup.name) {
+            return newGroup;
+          }
+          if (group.enabled) {
+            return { ...group };
+          }
+          return group;
+        }),
+      );
+      set(updateGroupsTextAtom, [...enabledGroupNames]);
+      return;
     }
-    if (!newGroup.system) {
-      set(updateGroupTextAtom, newGroup.name);
+    const systemGroup = groups.find((group) => group.system);
+    if (!systemGroup) {
+      return;
     }
+    // todo
   },
 );
 
