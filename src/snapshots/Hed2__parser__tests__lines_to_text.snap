@@ -22,31 +22,18 @@ snapshot_kind: text
 # 4.4.4.4
 
 #[foo]
-
-#[bar]
-3.3.3.3 a.com e.com d.com c.com
+3.3.3.3 a.com e.com d.com
 # 3.3.3.3 b.com
-
-#[bar]
-
+5.5.5.5 a.com
 #[foo]
 
 #abcdefg
 
-#[foo]
+3.3.3.3 c.com
 
-5.5.5.5 a.com a.com c.com
-#[foo]
+5.5.5.5 a.com c.com
 
-#[System]
-
-#[System]
-
-#[baz]
-
-#[foo]
-
-#[foo]
-
+#[Another Group]
 2.2.2.2 foo.com
 # 2.2.2.2 bar.com
+#[Another Group]
