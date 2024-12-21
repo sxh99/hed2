@@ -1,45 +1,51 @@
-import { type ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
+import { type ChildProcess, spawn } from 'node:child_process';
 import path from 'node:path';
+import readline from 'node:readline';
 import kill from 'tree-kill';
 
+type CmdName = 'tailwindcss' | 'ui' | 'tauri';
+
 interface Cmd {
-  name: string;
+  name: CmdName;
   runner: string;
   args: string[];
   closed: boolean;
-  cp?: ChildProcessWithoutNullStreams;
+  cp?: ChildProcess;
   cwd?: string;
 }
 
-function main() {
-  const cwd = process.cwd();
-  const cmds: Cmd[] = [
-    {
-      name: 'tailwindcss',
-      runner: 'node',
-      args: ['--run', 'tailwindcss'],
-      closed: false,
-      cwd: path.join(cwd, 'ui'),
-    },
-    {
-      name: 'vite',
-      runner: 'node',
-      args: ['--run', 'dev'],
-      closed: false,
-      cwd: path.join(cwd, 'ui'),
-    },
-    {
-      name: 'tauri',
-      runner: 'cargo',
-      args: ['run'],
-      closed: false,
-      cwd: undefined,
-    },
-  ];
+const cwd = process.cwd();
+
+const allCmd: Cmd[] = [
+  {
+    name: 'tailwindcss',
+    runner: 'node',
+    args: ['--run', 'tailwindcss'],
+    closed: false,
+    cwd: path.join(cwd, 'ui'),
+  },
+  {
+    name: 'ui',
+    runner: 'node',
+    args: ['--run', 'dev'],
+    closed: false,
+    cwd: path.join(cwd, 'ui'),
+  },
+  {
+    name: 'tauri',
+    runner: 'cargo',
+    args: ['run'],
+    closed: false,
+  },
+];
+
+export function run(names: CmdName[]) {
+  const cmds = allCmd.filter((cmd) => names.includes(cmd.name));
 
   const checkAndExit = () => {
     if (cmds.every((cmd) => cmd.closed)) {
-      process.exit(0);
+      process.exitCode = 0;
+      process.exit();
     }
   };
 
@@ -84,9 +90,13 @@ function main() {
     });
   }
 
-  process.on('SIGINT', () => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  rl.on('SIGINT', () => {
+    process.stdin.pause();
     killAll();
   });
 }
-
-main();
