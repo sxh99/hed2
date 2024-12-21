@@ -1,0 +1,283 @@
+[
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "other",
+    "value": "#    comment",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "valid",
+    "value": {
+      "enabled": true,
+      "hosts": [
+        "a.com",
+        "c.com",
+        "b.com",
+        "f.com",
+        "e.com",
+        "h.com",
+        "g.com",
+        "i.com",
+        "k.com",
+        "j.com",
+      ],
+      "ip": "1.1.1.1",
+    },
+  },
+  {
+    "type": "valid",
+    "value": {
+      "enabled": true,
+      "hosts": [
+        "l.com",
+        "m.com",
+        "n.com",
+        "o.com",
+      ],
+      "ip": "1.1.1.1",
+    },
+  },
+  {
+    "type": "valid",
+    "value": {
+      "enabled": false,
+      "hosts": [
+        "1.com",
+        "2.com",
+        "3.com",
+        "4.com",
+        "5.com",
+        "6.com",
+        "7.com",
+        "8.com",
+        "9.com",
+        "10.com",
+      ],
+      "ip": "1.1.1.1",
+    },
+  },
+  {
+    "type": "valid",
+    "value": {
+      "enabled": false,
+      "hosts": [
+        "11.com",
+        "13.com",
+      ],
+      "ip": "1.1.1.1",
+    },
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "other",
+    "value": "# comment",
+  },
+  {
+    "type": "other",
+    "value": "# comment",
+  },
+  {
+    "type": "other",
+    "value": "# comment",
+  },
+  {
+    "type": "other",
+    "value": "# comment",
+  },
+  {
+    "type": "other",
+    "value": "# comment",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "valid",
+    "value": {
+      "enabled": true,
+      "hosts": [
+        "b.com",
+      ],
+      "ip": "2402:1200:4f00:1234:0000:5678:9abc:def0",
+    },
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "other",
+    "value": "4.4.4.4",
+  },
+  {
+    "type": "other",
+    "value": "# 4.4.4.4",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "group",
+    "value": "foo",
+  },
+  {
+    "type": "valid",
+    "value": {
+      "enabled": true,
+      "hosts": [
+        "a.com",
+        "e.com",
+        "d.com",
+      ],
+      "ip": "3.3.3.3",
+    },
+  },
+  {
+    "type": "valid",
+    "value": {
+      "enabled": false,
+      "hosts": [
+        "b.com",
+      ],
+      "ip": "3.3.3.3",
+    },
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "valid",
+    "value": {
+      "enabled": true,
+      "hosts": [
+        "a.com",
+      ],
+      "ip": "5.5.5.5",
+    },
+  },
+  {
+    "type": "group",
+    "value": "foo",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "other",
+    "value": "#abcdefg",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "valid",
+    "value": {
+      "enabled": true,
+      "hosts": [
+        "c.com",
+      ],
+      "ip": "3.3.3.3",
+    },
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "valid",
+    "value": {
+      "enabled": true,
+      "hosts": [
+        "a.com",
+        "c.com",
+      ],
+      "ip": "5.5.5.5",
+    },
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "group",
+    "value": "Another Group",
+  },
+  {
+    "type": "valid",
+    "value": {
+      "enabled": true,
+      "hosts": [
+        "foo.com",
+      ],
+      "ip": "2.2.2.2",
+    },
+  },
+  {
+    "type": "valid",
+    "value": {
+      "enabled": false,
+      "hosts": [
+        "bar.com",
+      ],
+      "ip": "2.2.2.2",
+    },
+  },
+  {
+    "type": "group",
+    "value": "Another Group",
+  },
+]

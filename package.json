@@ -6,7 +6,8 @@
   "scripts": {
     "fmt": "biome check --linter-enabled=false --write",
     "check": "biome check",
-    "typecheck": "tsc -p ./ui/tsconfig.json --noEmit",
+    "typecheck:ui": "tsc -p ./ui/tsconfig.json --noEmit",
+    "typecheck:parser": "tsc -p ./parser/tsconfig.json --noEmit",
     "rt": "tsx ./scripts/run-tauri.ts",
     "rb": "tsx ./scripts/run-browser.ts"
   },

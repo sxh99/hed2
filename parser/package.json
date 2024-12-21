@@ -1,0 +1,27 @@
+{
+  "name": "hed2-parser",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p ./tsconfig.json",
+    "test": "vitest run",
+    "test-u": "vitest run -u"
+  },
+  "dependencies": {
+    "is-ip": "^5.0.1"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.8"
+  }
+}

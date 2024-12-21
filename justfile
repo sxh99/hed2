@@ -25,7 +25,8 @@ check:
 	cargo fmt --check
 	taplo fmt --check
 	cargo clippy --all-features -- -D warnings
-	node --run typecheck
+	node --run typecheck:ui
+	node --run typecheck:parser
 
 release-pr tag:
 	git checkout -b "release-{{tag}}"

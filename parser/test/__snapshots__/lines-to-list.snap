@@ -1,0 +1,170 @@
+[
+  {
+    "group": "System",
+    "hosts": [
+      {
+        "content": "1.com",
+        "enabled": false,
+      },
+      {
+        "content": "2.com",
+        "enabled": false,
+      },
+      {
+        "content": "3.com",
+        "enabled": false,
+      },
+      {
+        "content": "4.com",
+        "enabled": false,
+      },
+      {
+        "content": "5.com",
+        "enabled": false,
+      },
+      {
+        "content": "6.com",
+        "enabled": false,
+      },
+      {
+        "content": "7.com",
+        "enabled": false,
+      },
+      {
+        "content": "8.com",
+        "enabled": false,
+      },
+      {
+        "content": "9.com",
+        "enabled": false,
+      },
+      {
+        "content": "10.com",
+        "enabled": false,
+      },
+      {
+        "content": "a.com",
+        "enabled": true,
+      },
+      {
+        "content": "c.com",
+        "enabled": true,
+      },
+      {
+        "content": "b.com",
+        "enabled": true,
+      },
+      {
+        "content": "f.com",
+        "enabled": true,
+      },
+      {
+        "content": "e.com",
+        "enabled": true,
+      },
+      {
+        "content": "h.com",
+        "enabled": true,
+      },
+      {
+        "content": "g.com",
+        "enabled": true,
+      },
+      {
+        "content": "i.com",
+        "enabled": true,
+      },
+      {
+        "content": "k.com",
+        "enabled": true,
+      },
+      {
+        "content": "j.com",
+        "enabled": true,
+      },
+      {
+        "content": "l.com",
+        "enabled": true,
+      },
+      {
+        "content": "m.com",
+        "enabled": true,
+      },
+      {
+        "content": "n.com",
+        "enabled": true,
+      },
+      {
+        "content": "11.com",
+        "enabled": false,
+      },
+      {
+        "content": "12.com",
+        "enabled": false,
+      },
+    ],
+    "ip": "1.1.1.1",
+  },
+  {
+    "group": "System",
+    "hosts": [
+      {
+        "content": "b.com",
+        "enabled": true,
+      },
+    ],
+    "ip": "2402:1200:4f00:1234:0000:5678:9abc:def0",
+  },
+  {
+    "group": "foo",
+    "hosts": [
+      {
+        "content": "a.com",
+        "enabled": true,
+      },
+      {
+        "content": "b.com",
+        "enabled": false,
+      },
+      {
+        "content": "e.com",
+        "enabled": true,
+      },
+    ],
+    "ip": "3.3.3.3",
+  },
+  {
+    "group": "foo",
+    "hosts": [
+      {
+        "content": "a.com",
+        "enabled": true,
+      },
+    ],
+    "ip": "5.5.5.5",
+  },
+  {
+    "group": "System",
+    "hosts": [
+      {
+        "content": "c.com",
+        "enabled": true,
+      },
+    ],
+    "ip": "3.3.3.3",
+  },
+  {
+    "group": "System",
+    "hosts": [
+      {
+        "content": "a.com",
+        "enabled": true,
+      },
+      {
+        "content": "c.com",
+        "enabled": true,
+      },
+    ],
+    "ip": "5.5.5.5",
+  },
+]

@@ -1,0 +1,273 @@
+[
+  {
+    "list": [
+      {
+        "group": "System",
+        "hosts": [
+          {
+            "content": "1.com",
+            "enabled": false,
+          },
+          {
+            "content": "2.com",
+            "enabled": false,
+          },
+          {
+            "content": "3.com",
+            "enabled": false,
+          },
+          {
+            "content": "4.com",
+            "enabled": false,
+          },
+          {
+            "content": "5.com",
+            "enabled": false,
+          },
+          {
+            "content": "6.com",
+            "enabled": false,
+          },
+          {
+            "content": "7.com",
+            "enabled": false,
+          },
+          {
+            "content": "8.com",
+            "enabled": false,
+          },
+          {
+            "content": "9.com",
+            "enabled": false,
+          },
+          {
+            "content": "10.com",
+            "enabled": false,
+          },
+          {
+            "content": "a.com",
+            "enabled": true,
+          },
+          {
+            "content": "c.com",
+            "enabled": true,
+          },
+          {
+            "content": "b.com",
+            "enabled": true,
+          },
+          {
+            "content": "f.com",
+            "enabled": true,
+          },
+          {
+            "content": "e.com",
+            "enabled": true,
+          },
+          {
+            "content": "h.com",
+            "enabled": true,
+          },
+          {
+            "content": "g.com",
+            "enabled": true,
+          },
+          {
+            "content": "i.com",
+            "enabled": true,
+          },
+          {
+            "content": "k.com",
+            "enabled": true,
+          },
+          {
+            "content": "j.com",
+            "enabled": true,
+          },
+          {
+            "content": "l.com",
+            "enabled": true,
+          },
+          {
+            "content": "m.com",
+            "enabled": true,
+          },
+          {
+            "content": "n.com",
+            "enabled": true,
+          },
+          {
+            "content": "11.com",
+            "enabled": false,
+          },
+          {
+            "content": "12.com",
+            "enabled": false,
+          },
+        ],
+        "ip": "1.1.1.1",
+      },
+      {
+        "group": "System",
+        "hosts": [
+          {
+            "content": "b.com",
+            "enabled": true,
+          },
+        ],
+        "ip": "2402:1200:4f00:1234:0000:5678:9abc:def0",
+      },
+      {
+        "group": "foo",
+        "hosts": [
+          {
+            "content": "a.com",
+            "enabled": true,
+          },
+          {
+            "content": "b.com",
+            "enabled": false,
+          },
+          {
+            "content": "e.com",
+            "enabled": true,
+          },
+        ],
+        "ip": "3.3.3.3",
+      },
+      {
+        "group": "foo",
+        "hosts": [
+          {
+            "content": "a.com",
+            "enabled": true,
+          },
+        ],
+        "ip": "5.5.5.5",
+      },
+      {
+        "group": "System",
+        "hosts": [
+          {
+            "content": "c.com",
+            "enabled": true,
+          },
+        ],
+        "ip": "3.3.3.3",
+      },
+      {
+        "group": "System",
+        "hosts": [
+          {
+            "content": "a.com",
+            "enabled": true,
+          },
+          {
+            "content": "c.com",
+            "enabled": true,
+          },
+        ],
+        "ip": "5.5.5.5",
+      },
+    ],
+    "name": "System",
+    "text": "
+
+
+
+   #    comment  
+               
+#    1.1.1.1 1.com 2.com 3.com 4.com 5.com 6.com 7.com 8.com 9.com 10.com
+
+1.1.1.1 a.com    c.com     b.com f.com   #     ##     comment 
+1.1.1.1   e.com h.com  g.com i.com  k.com j.com l.com m.com   n.com#     ##     comment 
+
+# comment
+# comment
+# comment
+# comment
+# comment
+
+# 1.1.1.1 11.com 12.com
+
+
+           2402:1200:4f00:1234:0000:5678:9abc:def0   b.com  
+
+
+4.4.4.4    
+# 4.4.4.4 
+
+#[foo]    
+
+#[bar]
+  3.3.3.3 a.com
+
+  #   3.3.3.3 b.com
+#[bar]
+
+#[foo]      
+
+#abcdefg
+
+#[foo]
+3.3.3.3 e.com
+5.5.5.5 a.com
+#[foo]
+
+#[System]
+3.3.3.3 c.com
+#[System]
+
+#[baz]
+5.5.5.5 a.com
+
+#[foo]
+5.5.5.5 c.com
+#[foo]
+",
+  },
+  {
+    "list": [
+      {
+        "group": "foo",
+        "hosts": [
+          {
+            "content": "a.com",
+            "enabled": true,
+          },
+          {
+            "content": "b.com",
+            "enabled": false,
+          },
+          {
+            "content": "e.com",
+            "enabled": true,
+          },
+        ],
+        "ip": "3.3.3.3",
+      },
+      {
+        "group": "foo",
+        "hosts": [
+          {
+            "content": "a.com",
+            "enabled": true,
+          },
+        ],
+        "ip": "5.5.5.5",
+      },
+    ],
+    "name": "foo",
+    "text": "#[foo]    
+
+#[bar]
+  3.3.3.3 a.com
+
+  #   3.3.3.3 b.com
+#[bar]
+
+#[foo]
+3.3.3.3 e.com
+5.5.5.5 a.com",
+  },
+]

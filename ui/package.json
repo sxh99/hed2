@@ -7,8 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "tailwindcss": "tailwindcss -i input.css -o output.css --watch",
-    "typecheck": "tsc --noEmit"
+    "tailwindcss": "tailwindcss -i input.css -o output.css --watch"
   },
   "dependencies": {
     "@radix-ui/react-context-menu": "^2.2.2",
@@ -36,7 +35,8 @@
     "react-dom": "^18.3.1",
     "react-resizable-panels": "^2.1.7",
     "tailwind-merge": "^2.5.5",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "hed2-parser": "workspace:*"
   },
   "devDependencies": {
     "@types/lodash": "^4.17.13",
