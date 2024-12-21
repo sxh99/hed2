@@ -3,14 +3,8 @@ import { focusAtom } from 'jotai-optics';
 import { splitAtom } from 'jotai/utils';
 import { NOT_EXISTS_GROUP } from '~/consts';
 import type { Group, Item, ItemFormValue } from '~/types';
-import { storage } from '~/utils/storage';
-import {
-  groupsWithWriterAtom,
-  updateGroupTextAtom,
-  updateGroupsTextAtom,
-} from './groups';
+import { groupsWithWriterAtom, updateGroupsTextAtom } from './groups';
 import { currentGroupNameAtom, groupsAtom } from './primitive';
-import { updateSystemHostsDraftAtom } from './system-hosts-draft';
 
 export const currentGroupAtom = atom(
   (get) => {
@@ -47,6 +41,7 @@ export const currentGroupAtom = atom(
         }
         const newList = map.get(group.name);
         if (!newList) {
+          group.list = [];
           continue;
         }
         group.list = [...newList];
@@ -66,11 +61,34 @@ export const currentGroupAtom = atom(
       set(updateGroupsTextAtom, [...enabledGroupNames]);
       return;
     }
-    const systemGroup = groups.find((group) => group.system);
-    if (!systemGroup) {
-      return;
+    if (newGroup.enabled) {
+      const systemGroup = groups.find((group) => group.system);
+      if (!systemGroup) {
+        return;
+      }
+      const startIdx = systemGroup.list.findIndex(
+        (item) => item.group === newGroup.name,
+      );
+      if (startIdx === -1) {
+        systemGroup.list = [...systemGroup.list, ...newGroup.list];
+      } else {
+        const deleteCount = systemGroup.list.reduce(
+          (pre, item) => (item.group === newGroup.name ? pre + 1 : pre),
+          0,
+        );
+        systemGroup.list.splice(startIdx, deleteCount, ...newGroup.list);
+      }
     }
-    // todo
+    set(
+      groupsWithWriterAtom,
+      groups.map((group) => {
+        if (group.name === newGroup.name) {
+          return newGroup;
+        }
+        return group;
+      }),
+    );
+    set(updateGroupsTextAtom, [newGroup.name]);
   },
 );
 
@@ -81,96 +99,6 @@ const currentGroupListAtom = focusAtom(currentGroupAtom, (optic) => {
 export const itemAtomsAtom = splitAtom(
   currentGroupListAtom,
   (item) => `${item.group}-${item.ip}`,
-);
-
-export const setSameGroupItemAtom = atom(
-  null,
-  (get, set, oldItemIp: string, newItem: Item) => {
-    const currentGroup = get(currentGroupAtom);
-    const groups = get(groupsAtom);
-
-    if (currentGroup.system && newItem.group !== currentGroup.name) {
-      set(
-        groupsAtom,
-        groups.map((group) => {
-          return group.name === newItem.group
-            ? {
-                ...group,
-                list: group.list.map((item) => {
-                  return item.ip === oldItemIp ? { ...newItem } : item;
-                }),
-              }
-            : group;
-        }),
-      );
-    } else if (!currentGroup.system && currentGroup.enabled) {
-      set(
-        groupsAtom,
-        groups.map((group) => {
-          return group.system
-            ? {
-                ...group,
-                list: group.list.map((item) => {
-                  return item.ip === oldItemIp ? { ...newItem } : item;
-                }),
-              }
-            : group;
-        }),
-      );
-    }
-  },
-);
-
-export const removeSameGroupItemAtom = atom(
-  null,
-  (get, set, removedItem: Item) => {
-    const currentGroup = get(currentGroupAtom);
-    const groups = get(groupsAtom);
-
-    if (currentGroup.system && removedItem.group !== currentGroup.name) {
-      const targetGroup = groups.find(
-        (group) => group.name === removedItem.group,
-      );
-      if (!targetGroup) {
-        return;
-      }
-      targetGroup.list = targetGroup.list.filter(
-        (item) => item.ip !== removedItem.ip,
-      );
-      if (
-        targetGroup.enabled &&
-        targetGroup.enabled &&
-        !targetGroup.list.length
-      ) {
-        targetGroup.enabled = false;
-      }
-      set(
-        groupsAtom,
-        groups.map((group) => {
-          return group.name === targetGroup.name ? { ...targetGroup } : group;
-        }),
-      );
-      if (!targetGroup.enabled) {
-        storage.modifyDisabledGroup(targetGroup);
-      }
-      set(updateGroupTextAtom, targetGroup.name);
-    } else if (!currentGroup.system && currentGroup.enabled) {
-      const systemGroup = groups.find((group) => group.system);
-      if (!systemGroup) {
-        return;
-      }
-      systemGroup.list = systemGroup.list.filter(
-        (item) => item.ip !== removedItem.ip,
-      );
-      set(
-        groupsAtom,
-        groups.map((group) => {
-          return group.system ? { ...systemGroup } : group;
-        }),
-      );
-      set(updateSystemHostsDraftAtom, systemGroup.list);
-    }
-  },
 );
 
 export const addGroupItemAtom = atom(null, (get, set, v: ItemFormValue) => {
@@ -194,19 +122,4 @@ export const addGroupItemAtom = atom(null, (get, set, v: ItemFormValue) => {
   };
 
   set(currentGroupListAtom, (list) => [...list, newItem]);
-
-  if (!currentGroup.system && currentGroup.enabled) {
-    const groups = get(groupsAtom);
-    set(
-      groupsAtom,
-      groups.map((group) => {
-        return group.system
-          ? {
-              ...group,
-              list: [...group.list, newItem],
-            }
-          : group;
-      }),
-    );
-  }
 });

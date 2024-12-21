@@ -100,35 +100,11 @@ export const addGroupAtom = atom(null, (get, set, groupName: string) => {
     system: false,
     enabled: false,
   };
-  set(groupsAtom, (groups) => [...groups, newGroup]);
+  const newGroups = get(groupsAtom).concat(newGroup);
+  set(groupsAtom, newGroups);
   set(currentGroupNameAtom, groupName);
+  storage.setDisabledGroups(newGroups.filter((group) => !group.enabled));
 });
-
-export const updateGroupTextAtom = atom(
-  null,
-  async (get, set, name: string) => {
-    const groups = get(groupsAtom);
-    const targetGroup = groups.find((group) => group.name === name);
-    if (!targetGroup) {
-      return;
-    }
-    targetGroup.text = await ipc.updateTextByList(
-      targetGroup.list,
-      targetGroup.text,
-      targetGroup.name,
-    );
-    const newGroups = groups.map((group) => {
-      if (group.name === targetGroup.name) {
-        return { ...targetGroup };
-      }
-      return group;
-    });
-    set(groupsAtom, newGroups);
-    if (!targetGroup.enabled) {
-      storage.modifyDisabledGroup(targetGroup);
-    }
-  },
-);
 
 export const updateGroupsTextAtom = atom(
   null,
@@ -147,11 +123,10 @@ export const updateGroupsTextAtom = atom(
         );
       }),
     );
-    set(
-      groupsAtom,
-      groups.map((group) => {
-        return nameSet.has(group.name) ? { ...group } : group;
-      }),
-    );
+    const newGroups = groups.map((group) => {
+      return nameSet.has(group.name) ? { ...group } : group;
+    });
+    set(groupsAtom, newGroups);
+    storage.setDisabledGroups(newGroups.filter((group) => !group.enabled));
   },
 );

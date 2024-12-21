@@ -3,6 +3,7 @@ import { FilePenLine, Plus, Trash2 } from 'lucide-react';
 import {
   addGroupAtom,
   currentGroupNameAtom,
+  editorCfgAtom,
   groupAtomsAtom,
   groupsAtom,
 } from '~/atom';
@@ -19,12 +20,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from '~/components/shadcn/context-menu';
-import {
-  Tooltip,
-  TooltipArrow,
-  TooltipContent,
-  TooltipTrigger,
-} from '~/components/shadcn/tooltip';
+import { EditorKind } from '~/consts';
 import { useBoolean, useSearch } from '~/hooks';
 import type { Group } from '~/types';
 import { checkGroupExists } from '~/utils/group';
@@ -88,6 +84,7 @@ function GroupButton(props: {
   const [currentGroupName, setCurrentGroupName] = useAtom(currentGroupNameAtom);
   const groups = useAtomValue(groupsAtom);
   const renameInputVisible = useBoolean();
+  const [editorCfg, setEditorCfg] = useAtom(editorCfgAtom);
 
   if (!group.name.includes(search)) {
     return null;
@@ -98,6 +95,9 @@ function GroupButton(props: {
       return;
     }
     setCurrentGroupName(group.name);
+    if (editorCfg.kind !== EditorKind.List) {
+      setEditorCfg({ ...editorCfg, kind: EditorKind.List });
+    }
   };
 
   const handleGroupRenameOk = (newName: string) => {
@@ -224,9 +224,7 @@ function GroupSwitch(props: {
     return null;
   }
 
-  const disabled = !group.enabled && !group.list.length;
-
-  const switchEle = (
+  return (
     <Switch
       className="ml-4"
       onClick={(e) => {
@@ -234,23 +232,6 @@ function GroupSwitch(props: {
       }}
       checked={group.enabled}
       onCheckedChange={onToggle}
-      disabled={disabled}
     />
   );
-
-  if (disabled) {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div>{switchEle}</div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <TooltipArrow />
-          Please add some items
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  return switchEle;
 }

@@ -42,7 +42,7 @@ import {
   DropdownMenuTrigger,
 } from '~/components/shadcn/dropdown-menu';
 import { ToggleGroup, ToggleGroupItem } from '~/components/shadcn/toggle-group';
-import { Form, FormItem } from '~/components/simple-form';
+import { Form, FormItem, type FormRef } from '~/components/simple-form';
 import { IS_MAC, SYSTEM_GROUP_NAME } from '~/consts';
 import { useBoolean, useSearch } from '~/hooks';
 import type { Item, ItemFormValue } from '~/types';
@@ -77,7 +77,7 @@ export function ListEditor(props: { className?: string }) {
 
 function NewItemDialog() {
   const open = useBoolean();
-  const formRef = useRef<HTMLFormElement>(null);
+  const formRef = useRef<FormRef>(null);
   const addGroupItem = useSetAtom(addGroupItemAtom);
   const currentGroup = useAtomValue(currentGroupAtom);
 
@@ -132,7 +132,7 @@ function NewItemDialog() {
           </Button>
           <Button
             onClick={() => {
-              formRef.current?.requestSubmit();
+              formRef.current?.submit();
             }}
           >
             Ok

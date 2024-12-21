@@ -421,11 +421,14 @@ pub fn list_to_text(
 	group: Option<String>,
 ) -> String {
 	let mut lines = text_to_lines(&old_text);
-	if let Some(group) = group {
+	if let Some(group) = &group {
 		lines.insert(0, Line::Group(group.clone()));
-		lines.push(Line::Group(group));
+		lines.push(Line::Group(group.clone()));
 	}
-	let new_lines = list_to_lines(list, lines);
+	let mut new_lines = list_to_lines(list, lines);
+	if group.is_some() {
+		new_lines.retain(|line| !matches!(line, Line::Group(_)));
+	}
 	lines_to_text(&new_lines)
 }
 

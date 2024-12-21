@@ -2,7 +2,9 @@ import {
   createContext,
   forwardRef,
   useContext,
+  useImperativeHandle,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { cn } from '~/utils/cn';
@@ -37,13 +39,30 @@ interface FormProps
   onValidate: (v: any) => FormErr | Promise<FormErr | undefined> | undefined;
 }
 
-export const Form = forwardRef<HTMLFormElement, FormProps>((props, ref) => {
+export interface FormRef {
+  submit: () => void;
+}
+
+export const Form = forwardRef<FormRef, FormProps>((props, ref) => {
   const { className, children, onSubmit, onValidate } = props;
 
   const [err, setErr] = useState<FormErr>({
     field: '',
     err: '',
   });
+  const submitBtnRef = useRef<HTMLButtonElement>(null);
+
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        submit: () => {
+          submitBtnRef.current?.click();
+        },
+      };
+    },
+    [],
+  );
 
   const contextValue = useMemo(() => {
     return {
@@ -78,14 +97,13 @@ export const Form = forwardRef<HTMLFormElement, FormProps>((props, ref) => {
   };
 
   return (
-    <form
-      ref={ref}
-      className={cn('grid gap-4 py-4', className)}
-      onSubmit={handleSubmit}
-    >
+    <form className={cn('grid gap-4 py-4', className)} onSubmit={handleSubmit}>
       <FormContext.Provider value={contextValue}>
         {children}
       </FormContext.Provider>
+      <button type="submit" className="hidden" ref={submitBtnRef}>
+        submit
+      </button>
     </form>
   );
 });
