@@ -2,7 +2,7 @@
   "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "files": {
     "ignoreUnknown": true,
-    "ignore": ["dist", "gen", "node_modules", "target", "src", "ui/output.css"]
+    "ignore": ["node_modules", "target", "tauri/gen"]
   },
   "formatter": {
     "enabled": true,
@@ -37,6 +37,14 @@
   "json": {
     "formatter": {
       "enabled": true
+    }
+  },
+  "css": {
+    "formatter": {
+      "enabled": false
+    },
+    "linter": {
+      "enabled": false
     }
   }
 }

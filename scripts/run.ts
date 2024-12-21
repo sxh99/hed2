@@ -1,28 +1,39 @@
-import { spawn } from 'node:child_process';
+import { type ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
+import path from 'node:path';
 import kill from 'tree-kill';
 
+interface Cmd {
+  name: string;
+  runner: string;
+  args: string[];
+  closed: boolean;
+  cp?: ChildProcessWithoutNullStreams;
+  cwd?: string;
+}
+
 function main() {
-  const cmds = [
+  const cwd = process.cwd();
+  const cmds: Cmd[] = [
     {
       name: 'tailwindcss',
       runner: 'node',
       args: ['--run', 'tailwindcss'],
       closed: false,
-      cp: null,
+      cwd: path.join(cwd, 'ui'),
     },
     {
       name: 'vite',
       runner: 'node',
       args: ['--run', 'dev'],
       closed: false,
-      cp: null,
+      cwd: path.join(cwd, 'ui'),
     },
     {
       name: 'tauri',
       runner: 'cargo',
       args: ['run'],
       closed: false,
-      cp: null,
+      cwd: undefined,
     },
   ];
 
@@ -37,12 +48,14 @@ function main() {
       if (cmd.closed) {
         continue;
       }
-      kill(cmd.cp.pid);
+      if (cmd.cp?.pid) {
+        kill(cmd.cp.pid);
+      }
     }
   };
 
   for (const cmd of cmds) {
-    const cp = spawn(cmd.runner, cmd.args);
+    const cp = spawn(cmd.runner, cmd.args, { cwd: cmd.cwd });
 
     cp.stdout.on('data', (data) => {
       console.log(data.toString());

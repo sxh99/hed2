@@ -19,13 +19,10 @@ export default defineConfig(() => ({
       protocol: 'ws',
       port: 4001,
     },
-    watch: {
-      ignored: ['gen', 'target', 'src'],
-    },
   },
   resolve: {
     alias: {
-      '~': path.resolve(__dirname, 'ui'),
+      '~': path.resolve(import.meta.dirname, 'src'),
     },
   },
 }));

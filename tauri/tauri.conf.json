@@ -5,7 +5,7 @@
   "mainBinaryName": "Hed2",
   "build": {
     "devUrl": "http://localhost:4000",
-    "frontendDist": "dist"
+    "frontendDist": "./ui/dist"
   },
   "app": {
     "windows": [
@@ -27,11 +27,11 @@
     "active": true,
     "targets": ["app"],
     "icon": [
-      "assets/32x32.png",
-      "assets/128x128.png",
-      "assets/128x128@2x.png",
-      "assets/icon.icns",
-      "assets/icon.ico"
+      "../assets/32x32.png",
+      "../assets/128x128.png",
+      "../assets/128x128@2x.png",
+      "../assets/icon.icns",
+      "../assets/icon.ico"
     ],
     "category": "DeveloperTool"
   }

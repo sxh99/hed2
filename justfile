@@ -38,7 +38,7 @@ push-tag tag:
 	git push origin {{tag}}
 
 run:
-	node ./scripts/dev.js
+	node --experimental-strip-types ./scripts/run.ts
 
 ta:
 	INSTA_UPDATE=always cargo test
