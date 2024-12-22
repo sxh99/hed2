@@ -10,7 +10,9 @@
     "typecheck:parser": "tsc -p ./parser/tsconfig.json --noEmit",
     "typecheck:other": "tsc -p ./tsconfig.json --noEmit",
     "run:tauri": "tsx ./scripts/run-tauri.ts",
-    "run:browser": "tsx ./scripts/run-browser.ts"
+    "run:browser": "tsx ./scripts/run-browser.ts",
+    "build:parser": "pnpm run --filter ./parser build",
+    "test:parser": "pnpm run --filter ./test test"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

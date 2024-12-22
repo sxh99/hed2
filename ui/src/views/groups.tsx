@@ -101,16 +101,11 @@ function GroupButton(props: {
   };
 
   const handleGroupRenameOk = (newName: string) => {
-    if (newName !== group.name) {
-      setGroup({ ...group, name: newName });
-    }
+    setGroup({ ...group, name: newName });
     renameInputVisible.off();
   };
 
   const handleGroupRenameValidate = (newName: string) => {
-    if (newName === group.name) {
-      return;
-    }
     return checkGroupExists(groups, newName);
   };
 

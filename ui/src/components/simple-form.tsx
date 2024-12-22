@@ -36,7 +36,7 @@ interface FormProps
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   onSubmit: (v: any) => void;
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  onValidate: (v: any) => FormErr | Promise<FormErr | undefined> | undefined;
+  onValidate: (v: any) => FormErr | undefined;
 }
 
 export interface FormRef {
@@ -80,18 +80,10 @@ export const Form = forwardRef<FormRef, FormProps>((props, ref) => {
         data[k] = v.trim();
       }
     }
-    const ret = onValidate(data);
-    if (ret) {
-      if (ret instanceof Promise) {
-        const err = await ret;
-        if (err) {
-          setErr(err);
-          return;
-        }
-      } else {
-        setErr(ret);
-        return;
-      }
+    const fail = onValidate(data);
+    if (fail) {
+      setErr(fail);
+      return;
     }
     onSubmit(data);
   };

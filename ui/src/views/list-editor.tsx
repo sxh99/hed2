@@ -221,16 +221,11 @@ function Title(
   const ipInputVisible = useBoolean();
 
   const handleEditIpOk = (newIp: string) => {
-    if (newIp !== ip) {
-      onItemChagne({ ip: newIp });
-    }
+    onItemChagne({ ip: newIp });
     ipInputVisible.off();
   };
 
   const handleIpValidate = (newIp: string) => {
-    if (newIp === ip) {
-      return;
-    }
     if (!isIP(newIp)) {
       return `\`${newIp}\` is not a valid ip`;
     }
@@ -389,16 +384,11 @@ function Host(props: {
   const editHostInputVisible = useBoolean();
 
   const handleEditHostOk = (v: string) => {
-    if (v !== host.content) {
-      onEditOk(host.content, v);
-    }
+    onEditOk(host.content, v);
     editHostInputVisible.off();
   };
 
   const handleEditHostValidate = (v: string) => {
-    if (v === host.content) {
-      return;
-    }
     return onEditValidate(v);
   };
 

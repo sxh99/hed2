@@ -38,9 +38,3 @@ release-pr tag:
 push-tag tag:
 	git tag {{tag}}
 	git push origin {{tag}}
-
-build-parser:
-	pnpm run --filter ./parser build
-
-test-parser:
-	pnpm run --filter ./test test

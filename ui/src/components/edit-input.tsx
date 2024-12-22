@@ -15,7 +15,7 @@ interface EditInputProps
   > {
   initValue?: string;
   onOk: (v: string) => void;
-  onValidate: (v: string) => string | Promise<string | undefined> | undefined;
+  onValidate: (v: string) => string | undefined;
   onCancel: () => void;
   selectAllWhenMounted?: boolean;
   preventAutoBlur?: boolean;
@@ -53,22 +53,14 @@ export function EditInput(props: EditInputProps) {
       return;
     }
     const finalValue = value.trim();
-    if (!finalValue) {
+    if (!finalValue || (initValue && finalValue === initValue)) {
       onCancel();
       return;
     }
-    const ret = onValidate(finalValue);
-    if (ret) {
-      if (ret instanceof Promise) {
-        const err = await ret;
-        if (err) {
-          setErr(err);
-          return;
-        }
-      } else {
-        setErr(ret);
-        return;
-      }
+    const fail = onValidate(finalValue);
+    if (fail) {
+      setErr(fail);
+      return;
     }
     onOk(finalValue);
   };
