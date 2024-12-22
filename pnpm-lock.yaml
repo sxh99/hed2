@@ -32,7 +32,12 @@ importers:
       is-ip:
         specifier: ^5.0.1
         version: 5.0.1
+
+  test:
     devDependencies:
+      hed2-parser:
+        specifier: workspace:*
+        version: link:../parser
       vitest:
         specifier: ^2.1.8
         version: 2.1.8(@types/node@22.10.2)

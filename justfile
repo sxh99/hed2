@@ -27,6 +27,7 @@ check:
 	cargo clippy --all-features -- -D warnings
 	node --run typecheck:ui
 	node --run typecheck:parser
+	node --run typecheck:other
 
 release-pr tag:
 	git checkout -b "release-{{tag}}"
@@ -38,8 +39,8 @@ push-tag tag:
 	git tag {{tag}}
 	git push origin {{tag}}
 
-ta:
-	INSTA_UPDATE=always cargo test
+build-parser:
+	pnpm run --filter ./parser build
 
-tu: 
-	INSTA_UPDATE=unseen cargo test
+test-parser:
+	pnpm run --filter ./test test

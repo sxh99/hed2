@@ -1,6 +1,5 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { expect, test } from 'vitest';
 import {
   SYSTEM_GROUP,
   linesToList,
@@ -9,17 +8,17 @@ import {
   listToText,
   textToGroups,
   textToLines,
-} from '../src';
+} from 'hed2-parser';
+import { expect, test } from 'vitest';
 
 function snapshotFile(name: string) {
   return path.join('__snapshots__', `${name}.snap`);
 }
 
 test('test parser', async () => {
-  const mockText = await fs.readFile(
-    path.join(process.cwd(), 'fixture', 'hosts'),
-    { encoding: 'utf-8' },
-  );
+  const mockText = await fs.readFile(path.join('parser', 'fixture', 'hosts'), {
+    encoding: 'utf-8',
+  });
 
   const lines = textToLines(mockText);
   await expect(lines).toMatchFileSnapshot(snapshotFile('text-to-lines'));
@@ -63,7 +62,7 @@ test('test parser', async () => {
       nonSystemGroup.text,
       nonSystemGroup.name,
     );
-    expect(nonSystemGroupText).toMatchFileSnapshot(
+    await expect(nonSystemGroupText).toMatchFileSnapshot(
       snapshotFile('list-to-text'),
     );
   }

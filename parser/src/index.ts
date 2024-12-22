@@ -438,3 +438,5 @@ export const parser = {
   textToGroups,
   listToText,
 };
+
+export { isIP };

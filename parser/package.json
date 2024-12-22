@@ -14,14 +14,9 @@
   },
   "files": ["dist"],
   "scripts": {
-    "build": "tsc -p ./tsconfig.json",
-    "test": "vitest run",
-    "test-u": "vitest run -u"
+    "build": "tsc"
   },
   "dependencies": {
     "is-ip": "^5.0.1"
-  },
-  "devDependencies": {
-    "vitest": "^2.1.8"
   }
 }
