@@ -16,3 +16,9 @@ export const NOT_EXISTS_GROUP: Group = {
 };
 
 export const IS_MAC = navigator.userAgent.includes('Mac');
+
+export enum Theme {
+  Dark = 'dark',
+  Light = 'light',
+  System = 'system',
+}

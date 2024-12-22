@@ -9,3 +9,4 @@ export { CommonHeader } from './common-header';
 export { SearchInput } from './search-input';
 export { Label } from './shadcn/label';
 export { Textarea } from './shadcn/textarea';
+export { TooltipButton } from './tooltip-button';

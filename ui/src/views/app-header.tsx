@@ -2,14 +2,8 @@ import { useSetAtom } from 'jotai';
 import { RefreshCcw } from 'lucide-react';
 import { useEffect } from 'react';
 import { initGroupsAtom } from '~/atom';
-import { Button, CommonHeader } from '~/components';
+import { CommonHeader, TooltipButton } from '~/components';
 import { GitHub } from '~/components/icons';
-import {
-  Tooltip,
-  TooltipArrow,
-  TooltipContent,
-  TooltipTrigger,
-} from '~/components/shadcn/tooltip';
 import { ThemeToggle } from './theme-toggle';
 
 export function AppHeader() {
@@ -36,32 +30,21 @@ function RefreshButton() {
   }, []);
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon" onClick={initGroups}>
-          <RefreshCcw />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>
-        <TooltipArrow />
-        Refresh
-      </TooltipContent>
-    </Tooltip>
+    <TooltipButton
+      tooltip="Refresh"
+      variant="ghost"
+      size="icon"
+      onClick={initGroups}
+    >
+      <RefreshCcw />
+    </TooltipButton>
   );
 }
 
 function ViewGitHubButton() {
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <GitHub />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>
-        <TooltipArrow />
-        View GitHub
-      </TooltipContent>
-    </Tooltip>
+    <TooltipButton tooltip="View GitHub" variant="ghost" size="icon">
+      <GitHub />
+    </TooltipButton>
   );
 }

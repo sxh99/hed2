@@ -13,6 +13,7 @@ import {
   ScrollArea,
   SearchInput,
   Switch,
+  TooltipButton,
 } from '~/components';
 import {
   ContextMenu,
@@ -39,9 +40,14 @@ export function GroupPanel() {
           value={search.value}
           onValueChange={search.setValue}
         />
-        <Button variant="outline" size="icon" onClick={newGroupInputVisible.on}>
+        <TooltipButton
+          tooltip="New group"
+          variant="outline"
+          size="icon"
+          onClick={newGroupInputVisible.on}
+        >
           <Plus />
-        </Button>
+        </TooltipButton>
       </div>
       <ScrollArea className="flex-1 px-3 pb-2">
         <GroupList search={search.deferredValue} />

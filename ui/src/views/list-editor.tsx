@@ -20,6 +20,7 @@ import {
   ScrollArea,
   SearchInput,
   Textarea,
+  TooltipButton,
 } from '~/components';
 import {
   ContextMenu,
@@ -104,9 +105,9 @@ function NewItemDialog() {
   return (
     <Dialog open={open.value} onOpenChange={open.set}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
+        <TooltipButton tooltip="New item" variant="outline" size="icon">
           <Plus />
-        </Button>
+        </TooltipButton>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
