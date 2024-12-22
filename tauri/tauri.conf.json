@@ -5,12 +5,12 @@
   "mainBinaryName": "Hed2",
   "build": {
     "devUrl": "http://localhost:4000",
-    "frontendDist": "./ui/dist"
+    "frontendDist": "../ui/dist"
   },
   "app": {
     "windows": [
       {
-        "title": "hed2",
+        "title": "Hed2",
         "width": 1000,
         "minWidth": 1000,
         "height": 700,

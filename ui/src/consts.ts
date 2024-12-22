@@ -1,3 +1,4 @@
+import { isTauri } from '@tauri-apps/api/core';
 import type { Group } from '~/types';
 
 export enum EditorKind {
@@ -16,6 +17,10 @@ export const NOT_EXISTS_GROUP: Group = {
 };
 
 export const IS_MAC = navigator.userAgent.includes('Mac');
+
+export const IS_TAURI = isTauri();
+
+export const IS_TAURI_MAC = IS_TAURI && IS_MAC;
 
 export enum Theme {
   Dark = 'dark',

@@ -28,3 +28,4 @@ export const TooltipButton = forwardRef<HTMLButtonElement, TooltipButtonProps>(
     );
   },
 );
+TooltipButton.displayName = 'TooltipButton';

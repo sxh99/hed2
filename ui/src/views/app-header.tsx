@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { initGroupsAtom } from '~/atom';
 import { CommonHeader, TooltipButton } from '~/components';
 import { GitHub } from '~/components/icons';
+import { ipc } from '~/utils/ipc';
 import { ThemeToggle } from './theme-toggle';
 
 export function AppHeader() {
@@ -43,7 +44,12 @@ function RefreshButton() {
 
 function ViewGitHubButton() {
   return (
-    <TooltipButton tooltip="View GitHub" variant="ghost" size="icon">
+    <TooltipButton
+      tooltip="View GitHub"
+      variant="ghost"
+      size="icon"
+      onClick={() => ipc.viewGitHub()}
+    >
       <GitHub />
     </TooltipButton>
   );

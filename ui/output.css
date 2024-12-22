@@ -714,18 +714,6 @@ body {
   grid-column: span 5 / span 5;
 }
 
-.m-1 {
-  margin: 0.25rem;
-}
-
-.m-28 {
-  margin: 7rem;
-}
-
-.m-0\.5 {
-  margin: 0.125rem;
-}
-
 .-mx-1 {
   margin-left: -0.25rem;
   margin-right: -0.25rem;
@@ -1050,14 +1038,6 @@ body {
   overflow: hidden;
 }
 
-.overflow-x-hidden {
-  overflow-x: hidden;
-}
-
-.overflow-y-scroll {
-  overflow-y: scroll;
-}
-
 .truncate {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1092,20 +1072,16 @@ body {
   border-radius: calc(var(--radius) - 2px);
 }
 
-.rounded-sm {
-  border-radius: calc(var(--radius) - 4px);
-}
-
 .rounded-none {
   border-radius: 0px;
 }
 
-.rounded-br-md {
-  border-bottom-right-radius: calc(var(--radius) - 2px);
+.rounded-sm {
+  border-radius: calc(var(--radius) - 4px);
 }
 
-.rounded-br-sm {
-  border-bottom-right-radius: calc(var(--radius) - 4px);
+.rounded-br-md {
+  border-bottom-right-radius: calc(var(--radius) - 2px);
 }
 
 .border {
@@ -1232,10 +1208,6 @@ body {
 
 .p-\[1px\] {
   padding: 1px;
-}
-
-.p-0\.5 {
-  padding: 0.125rem;
 }
 
 .px-0 {
