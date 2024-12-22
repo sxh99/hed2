@@ -1,7 +1,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod command;
-mod parser;
 mod sys;
 
 fn main() {
@@ -10,13 +8,14 @@ fn main() {
 
 fn run() {
 	if let Err(err) = tauri::Builder::default()
-		.invoke_handler(tauri::generate_handler![
-			command::get_groups,
-			command::is_ip,
-			command::update_text_by_list,
-		])
+		.invoke_handler(tauri::generate_handler![read_system_hosts])
 		.run(tauri::generate_context!())
 	{
 		eprintln!("{}", err);
 	}
+}
+
+#[tauri::command]
+fn read_system_hosts() -> String {
+	sys::read_hosts_content()
 }

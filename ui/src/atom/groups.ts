@@ -1,7 +1,7 @@
+import { SYSTEM_GROUP, parser } from 'hed2-parser';
 import { atom } from 'jotai';
 import { splitAtom } from 'jotai/utils';
 import { xorWith } from 'lodash';
-import { SYSTEM_GROUP_NAME } from '~/consts';
 import type { Group } from '~/types';
 import { ipc } from '~/utils/ipc';
 import { storage } from '~/utils/storage';
@@ -29,7 +29,7 @@ export const groupsWithWriterAtom = atom(
           (item) => item.group !== removed.name,
         );
         if (get(currentGroupNameAtom) === removed.name) {
-          set(currentGroupNameAtom, SYSTEM_GROUP_NAME);
+          set(currentGroupNameAtom, SYSTEM_GROUP);
         }
       } else if (xor.length === 2) {
         const [previous, current] = xor;
@@ -71,8 +71,12 @@ export const groupAtomsAtom = splitAtom(
 );
 
 export const initGroupsAtom = atom(null, async (_, set) => {
-  const groups = await ipc.getGroups();
-  const systemGroup = groups.find((profile) => profile.system);
+  const systemHosts = await ipc.getSystemHosts();
+  const rawGroups = parser.textToGroups(systemHosts);
+  const groups: Group[] = rawGroups.map((group) => {
+    return { ...group, system: group.name === SYSTEM_GROUP, enabled: true };
+  });
+  const systemGroup = groups.find((group) => group.system);
   if (systemGroup) {
     set(currentGroupNameAtom, systemGroup.name);
     set(systemHostsDraftAtom, systemGroup.text);
@@ -105,28 +109,3 @@ export const addGroupAtom = atom(null, (get, set, groupName: string) => {
   set(currentGroupNameAtom, groupName);
   storage.setDisabledGroups(newGroups.filter((group) => !group.enabled));
 });
-
-export const updateGroupsTextAtom = atom(
-  null,
-  async (get, set, groupNames: string[]) => {
-    const nameSet = new Set(groupNames);
-    const groups = get(groupsAtom);
-    const targetGroups = groups.filter(
-      (group) => !group.system && nameSet.has(group.name),
-    );
-    await Promise.all(
-      targetGroups.map(async (group) => {
-        group.text = await ipc.updateTextByList(
-          group.list,
-          group.text,
-          group.name,
-        );
-      }),
-    );
-    const newGroups = groups.map((group) => {
-      return nameSet.has(group.name) ? { ...group } : group;
-    });
-    set(groupsAtom, newGroups);
-    storage.setDisabledGroups(newGroups.filter((group) => !group.enabled));
-  },
-);

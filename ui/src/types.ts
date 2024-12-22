@@ -1,19 +1,8 @@
-export interface Group {
-  name: string;
-  text: string;
-  list: Item[];
+import type { Group as RawGroup } from 'hed2-parser';
+export type { Item, Host } from 'hed2-parser';
+
+export interface Group extends RawGroup {
   system: boolean;
-  enabled: boolean;
-}
-
-export interface Item {
-  ip: string;
-  hosts: Host[];
-  group: string;
-}
-
-export interface Host {
-  content: string;
   enabled: boolean;
 }
 

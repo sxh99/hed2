@@ -1,3 +1,4 @@
+import { SYSTEM_GROUP, isIP } from 'hed2-parser';
 import { type PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   Ban,
@@ -43,11 +44,10 @@ import {
 } from '~/components/shadcn/dropdown-menu';
 import { ToggleGroup, ToggleGroupItem } from '~/components/shadcn/toggle-group';
 import { Form, FormItem, type FormRef } from '~/components/simple-form';
-import { IS_MAC, SYSTEM_GROUP_NAME } from '~/consts';
+import { IS_MAC } from '~/consts';
 import { useBoolean, useSearch } from '~/hooks';
 import type { Item, ItemFormValue } from '~/types';
 import { cn } from '~/utils/cn';
-import { ipc } from '~/utils/ipc';
 import { EditorKindToggle } from './editor-kind-toggle';
 
 export function ListEditor(props: { className?: string }) {
@@ -81,15 +81,14 @@ function NewItemDialog() {
   const addGroupItem = useSetAtom(addGroupItemAtom);
   const currentGroup = useAtomValue(currentGroupAtom);
 
-  const handleFormValidate = async (v: ItemFormValue) => {
+  const handleFormValidate = (v: ItemFormValue) => {
     if (!v.ip) {
       return { field: 'ip', err: 'ip is required' };
     }
     if (currentGroup.list.some((item) => item.ip === v.ip)) {
       return { field: 'ip', err: `\`${v.ip}\` is already exists` };
     }
-    const isIp = await ipc.isIp(v.ip);
-    if (!isIp) {
+    if (!isIP(v.ip)) {
       return { field: 'ip', err: `\`${v.ip}\` is not a valid ip` };
     }
     if (!v.hosts) {
@@ -127,15 +126,15 @@ function NewItemDialog() {
           </FormItem>
         </Form>
         <DialogFooter>
-          <Button variant="secondary" onClick={open.off}>
-            Close
-          </Button>
           <Button
             onClick={() => {
               formRef.current?.submit();
             }}
           >
             Ok
+          </Button>
+          <Button variant="secondary" onClick={open.off}>
+            Close
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -228,17 +227,16 @@ function Title(
     ipInputVisible.off();
   };
 
-  const handleIpValidate = async (newIp: string) => {
+  const handleIpValidate = (newIp: string) => {
     if (newIp === ip) {
       return;
     }
-    const isIp = await ipc.isIp(newIp);
-    if (!isIp) {
+    if (!isIP(newIp)) {
       return `\`${newIp}\` is not a valid ip`;
     }
   };
 
-  const showBedge = currentGroup.system && group !== SYSTEM_GROUP_NAME;
+  const showBedge = currentGroup.system && group !== SYSTEM_GROUP;
 
   return (
     <div className="flex justify-between pb-4 group">

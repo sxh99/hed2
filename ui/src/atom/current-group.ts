@@ -1,9 +1,10 @@
+import { parser } from 'hed2-parser';
 import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { splitAtom } from 'jotai/utils';
 import { NOT_EXISTS_GROUP } from '~/consts';
 import type { Group, Item, ItemFormValue } from '~/types';
-import { groupsWithWriterAtom, updateGroupsTextAtom } from './groups';
+import { groupsWithWriterAtom } from './groups';
 import { currentGroupNameAtom, groupsAtom } from './primitive';
 
 export const currentGroupAtom = atom(
@@ -45,6 +46,7 @@ export const currentGroupAtom = atom(
           continue;
         }
         group.list = [...newList];
+        group.text = parser.listToText(group.list, group.text, group.name);
       }
       set(
         groupsWithWriterAtom,
@@ -58,7 +60,6 @@ export const currentGroupAtom = atom(
           return group;
         }),
       );
-      set(updateGroupsTextAtom, [...enabledGroupNames]);
       return;
     }
     if (newGroup.enabled) {
@@ -79,6 +80,14 @@ export const currentGroupAtom = atom(
         systemGroup.list.splice(startIdx, deleteCount, ...newGroup.list);
       }
     }
+    const oldGroup = groups.find((group) => group.name === newGroup.name);
+    if (oldGroup && oldGroup.text === newGroup.text) {
+      newGroup.text = parser.listToText(
+        newGroup.list,
+        newGroup.text,
+        newGroup.name,
+      );
+    }
     set(
       groupsWithWriterAtom,
       groups.map((group) => {
@@ -88,7 +97,6 @@ export const currentGroupAtom = atom(
         return group;
       }),
     );
-    set(updateGroupsTextAtom, [newGroup.name]);
   },
 );
 

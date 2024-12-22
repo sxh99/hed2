@@ -5,8 +5,6 @@ export enum EditorKind {
   Text = 'text',
 }
 
-export const SYSTEM_GROUP_NAME = 'System';
-
 export const NOT_EXISTS_GROUP_NAME = '__NOT_EXISTS__';
 
 export const NOT_EXISTS_GROUP: Group = {

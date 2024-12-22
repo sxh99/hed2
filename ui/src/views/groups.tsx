@@ -30,7 +30,7 @@ export function GroupPanel() {
   const newGroupInputVisible = useBoolean();
 
   return (
-    <div className="h-full flex flex-col bg-neutral-50 dark:bg-background">
+    <div className="h-full flex flex-col">
       <div className="h-14 px-3 flex items-center gap-1">
         <SearchInput
           className="flex-1"
