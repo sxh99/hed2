@@ -15,3 +15,8 @@ export interface EditorCfg {
   kind: string;
   showAll: boolean;
 }
+
+export interface ThemeCfg {
+  display: string;
+  className: string;
+}

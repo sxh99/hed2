@@ -23,6 +23,8 @@
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.4",
     "@tauri-apps/api": "^2.1.1",
+    "@uiw/codemirror-theme-github": "^4.23.7",
+    "@uiw/react-codemirror": "^4.23.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "hed2-parser": "workspace:*",
@@ -47,7 +49,7 @@
     "babel-plugin-react-compiler": "19.0.0-beta-0dec889-20241115",
     "postcss": "^8.4.49",
     "tailwind-scrollbar": "^3.1.0",
-    "tailwindcss": "^3.4.15",
+    "tailwindcss": "^3.4.17",
     "vite": "^5.4.11"
   }
 }

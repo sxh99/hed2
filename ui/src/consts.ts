@@ -27,3 +27,5 @@ export enum Theme {
   Light = 'light',
   System = 'system',
 }
+
+export const DARK_MODE_MEDIA = '(prefers-color-scheme: dark)';

@@ -1,6 +1,9 @@
+import { githubDark, githubLight } from '@uiw/codemirror-theme-github';
+import CodeMirror from '@uiw/react-codemirror';
 import { useAtomValue } from 'jotai';
-import { currentGroupAtom, systemHostsDraftAtom } from '~/atom';
-import { CommonHeader, Textarea } from '~/components';
+import { currentGroupAtom, systemHostsDraftAtom, themeAtom } from '~/atom';
+import { CommonHeader } from '~/components';
+import { Theme } from '~/consts';
 import { cn } from '~/utils/cn';
 import { EditorKindToggle } from './editor-kind-toggle';
 
@@ -9,19 +12,21 @@ export function TextEditor(props: { className?: string }) {
 
   const currentGroup = useAtomValue(currentGroupAtom);
   const systemHostsDraft = useAtomValue(systemHostsDraftAtom);
+  const theme = useAtomValue(themeAtom);
 
   return (
-    <div className={cn('flex flex-col h-full', className)}>
+    <div className={cn('h-full', className)}>
       <CommonHeader>
         <EditorKindToggle />
       </CommonHeader>
-      <div className="w-full flex-1 p-1">
-        <Textarea
-          className="whitespace-pre overflow-auto resize-none h-full rounded-none border-none rounded-br-md"
-          value={currentGroup.system ? systemHostsDraft : currentGroup.text}
-          readOnly
-        />
-      </div>
+      <CodeMirror
+        style={{ height: 'calc(100% - 3.5rem)' }}
+        height="100%"
+        theme={theme.className === Theme.Dark ? githubDark : githubLight}
+        value={
+          currentGroup.system ? systemHostsDraft : currentGroup.text.repeat(10)
+        }
+      />
     </div>
   );
 }

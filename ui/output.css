@@ -1030,10 +1030,6 @@ body {
   margin-bottom: calc(0.375rem * var(--tw-space-y-reverse));
 }
 
-.overflow-auto {
-  overflow: auto;
-}
-
 .overflow-hidden {
   overflow: hidden;
 }
@@ -1052,10 +1048,6 @@ body {
   white-space: nowrap;
 }
 
-.whitespace-pre {
-  white-space: pre;
-}
-
 .break-all {
   word-break: break-all;
 }
@@ -1072,16 +1064,8 @@ body {
   border-radius: calc(var(--radius) - 2px);
 }
 
-.rounded-none {
-  border-radius: 0px;
-}
-
 .rounded-sm {
   border-radius: calc(var(--radius) - 4px);
-}
-
-.rounded-br-md {
-  border-bottom-right-radius: calc(var(--radius) - 2px);
 }
 
 .border {
@@ -1106,10 +1090,6 @@ body {
 
 .border-t {
   border-top-width: 1px;
-}
-
-.border-none {
-  border-style: none;
 }
 
 .border-border\/50 {
@@ -1597,6 +1577,65 @@ body {
 
 .scrollbar-thumb-rounded-full {
   --scrollbar-thumb-radius: 9999px;
+}
+
+.cm-focused {
+  outline: none !important;
+}
+
+.cm-scroller::-webkit-scrollbar-track {
+  background-color: var(--scrollbar-track);
+  border-radius: var(--scrollbar-track-radius);
+}
+
+.cm-scroller::-webkit-scrollbar-track:hover {
+  background-color: var(--scrollbar-track-hover, var(--scrollbar-track));
+}
+
+.cm-scroller::-webkit-scrollbar-track:active {
+  background-color: var(--scrollbar-track-active, var(--scrollbar-track-hover, var(--scrollbar-track)));
+}
+
+.cm-scroller::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: var(--scrollbar-thumb-radius);
+}
+
+.cm-scroller::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover, var(--scrollbar-thumb));
+}
+
+.cm-scroller::-webkit-scrollbar-thumb:active {
+  background-color: var(--scrollbar-thumb-active, var(--scrollbar-thumb-hover, var(--scrollbar-thumb)));
+}
+
+.cm-scroller::-webkit-scrollbar-corner {
+  background-color: var(--scrollbar-corner);
+  border-radius: var(--scrollbar-corner-radius);
+}
+
+.cm-scroller::-webkit-scrollbar-corner:hover {
+  background-color: var(--scrollbar-corner-hover, var(--scrollbar-corner));
+}
+
+.cm-scroller::-webkit-scrollbar-corner:active {
+  background-color: var(--scrollbar-corner-active, var(--scrollbar-corner-hover, var(--scrollbar-corner)));
+}
+
+.cm-scroller {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb, initial) var(--scrollbar-track, initial);
+}
+
+.cm-scroller::-webkit-scrollbar {
+  display: block;
+  width: 8px;
+  height: 8px;
+}
+
+.cm-scroller {
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: hsl(var(--border));
 }
 
 .file\:border-0::file-selector-button {

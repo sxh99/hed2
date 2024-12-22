@@ -68,3 +68,11 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+.cm-focused {
+  outline: none !important;
+}
+
+.cm-scroller {
+  @apply scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border;
+}
