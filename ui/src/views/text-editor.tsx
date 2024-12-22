@@ -15,11 +15,13 @@ export function TextEditor(props: { className?: string }) {
       <CommonHeader>
         <EditorKindToggle />
       </CommonHeader>
-      <Textarea
-        className="whitespace-pre overflow-auto flex-1"
-        value={currentGroup.system ? systemHostsDraft : currentGroup.text}
-        readOnly
-      />
+      <div className="w-full flex-1 p-1">
+        <Textarea
+          className="whitespace-pre overflow-auto resize-none h-full rounded-none border-none rounded-br-md"
+          value={currentGroup.system ? systemHostsDraft : currentGroup.text}
+          readOnly
+        />
+      </div>
     </div>
   );
 }

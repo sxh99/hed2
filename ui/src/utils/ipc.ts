@@ -1,7 +1,10 @@
-import { invoke } from '@tauri-apps/api/core';
+import { invoke, isTauri } from '@tauri-apps/api/core';
 
 export const ipc = {
   getSystemHosts(): Promise<string> {
-    return invoke('read_system_hosts');
+    if (isTauri()) {
+      return invoke('read_system_hosts');
+    }
+    return Promise.resolve('');
   },
 };
