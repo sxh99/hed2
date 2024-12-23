@@ -5,6 +5,7 @@ import { currentGroupAtom, systemHostsDraftAtom, themeAtom } from '~/atom';
 import { CommonHeader } from '~/components';
 import { Theme } from '~/consts';
 import { cn } from '~/utils/cn';
+import { hostsLangSupport } from '~/utils/hosts-lang';
 import { EditorKindToggle } from './editor-kind-toggle';
 
 export function TextEditor(props: { className?: string }) {
@@ -23,9 +24,8 @@ export function TextEditor(props: { className?: string }) {
         style={{ height: 'calc(100% - 3.5rem)' }}
         height="100%"
         theme={theme.className === Theme.Dark ? githubDark : githubLight}
-        value={
-          currentGroup.system ? systemHostsDraft : currentGroup.text.repeat(10)
-        }
+        value={currentGroup.system ? systemHostsDraft : currentGroup.text}
+        extensions={[hostsLangSupport]}
       />
     </div>
   );

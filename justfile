@@ -39,5 +39,5 @@ push-tag tag:
 	git tag {{tag}}
 	git push origin {{tag}}
 
-add-dep-ui +pkgs:
-	pnpm add {{pkgs}} --filter ./ui
+ui-dep +pkgs:
+	pnpm {{pkgs}} --filter ./ui
