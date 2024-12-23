@@ -2,7 +2,7 @@ import { parser } from 'hed2-parser';
 import { atom } from 'jotai';
 import { groupsAtom, systemHostsDraftAtom } from './primitive';
 
-export const updateSystemHostsDraftAtom = atom(null, (get, set) => {
+export const setSystemHostsDraftByListAtom = atom(null, (get, set) => {
   const groups = get(groupsAtom);
   const systemGroup = groups.find((group) => group.system);
   if (!systemGroup) {

@@ -342,9 +342,9 @@ function Hosts(
       value={enabledHosts}
       onValueChange={handleEnabledHostsChange}
     >
-      {hosts.map((host) => (
+      {hosts.map((host, i) => (
         <Host
-          key={host.content}
+          key={`${host.content}-${i}`}
           host={host}
           onEditOk={handleEditHostOk}
           onEditValidate={handleNewHostValidate}

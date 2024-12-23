@@ -10,13 +10,13 @@ import {
   groupsAtom,
   systemHostsDraftAtom,
 } from './primitive';
-import { updateSystemHostsDraftAtom } from './system-hosts-draft';
+import { setSystemHostsDraftByListAtom } from './system-hosts-draft';
 
 export const groupsWithWriterAtom = atom(
   (get) => {
     return get(groupsAtom);
   },
-  (get, set, newGroups: Group[]) => {
+  (get, set, newGroups: Group[], changeByEditText?: boolean) => {
     const groups = get(groupsAtom);
     const systemGroup = newGroups.find((group) => group.system);
     if (systemGroup) {
@@ -60,7 +60,9 @@ export const groupsWithWriterAtom = atom(
         return group.system ? { ...group } : group;
       }),
     );
-    set(updateSystemHostsDraftAtom);
+    if (!changeByEditText) {
+      set(setSystemHostsDraftByListAtom);
+    }
     storage.setDisabledGroups(newGroups.filter((group) => !group.enabled));
   },
 );

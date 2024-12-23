@@ -1,7 +1,12 @@
 import { githubDark, githubLight } from '@uiw/codemirror-theme-github';
 import CodeMirror from '@uiw/react-codemirror';
-import { useAtomValue } from 'jotai';
-import { currentGroupAtom, systemHostsDraftAtom, themeAtom } from '~/atom';
+import { useAtomValue, useSetAtom } from 'jotai';
+import {
+  currentGroupAtom,
+  editGroupTextAtom,
+  systemHostsDraftAtom,
+  themeAtom,
+} from '~/atom';
 import { CommonHeader } from '~/components';
 import { Theme } from '~/consts';
 import { cn } from '~/utils/cn';
@@ -14,6 +19,11 @@ export function TextEditor(props: { className?: string }) {
   const currentGroup = useAtomValue(currentGroupAtom);
   const systemHostsDraft = useAtomValue(systemHostsDraftAtom);
   const theme = useAtomValue(themeAtom);
+  const editGroupText = useSetAtom(editGroupTextAtom);
+
+  const handleChange = (value: string) => {
+    editGroupText(value);
+  };
 
   return (
     <div className={cn('h-full', className)}>
@@ -26,6 +36,7 @@ export function TextEditor(props: { className?: string }) {
         theme={theme.className === Theme.Dark ? githubDark : githubLight}
         value={currentGroup.system ? systemHostsDraft : currentGroup.text}
         extensions={[hostsLangSupport]}
+        onChange={handleChange}
       />
     </div>
   );

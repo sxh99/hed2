@@ -58,35 +58,37 @@ export function textToLines(text: string): Line[] {
       }
     }
 
-    const enabled = tokens[0] !== '#';
-    const mayIp = tokens[enabled ? 0 : 1];
+    if (tokens.length > 1) {
+      const enabled = tokens[0] !== '#';
+      const mayIp = tokens[enabled ? 0 : 1];
 
-    if (isIP(mayIp)) {
-      const hosts: string[] = [];
-      const skip = enabled ? 1 : 2;
+      if (isIP(mayIp)) {
+        const hosts: string[] = [];
+        const skip = enabled ? 1 : 2;
 
-      for (const host of tokens.slice(skip)) {
-        const sharpIdx = host.indexOf('#');
-        if (sharpIdx !== -1) {
-          const slice = host.slice(0, sharpIdx);
-          if (slice.length) {
-            hosts.push(slice);
+        for (const host of tokens.slice(skip)) {
+          const sharpIdx = host.indexOf('#');
+          if (sharpIdx !== -1) {
+            const slice = host.slice(0, sharpIdx);
+            if (slice.length) {
+              hosts.push(slice);
+            }
+            break;
           }
-          break;
+          hosts.push(host);
         }
-        hosts.push(host);
-      }
 
-      if (hosts.length) {
-        lines.push({
-          type: 'valid',
-          value: {
-            ip: mayIp,
-            hosts,
-            enabled,
-          },
-        });
-        continue;
+        if (hosts.length) {
+          lines.push({
+            type: 'valid',
+            value: {
+              ip: mayIp,
+              hosts,
+              enabled,
+            },
+          });
+          continue;
+        }
       }
     }
 
@@ -434,9 +436,15 @@ export function listToText(
   return linesToText(newLines);
 }
 
+export function textToList(text: string, group?: string): Item[] {
+  const lines = textToLines(text);
+  return linesToList(lines, group);
+}
+
 export const parser = {
   textToGroups,
   listToText,
+  textToList,
 };
 
 export { isIP };

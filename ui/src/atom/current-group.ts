@@ -5,7 +5,11 @@ import { splitAtom } from 'jotai/utils';
 import { NOT_EXISTS_GROUP } from '~/consts';
 import type { Group, Item, ItemFormValue } from '~/types';
 import { groupsWithWriterAtom } from './groups';
-import { currentGroupNameAtom, groupsAtom } from './primitive';
+import {
+  currentGroupNameAtom,
+  groupsAtom,
+  systemHostsDraftAtom,
+} from './primitive';
 
 export const currentGroupAtom = atom(
   (get) => {
@@ -16,7 +20,7 @@ export const currentGroupAtom = atom(
       NOT_EXISTS_GROUP
     );
   },
-  (get, set, newGroup: Group) => {
+  (get, set, newGroup: Group, changeByEditText?: boolean) => {
     const groups = get(groupsAtom);
     if (newGroup.system) {
       const enabledGroupNames = new Set(
@@ -59,6 +63,7 @@ export const currentGroupAtom = atom(
           }
           return group;
         }),
+        changeByEditText,
       );
       return;
     }
@@ -80,8 +85,7 @@ export const currentGroupAtom = atom(
         systemGroup.list.splice(startIdx, deleteCount, ...newGroup.list);
       }
     }
-    const oldGroup = groups.find((group) => group.name === newGroup.name);
-    if (oldGroup && oldGroup.text === newGroup.text) {
+    if (!changeByEditText) {
       newGroup.text = parser.listToText(
         newGroup.list,
         newGroup.text,
@@ -96,6 +100,7 @@ export const currentGroupAtom = atom(
         }
         return group;
       }),
+      changeByEditText,
     );
   },
 );
@@ -130,4 +135,16 @@ export const addGroupItemAtom = atom(null, (get, set, v: ItemFormValue) => {
   };
 
   set(currentGroupListAtom, (list) => [...list, newItem]);
+});
+
+export const editGroupTextAtom = atom(null, (get, set, newText: string) => {
+  const currentGroup = get(currentGroupAtom);
+  const list = parser.textToList(
+    newText,
+    currentGroup.system ? undefined : currentGroup.name,
+  );
+  set(currentGroupAtom, { ...currentGroup, text: newText, list }, true);
+  if (currentGroup.system) {
+    set(systemHostsDraftAtom, newText);
+  }
 });

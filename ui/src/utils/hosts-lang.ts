@@ -1,6 +1,6 @@
 import { LanguageSupport, StreamLanguage } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
-import { isIP } from 'hed2-parser';
+import { SYSTEM_GROUP, isIP } from 'hed2-parser';
 
 const tagMap = {
   ip: tags.atom.toString(),
@@ -25,6 +25,9 @@ const hostsLang = StreamLanguage.define({
       const line = stream.string.trim();
       if (line.startsWith('#[') && line.endsWith(']')) {
         stream.skipToEnd();
+        if (line === `#[${SYSTEM_GROUP}]`) {
+          return tagMap.comment;
+        }
         if (state.group) {
           if (state.group === line) {
             state.group = '';
@@ -44,10 +47,12 @@ const hostsLang = StreamLanguage.define({
 
     if (stream.eatWhile(/[^\s#]/)) {
       const token = stream.current();
-      if (isIP(token)) {
-        return tagMap.ip;
+      if (token) {
+        if (isIP(token)) {
+          return tagMap.ip;
+        }
+        return tagMap.host;
       }
-      return tagMap.host;
     }
 
     stream.skipToEnd();
