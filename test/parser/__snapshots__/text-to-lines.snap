@@ -13,7 +13,7 @@
   },
   {
     "type": "other",
-    "value": "#    comment",
+    "value": "   #    comment  ",
   },
   {
     "type": "empty",
@@ -58,6 +58,19 @@
     "value": {
       "enabled": true,
       "hosts": [
+        "a.com",
+        "c.com",
+        "b.com",
+        "f.com",
+      ],
+      "ip": "1.1.1.1",
+    },
+  },
+  {
+    "type": "valid",
+    "value": {
+      "enabled": true,
+      "hosts": [
         "e.com",
         "h.com",
         "g.com",
@@ -66,7 +79,7 @@
         "j.com",
         "l.com",
         "m.com",
-        "n.com",
+        "n",
       ],
       "ip": "1.1.1.1",
     },
@@ -132,11 +145,15 @@
   },
   {
     "type": "other",
-    "value": "4.4.4.4",
+    "value": "4.4.4.4    ",
   },
   {
     "type": "other",
-    "value": "# 4.4.4.4",
+    "value": "# 4.4.4.4 ",
+  },
+  {
+    "type": "other",
+    "value": "#4.4.4.4 ",
   },
   {
     "type": "empty",
@@ -249,6 +266,27 @@
     "type": "empty",
   },
   {
+    "type": "other",
+    "value": "#[]",
+  },
+  {
+    "type": "valid",
+    "value": {
+      "enabled": true,
+      "hosts": [
+        "d.com",
+      ],
+      "ip": "3.3.3.3",
+    },
+  },
+  {
+    "type": "other",
+    "value": "#[]",
+  },
+  {
+    "type": "empty",
+  },
+  {
     "type": "group",
     "value": "baz",
   },
@@ -267,7 +305,7 @@
   },
   {
     "type": "group",
-    "value": "foo",
+    "value": "bar",
   },
   {
     "type": "valid",
@@ -281,7 +319,7 @@
   },
   {
     "type": "group",
-    "value": "foo",
+    "value": "bar",
   },
   {
     "type": "empty",

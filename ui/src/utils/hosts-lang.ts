@@ -1,6 +1,6 @@
 import { LanguageSupport, StreamLanguage } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
-import { SYSTEM_GROUP, isIP } from 'hed2-parser';
+import { SYSTEM_GROUP, isGroup, isIP } from 'hed2-parser';
 
 const tagMap = {
   ip: tags.atom.toString(),
@@ -14,6 +14,7 @@ const hostsLang = StreamLanguage.define({
   startState() {
     return {
       group: '',
+      groupSet: new Set<string>(),
     };
   },
   token(stream, state) {
@@ -23,21 +24,24 @@ const hostsLang = StreamLanguage.define({
 
     if (stream.peek() === '#') {
       const line = stream.string.trim();
-      if (line.startsWith('#[') && line.endsWith(']')) {
-        stream.skipToEnd();
-        if (line === `#[${SYSTEM_GROUP}]`) {
-          return tagMap.comment;
-        }
-        if (state.group) {
-          if (state.group === line) {
-            state.group = '';
-            return tagMap.group;
-          }
-          return tagMap.comment;
-        }
-        state.group = line;
-        return tagMap.group;
+      stream.skipToEnd();
+      if (
+        !isGroup(line) ||
+        line === `#[${SYSTEM_GROUP}]` ||
+        state.groupSet.has(line)
+      ) {
+        return tagMap.comment;
       }
+      if (state.group) {
+        if (state.group === line) {
+          state.group = '';
+          state.groupSet.add(line);
+          return tagMap.group;
+        }
+        return tagMap.comment;
+      }
+      state.group = line;
+      return tagMap.group;
     }
 
     if (stream.eat('#')) {

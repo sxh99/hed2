@@ -24,7 +24,7 @@ import {
 import { EditorKind } from '~/consts';
 import { useBoolean, useSearch } from '~/hooks';
 import type { Group } from '~/types';
-import { checkGroupExists } from '~/utils';
+import { checkGroupExists } from '~/utils/group';
 
 export function GroupPanel() {
   const search = useSearch();

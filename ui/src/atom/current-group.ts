@@ -4,7 +4,8 @@ import { focusAtom } from 'jotai-optics';
 import { splitAtom } from 'jotai/utils';
 import { NOT_EXISTS_GROUP } from '~/consts';
 import type { Group, Item, ItemFormValue } from '~/types';
-import { groupsWithWriterAtom } from './groups';
+import { filterDisabledGroups, mergeGroups } from '~/utils/group';
+import { storage } from '~/utils/storage';
 import {
   currentGroupNameAtom,
   groupsAtom,
@@ -20,88 +21,45 @@ export const currentGroupAtom = atom(
       NOT_EXISTS_GROUP
     );
   },
-  (get, set, newGroup: Group, changeByEditText?: boolean) => {
+  (get, set, changedGroup: Group) => {
     const groups = get(groupsAtom);
-    if (newGroup.system) {
-      const enabledGroupNames = new Set(
-        groups
-          .filter((group) => group.enabled && !group.system)
-          .map((group) => group.name),
-      );
-      const map: Map<string, Item[]> = new Map();
-      for (const item of newGroup.list) {
-        if (!enabledGroupNames.has(item.group)) {
-          continue;
-        }
-        const list = map.get(item.group);
-        if (list) {
-          list.push(item);
-        } else {
-          map.set(item.group, [item]);
-        }
-      }
-      for (const group of groups) {
-        if (!group.enabled) {
-          continue;
-        }
-        const newList = map.get(group.name);
-        if (!newList) {
-          group.list = [];
-          continue;
-        }
-        group.list = [...newList];
-        group.text = parser.listToText(group.list, group.text, group.name);
-      }
-      set(
-        groupsWithWriterAtom,
-        groups.map((group) => {
-          if (group.name === newGroup.name) {
-            return newGroup;
-          }
-          if (group.enabled) {
-            return { ...group };
-          }
-          return group;
-        }),
-        changeByEditText,
-      );
+    if (changedGroup.system) {
+      const hostsDraft = get(systemHostsDraftAtom);
+      const newHostsDraft = parser.listToText(changedGroup.list, hostsDraft);
+      const newRawGroups = parser.textToGroups(newHostsDraft);
+      set(groupsAtom, mergeGroups(newRawGroups, filterDisabledGroups(groups)));
+      set(systemHostsDraftAtom, newHostsDraft);
       return;
     }
-    if (newGroup.enabled) {
-      const systemGroup = groups.find((group) => group.system);
-      if (!systemGroup) {
-        return;
-      }
-      const startIdx = systemGroup.list.findIndex(
-        (item) => item.group === newGroup.name,
+    if (changedGroup.enabled) {
+      const newText = parser.listToText(
+        changedGroup.list,
+        changedGroup.text,
+        changedGroup.name,
       );
-      if (startIdx === -1) {
-        systemGroup.list = [...systemGroup.list, ...newGroup.list];
-      } else {
-        const deleteCount = systemGroup.list.reduce(
-          (pre, item) => (item.group === newGroup.name ? pre + 1 : pre),
-          0,
-        );
-        systemGroup.list.splice(startIdx, deleteCount, ...newGroup.list);
-      }
-    }
-    if (!changeByEditText) {
-      newGroup.text = parser.listToText(
-        newGroup.list,
-        newGroup.text,
-        newGroup.name,
+      const hostsDraft = get(systemHostsDraftAtom);
+      const newHostsDraft = parser.replaceGroupText(
+        changedGroup.name,
+        newText,
+        hostsDraft,
       );
+      const newRawGroups = parser.textToGroups(newHostsDraft);
+      set(groupsAtom, mergeGroups(newRawGroups, filterDisabledGroups(groups)));
+      set(systemHostsDraftAtom, newHostsDraft);
+      return;
     }
-    set(
-      groupsWithWriterAtom,
-      groups.map((group) => {
-        if (group.name === newGroup.name) {
-          return newGroup;
-        }
-        return group;
-      }),
-      changeByEditText,
+    changedGroup.text = parser.listToText(
+      changedGroup.list,
+      changedGroup.text,
+      changedGroup.name,
     );
+    set(
+      groupsAtom,
+      groups.map((group) => {
+        return group.name === changedGroup.name ? changedGroup : group;
+      }),
+    );
+    storage.setDisabledGroups(filterDisabledGroups(groups));
   },
 );
 
@@ -139,12 +97,32 @@ export const addGroupItemAtom = atom(null, (get, set, v: ItemFormValue) => {
 
 export const editGroupTextAtom = atom(null, (get, set, newText: string) => {
   const currentGroup = get(currentGroupAtom);
-  const list = parser.textToList(
-    newText,
-    currentGroup.system ? undefined : currentGroup.name,
-  );
-  set(currentGroupAtom, { ...currentGroup, text: newText, list }, true);
+  const groups = get(groupsAtom);
   if (currentGroup.system) {
+    const newRawGroups = parser.textToGroups(newText);
+    set(groupsAtom, mergeGroups(newRawGroups, filterDisabledGroups(groups)));
     set(systemHostsDraftAtom, newText);
+    return;
   }
+  if (currentGroup.enabled) {
+    const hostsDraft = get(systemHostsDraftAtom);
+    const newHostsDraft = parser.replaceGroupText(
+      currentGroup.name,
+      newText,
+      hostsDraft,
+    );
+    const newRawGroups = parser.textToGroups(newHostsDraft);
+    set(groupsAtom, mergeGroups(newRawGroups, filterDisabledGroups(groups)));
+    set(systemHostsDraftAtom, newHostsDraft);
+    return;
+  }
+  const newList = parser.textToList(newText, currentGroup.name);
+  const newGroups = groups.map((group) => {
+    if (group.name === currentGroup.name) {
+      return { ...group, list: newList, text: newText };
+    }
+    return group;
+  });
+  set(groupsAtom, newGroups);
+  storage.setDisabledGroups(filterDisabledGroups(newGroups));
 });

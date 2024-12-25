@@ -13,7 +13,7 @@
   },
   {
     "type": "other",
-    "value": "#    comment",
+    "value": "   #    comment  ",
   },
   {
     "type": "empty",
@@ -44,7 +44,7 @@
       "hosts": [
         "l.com",
         "m.com",
-        "n.com",
+        "n",
         "o.com",
       ],
       "ip": "1.1.1.1",
@@ -79,6 +79,9 @@
       ],
       "ip": "1.1.1.1",
     },
+  },
+  {
+    "type": "empty",
   },
   {
     "type": "empty",
@@ -142,11 +145,15 @@
   },
   {
     "type": "other",
-    "value": "4.4.4.4",
+    "value": "4.4.4.4    ",
   },
   {
     "type": "other",
-    "value": "# 4.4.4.4",
+    "value": "# 4.4.4.4 ",
+  },
+  {
+    "type": "other",
+    "value": "#4.4.4.4 ",
   },
   {
     "type": "empty",
@@ -170,7 +177,6 @@
       "enabled": true,
       "hosts": [
         "a.com",
-        "e.com",
         "d.com",
       ],
       "ip": "3.3.3.3",
@@ -184,19 +190,6 @@
         "b.com",
       ],
       "ip": "3.3.3.3",
-    },
-  },
-  {
-    "type": "empty",
-  },
-  {
-    "type": "valid",
-    "value": {
-      "enabled": true,
-      "hosts": [
-        "a.com",
-      ],
-      "ip": "5.5.5.5",
     },
   },
   {
@@ -221,10 +214,26 @@
     "value": {
       "enabled": true,
       "hosts": [
+        "e.com",
         "c.com",
+        "d.com",
       ],
       "ip": "3.3.3.3",
     },
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "other",
+    "value": "#[]",
+  },
+  {
+    "type": "empty",
+  },
+  {
+    "type": "other",
+    "value": "#[]",
   },
   {
     "type": "empty",

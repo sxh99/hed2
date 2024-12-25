@@ -5,13 +5,13 @@ const mockHosts = `
 
 
 
-
-#    comment  
+   #    comment  
                
 #    1.1.1.1 1.com 2.com 3.com 4.com 5.com 6.com 7.com 8.com 9.com 10.com
 
 1.1.1.1 a.com    c.com     b.com f.com   #     ##     comment 
-1.1.1.1   e.com h.com  g.com i.com  k.com j.com l.com m.com   n.c#om     ##               fejifoejfoiejfoj                                  comment 
+1.1.1.1 a.com    c.com     b.com f.com   #     ##     comment 
+1.1.1.1   e.com h.com  g.com i.com  k.com j.com l.com m.com   n#.com     ##     comment 
 
 # comment
 # comment
@@ -27,6 +27,7 @@ const mockHosts = `
 
 4.4.4.4    
 # 4.4.4.4 
+#4.4.4.4 
 
 #[foo]    
 
@@ -49,12 +50,16 @@ const mockHosts = `
 3.3.3.3 c.com
 #[System]
 
+#[]
+3.3.3.3 d.com
+#[]
+
 #[baz]
 5.5.5.5 a.com
 
-#[foo]
+#[bar]
 5.5.5.5 c.com
-#[foo]
+#[bar]
 `;
 
 export const ipc = {

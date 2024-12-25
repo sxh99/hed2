@@ -30,10 +30,19 @@ export interface Group {
   list: Item[];
 }
 
+interface Range {
+  start: number;
+  end: number;
+}
+
 export const SYSTEM_GROUP = 'System';
 
 function splitWhitespace(text: string): string[] {
   return text.replaceAll('\r\n', '\n').split('\n');
+}
+
+export function isGroup(token: string) {
+  return token.length > 3 && token.startsWith('#[') && token.endsWith(']');
 }
 
 export function textToLines(text: string): Line[] {
@@ -49,7 +58,7 @@ export function textToLines(text: string): Line[] {
 
     if (tokens.length === 1) {
       const token = tokens[0];
-      if (token.length > 3 && token.startsWith('#[') && token.endsWith(']')) {
+      if (isGroup(token)) {
         lines.push({
           type: 'group',
           value: token.slice(2, token.length - 1).trim(),
@@ -92,96 +101,100 @@ export function textToLines(text: string): Line[] {
       }
     }
 
-    lines.push({ type: 'other', value: line.trim() });
+    lines.push({ type: 'other', value: line });
   }
 
   return lines;
 }
 
-export function linesToList(lines: Line[], group?: string): Item[] {
-  const itemMap: Map<string, Item> = new Map();
+export function linesToList(lines: Line[], specifiedGroup?: string): Item[] {
+  let itemMap: Map<string, Item> = new Map();
   const tmpMap: Map<string, Item> = new Map();
-  let currentGroup = group ?? SYSTEM_GROUP;
+  const groupSet: Set<string> = new Set();
+  let currentGroup = specifiedGroup;
 
   for (const line of lines) {
     if (line.type === 'valid') {
       const { ip, hosts: hostStrs, enabled } = line.value;
 
-      if (!hostStrs.length) {
-        continue;
-      }
-
       const hosts: Host[] = hostStrs.map((content) => {
         return { content, enabled };
       });
 
-      const key = `${currentGroup}_${ip}`;
+      const key = currentGroup ? `${currentGroup}_${ip}` : ip;
 
       const item = tmpMap.get(key);
       if (item) {
         item.hosts.push(...hosts);
       } else {
-        tmpMap.set(key, { ip, hosts, group: currentGroup });
+        tmpMap.set(key, { ip, hosts, group: currentGroup ?? SYSTEM_GROUP });
       }
     } else if (line.type === 'group') {
-      const { value: groupName } = line;
+      const { value: group } = line;
 
       if (
-        group ||
-        groupName === SYSTEM_GROUP ||
-        (currentGroup !== SYSTEM_GROUP && currentGroup !== groupName)
+        specifiedGroup ||
+        group === SYSTEM_GROUP ||
+        (currentGroup && currentGroup !== group)
       ) {
         continue;
       }
 
-      for (const [k, v] of tmpMap) {
-        const item = itemMap.get(k);
-        if (item) {
-          item.hosts.push(...v.hosts);
-        } else {
-          itemMap.set(k, v);
+      if (tmpMap.size) {
+        for (const [k, v] of tmpMap) {
+          const item = itemMap.get(k);
+          if (item) {
+            item.hosts.push(...v.hosts);
+          } else {
+            itemMap.set(k, v);
+          }
         }
+        tmpMap.clear();
       }
 
-      tmpMap.clear();
-
-      if (currentGroup === groupName) {
+      if (currentGroup === group) {
         currentGroup = SYSTEM_GROUP;
+        groupSet.add(group);
       } else {
-        currentGroup = groupName;
+        currentGroup = groupSet.has(group) ? SYSTEM_GROUP : group;
       }
     }
   }
 
   if (tmpMap.size) {
-    for (const [k, v] of tmpMap) {
-      if (!group) {
+    if (specifiedGroup) {
+      itemMap = tmpMap;
+    } else {
+      for (const [_, v] of tmpMap) {
         v.group = SYSTEM_GROUP;
-      }
-      const item = itemMap.get(k);
-      if (item) {
-        item.hosts.push(...v.hosts);
-      } else {
-        itemMap.set(k, v);
+        const item = itemMap.get(v.ip);
+        if (item) {
+          item.hosts.push(...v.hosts);
+        } else {
+          itemMap.set(v.ip, v);
+        }
       }
     }
   }
 
   for (const item of itemMap.values()) {
-    item.hosts = [...new Set(item.hosts)];
+    const set = new Set();
+    const dedup = [];
+    for (const host of item.hosts) {
+      if (!set.has(host.content)) {
+        dedup.push(host);
+        set.add(host.content);
+      }
+    }
+    item.hosts = dedup;
   }
 
   return [...itemMap.values()];
 }
 
-interface Range {
-  start: number;
-  end: number;
-}
-
 export function textToGroups(text: string): Group[] {
   const lines = textToLines(text);
-  const rangeMap: Map<string, Range[]> = new Map();
+  const rangeMap: Map<string, Range> = new Map();
   const currentRange: Range = { start: 0, end: 0 };
   let currentGroup: string | null = null;
 
@@ -196,11 +209,8 @@ export function textToGroups(text: string): Group[] {
       if (currentGroup === group) {
         currentGroup = null;
         currentRange.end = idx;
-        const ranges = rangeMap.get(group);
-        if (ranges) {
-          ranges.push({ ...currentRange });
-        } else {
-          rangeMap.set(group, [{ ...currentRange }]);
+        if (!rangeMap.has(group)) {
+          rangeMap.set(group, { ...currentRange });
         }
       }
     } else {
@@ -212,12 +222,9 @@ export function textToGroups(text: string): Group[] {
   const rawLines = splitWhitespace(text);
   const groupMap: Map<string, Group> = new Map();
 
-  for (const [group, ranges] of rangeMap) {
-    const vs: string[] = [];
-    for (const range of ranges) {
-      vs.push(...rawLines.slice(range.start, range.end));
-    }
-    groupMap.set(group, { name: group, text: vs.join('\n'), list: [] });
+  for (const [group, range] of rangeMap) {
+    const groupLines = rawLines.slice(range.start + 1, range.end);
+    groupMap.set(group, { name: group, text: groupLines.join('\n'), list: [] });
   }
 
   const systemGroup: Group = {
@@ -402,7 +409,12 @@ export function linesToText(lines: Line[]): string {
       textLines.push(`#[${line.value}]`);
     }
     if (line.type === 'other') {
-      textLines.push(line.value);
+      const s = line.value.trim();
+      if (s === '#[]') {
+        isPreEmpty = true;
+        continue;
+      }
+      textLines.push(s);
     }
     if (line.type === 'empty') {
       if (!isPreEmpty) {
@@ -441,10 +453,44 @@ export function textToList(text: string, group?: string): Item[] {
   return linesToList(lines, group);
 }
 
+export function replaceGroupText(
+  group: string,
+  text: string,
+  fullText: string,
+): string {
+  const lines = textToLines(fullText);
+  const range: Range = { start: -1, end: -1 };
+
+  lines.forEach((line, idx) => {
+    if (line.type !== 'group' || line.value !== group) {
+      return;
+    }
+    if (range.start === -1) {
+      range.start = idx;
+      return;
+    }
+    if (range.end === -1) {
+      range.end = idx;
+    }
+  });
+
+  const textLines = splitWhitespace(fullText);
+  if (range.start !== -1 && range.end !== -1) {
+    textLines.splice(
+      range.start + 1,
+      range.end - range.start - 1,
+      ...splitWhitespace(text),
+    );
+  }
+
+  return textLines.join('\n');
+}
+
 export const parser = {
   textToGroups,
   listToText,
   textToList,
+  replaceGroupText,
 };
 
 export { isIP };

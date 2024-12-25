@@ -12,7 +12,8 @@
     "run:tauri": "tsx ./scripts/run-tauri.ts",
     "run:browser": "tsx ./scripts/run-browser.ts",
     "build:parser": "pnpm run --filter ./parser build",
-    "test:parser": "pnpm run --filter ./test test"
+    "test:parser": "pnpm run --filter ./test test",
+    "test:parser:u": "pnpm run --filter ./test test:u"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

@@ -91,7 +91,7 @@
         "enabled": true,
       },
       {
-        "content": "n.com",
+        "content": "n",
         "enabled": true,
       },
       {
@@ -126,28 +126,22 @@
         "content": "b.com",
         "enabled": false,
       },
-      {
-        "content": "e.com",
-        "enabled": true,
-      },
     ],
     "ip": "3.3.3.3",
-  },
-  {
-    "group": "foo",
-    "hosts": [
-      {
-        "content": "a.com",
-        "enabled": true,
-      },
-    ],
-    "ip": "5.5.5.5",
   },
   {
     "group": "System",
     "hosts": [
       {
+        "content": "e.com",
+        "enabled": true,
+      },
+      {
         "content": "c.com",
+        "enabled": true,
+      },
+      {
+        "content": "d.com",
         "enabled": true,
       },
     ],

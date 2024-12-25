@@ -6,6 +6,7 @@ import {
   linesToText,
   listToLines,
   listToText,
+  replaceGroupText,
   textToGroups,
   textToLines,
 } from 'hed2-parser';
@@ -57,13 +58,21 @@ test('test parser', async () => {
   const nonSystemGroup = groups.find((group) => group.name !== SYSTEM_GROUP);
   expect(nonSystemGroup).toBeTruthy();
   if (nonSystemGroup) {
-    const nonSystemGroupText = listToText(
+    const newText = listToText(
       nonSystemGroup.list,
       nonSystemGroup.text,
       nonSystemGroup.name,
     );
-    await expect(nonSystemGroupText).toMatchFileSnapshot(
-      snapshotFile('list-to-text'),
+    await expect(newText).toMatchFileSnapshot(snapshotFile('list-to-text'));
+
+    nonSystemGroup.text += '\n\n# foo\n';
+    const newFullText = replaceGroupText(
+      nonSystemGroup.name,
+      nonSystemGroup.text,
+      mockText,
+    );
+    await expect(newFullText).toMatchFileSnapshot(
+      snapshotFile('replace-group-text'),
     );
   }
 });

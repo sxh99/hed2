@@ -3,6 +3,7 @@ import { atom } from 'jotai';
 import { splitAtom } from 'jotai/utils';
 import { xorWith } from 'lodash';
 import type { Group } from '~/types';
+import { filterDisabledGroups, mergeGroups } from '~/utils/group';
 import { ipc } from '~/utils/ipc';
 import { storage } from '~/utils/storage';
 import {
@@ -16,7 +17,7 @@ export const groupsWithWriterAtom = atom(
   (get) => {
     return get(groupsAtom);
   },
-  (get, set, newGroups: Group[], changeByEditText?: boolean) => {
+  (get, set, newGroups: Group[]) => {
     const groups = get(groupsAtom);
     const systemGroup = newGroups.find((group) => group.system);
     if (systemGroup) {
@@ -60,10 +61,8 @@ export const groupsWithWriterAtom = atom(
         return group.system ? { ...group } : group;
       }),
     );
-    if (!changeByEditText) {
-      set(setSystemHostsDraftByListAtom);
-    }
-    storage.setDisabledGroups(newGroups.filter((group) => !group.enabled));
+    set(setSystemHostsDraftByListAtom);
+    storage.setDisabledGroups(filterDisabledGroups(newGroups));
   },
 );
 
@@ -75,27 +74,14 @@ export const groupAtomsAtom = splitAtom(
 export const initGroupsAtom = atom(null, async (_, set) => {
   const systemHosts = await ipc.getSystemHosts();
   const rawGroups = parser.textToGroups(systemHosts);
-  const groups: Group[] = rawGroups.map((group) => {
-    return { ...group, system: group.name === SYSTEM_GROUP, enabled: true };
-  });
+  const disabledGroups = storage.getDisabledGroups();
+  const groups = mergeGroups(rawGroups, disabledGroups);
   const systemGroup = groups.find((group) => group.system);
   if (systemGroup) {
     set(currentGroupNameAtom, systemGroup.name);
     set(systemHostsDraftAtom, systemGroup.text);
   }
-  const enabledGroupNames = new Set(groups.map((group) => group.name));
-  const disabledGroups = storage.getDisabledGroups();
-  let hasRepeatName = false;
-  for (const group of disabledGroups) {
-    if (enabledGroupNames.has(group.name)) {
-      group.name = `${group.name}-disabled`;
-      hasRepeatName = true;
-    }
-  }
-  set(groupsAtom, [...groups, ...disabledGroups]);
-  if (hasRepeatName) {
-    storage.setDisabledGroups(disabledGroups);
-  }
+  set(groupsAtom, groups);
 });
 
 export const addGroupAtom = atom(null, (get, set, groupName: string) => {
@@ -109,5 +95,5 @@ export const addGroupAtom = atom(null, (get, set, groupName: string) => {
   const newGroups = get(groupsAtom).concat(newGroup);
   set(groupsAtom, newGroups);
   set(currentGroupNameAtom, groupName);
-  storage.setDisabledGroups(newGroups.filter((group) => !group.enabled));
+  storage.setDisabledGroups(filterDisabledGroups(newGroups));
 });

@@ -1,6 +1,8 @@
 import { githubDark, githubLight } from '@uiw/codemirror-theme-github';
 import CodeMirror from '@uiw/react-codemirror';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { debounce } from 'lodash';
+import { useMemo } from 'react';
 import {
   currentGroupAtom,
   editGroupTextAtom,
@@ -20,10 +22,7 @@ export function TextEditor(props: { className?: string }) {
   const systemHostsDraft = useAtomValue(systemHostsDraftAtom);
   const theme = useAtomValue(themeAtom);
   const editGroupText = useSetAtom(editGroupTextAtom);
-
-  const handleChange = (value: string) => {
-    editGroupText(value);
-  };
+  const debounceEditGroupText = useMemo(() => debounce(editGroupText, 200), []);
 
   return (
     <div className={cn('h-full', className)}>
@@ -36,7 +35,7 @@ export function TextEditor(props: { className?: string }) {
         theme={theme.className === Theme.Dark ? githubDark : githubLight}
         value={currentGroup.system ? systemHostsDraft : currentGroup.text}
         extensions={[hostsLangSupport]}
-        onChange={handleChange}
+        onChange={debounceEditGroupText}
       />
     </div>
   );
