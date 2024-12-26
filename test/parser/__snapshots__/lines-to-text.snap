@@ -17,15 +17,14 @@
 # 4.4.4.4
 #4.4.4.4
 
-#[foo]
+#[bar]
 3.3.3.3 a.com d.com
 # 3.3.3.3 b.com
-#[foo]
+#[bar]
 
 #abcdefg
 
 3.3.3.3 e.com c.com d.com
-
 5.5.5.5 a.com c.com
 
 #[Another Group]

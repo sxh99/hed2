@@ -245,8 +245,8 @@
     "type": "empty",
   },
   {
-    "type": "group",
-    "value": "System",
+    "type": "other",
+    "value": "#[System]",
   },
   {
     "type": "valid",
@@ -259,8 +259,8 @@
     },
   },
   {
-    "type": "group",
-    "value": "System",
+    "type": "other",
+    "value": "#[System]",
   },
   {
     "type": "empty",

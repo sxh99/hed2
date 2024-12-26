@@ -21,7 +21,7 @@ test('test parser', async () => {
     encoding: 'utf-8',
   });
 
-  const lines = textToLines(mockText);
+  const { lines } = textToLines(mockText);
   await expect(lines).toMatchFileSnapshot(snapshotFile('text-to-lines'));
 
   const list = linesToList(lines);
@@ -35,6 +35,10 @@ test('test parser', async () => {
     } else if (item.ip === '3.3.3.3' && item.group === 'foo') {
       item.hosts.push({ content: 'd.com', enabled: true });
     }
+
+    if (item.group === 'foo') {
+      item.group = 'bar';
+    }
   }
 
   list.push({
@@ -46,7 +50,9 @@ test('test parser', async () => {
     group: 'Another Group',
   });
 
-  const newLines = listToLines(list, lines);
+  const newLines = listToLines(list, lines, {
+    groupNameMap: { foo: 'bar', bar: 'foo' },
+  });
   await expect(newLines).toMatchFileSnapshot(snapshotFile('list-to-lines'));
 
   const text = linesToText(newLines);
@@ -58,11 +64,9 @@ test('test parser', async () => {
   const nonSystemGroup = groups.find((group) => group.name !== SYSTEM_GROUP);
   expect(nonSystemGroup).toBeTruthy();
   if (nonSystemGroup) {
-    const newText = listToText(
-      nonSystemGroup.list,
-      nonSystemGroup.text,
-      nonSystemGroup.name,
-    );
+    const newText = listToText(nonSystemGroup.list, nonSystemGroup.text, {
+      specifiedGroup: nonSystemGroup.name,
+    });
     await expect(newText).toMatchFileSnapshot(snapshotFile('list-to-text'));
 
     nonSystemGroup.text += '\n\n# foo\n';

@@ -29,6 +29,11 @@ check:
 	node --run typecheck:parser
 	node --run typecheck:other
 
+typecheck:
+	node --run typecheck:ui
+	node --run typecheck:parser
+	node --run typecheck:other
+
 release-pr tag:
 	git checkout -b "release-{{tag}}"
 	cargo set-version {{tag}}
