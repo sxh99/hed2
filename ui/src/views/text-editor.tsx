@@ -6,10 +6,11 @@ import { useMemo } from 'react';
 import {
   currentGroupAtom,
   editGroupTextAtom,
+  formatAllAtom,
   systemHostsDraftAtom,
   themeAtom,
 } from '~/atom';
-import { CommonHeader } from '~/components';
+import { Button, CommonHeader, Kbd } from '~/components';
 import { Theme } from '~/consts';
 import { cn } from '~/utils/cn';
 import { hostsLangSupport } from '~/utils/hosts-lang';
@@ -23,11 +24,18 @@ export function TextEditor(props: { className?: string }) {
   const theme = useAtomValue(themeAtom);
   const editGroupText = useSetAtom(editGroupTextAtom);
   const debounceEditGroupText = useMemo(() => debounce(editGroupText, 200), []);
+  const formatAll = useSetAtom(formatAllAtom);
 
   return (
     <div className={cn('h-full', className)}>
       <CommonHeader>
         <EditorKindToggle />
+        <div>
+          <Button variant="outline" kbd onClick={formatAll}>
+            Format
+            <Kbd keys={['shift', 'option', 'F']} />
+          </Button>
+        </div>
       </CommonHeader>
       <CodeMirror
         style={{ height: 'calc(100% - 3.5rem)' }}

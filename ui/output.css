@@ -768,6 +768,11 @@ body {
   display: none;
 }
 
+.size-3 {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
 .size-4 {
   width: 1rem;
   height: 1rem;
@@ -1050,6 +1055,10 @@ body {
 
 .break-all {
   word-break: break-all;
+}
+
+.rounded {
+  border-radius: 0.25rem;
 }
 
 .rounded-\[inherit\] {

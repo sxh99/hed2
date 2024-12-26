@@ -109,3 +109,15 @@ export const addGroupAtom = atom(null, (get, set, groupName: string) => {
   set(currentGroupNameAtom, groupName);
   storage.setDisabledGroups(filterDisabledGroups(newGroups));
 });
+
+export const formatAllAtom = atom(null, (get, set) => {
+  const newSystemHostsDraft = parser.format(get(systemHostsDraftAtom));
+  const newRawGroups = parser.textToGroups(newSystemHostsDraft);
+  let disabledGroups = filterDisabledGroups(get(groupsAtom));
+  disabledGroups = disabledGroups.map((group) => {
+    return { ...group, text: parser.format(group.text) };
+  });
+  set(systemHostsDraftAtom, newSystemHostsDraft);
+  set(groupsAtom, mergeGroups(newRawGroups, disabledGroups));
+  storage.setDisabledGroups(disabledGroups);
+});
