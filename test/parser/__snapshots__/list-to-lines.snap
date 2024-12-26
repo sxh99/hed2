@@ -210,6 +210,10 @@
     "type": "empty",
   },
   {
+    "type": "other",
+    "value": "#[System]",
+  },
+  {
     "type": "valid",
     "value": {
       "enabled": true,
@@ -220,6 +224,10 @@
       ],
       "ip": "3.3.3.3",
     },
+  },
+  {
+    "type": "other",
+    "value": "#[System]",
   },
   {
     "type": "empty",

@@ -38,17 +38,29 @@ interface Range {
 export const SYSTEM_GROUP = 'System';
 
 function splitWhitespace(text: string): string[] {
-  return text.replaceAll('\r\n', '\n').split('\n');
+  if (text.includes('\r\n')) {
+    return text.replaceAll('\r\n', '\n').split('\n');
+  }
+  return text.split('\n');
 }
 
 export function isGroup(token: string) {
-  return token.length > 3 && token.startsWith('#[') && token.endsWith(']');
+  return (
+    token.length > 3 &&
+    token.startsWith('#[') &&
+    token.endsWith(']') &&
+    token !== `#[${SYSTEM_GROUP}]`
+  );
 }
 
-export function textToLines(text: string): Line[] {
+export function textToLines(text: string): {
+  lines: Line[];
+  rawLines: string[];
+} {
   const lines: Line[] = [];
+  const rawLines = splitWhitespace(text);
 
-  for (const line of splitWhitespace(text)) {
+  for (const line of rawLines) {
     const tokens = line.split(' ').filter((s) => s.length);
 
     if (!tokens.length) {
@@ -104,12 +116,12 @@ export function textToLines(text: string): Line[] {
     lines.push({ type: 'other', value: line });
   }
 
-  return lines;
+  return { lines, rawLines };
 }
 
 export function linesToList(lines: Line[], specifiedGroup?: string): Item[] {
-  let itemMap: Map<string, Item> = new Map();
   const tmpMap: Map<string, Item> = new Map();
+  const itemMap: Map<string, Item> = specifiedGroup ? tmpMap : new Map();
   const groupSet: Set<string> = new Set();
   let currentGroup = specifiedGroup;
 
@@ -117,10 +129,7 @@ export function linesToList(lines: Line[], specifiedGroup?: string): Item[] {
     if (line.type === 'valid') {
       const { ip, hosts: hostStrs, enabled } = line.value;
 
-      const hosts: Host[] = hostStrs.map((content) => {
-        return { content, enabled };
-      });
-
+      const hosts: Host[] = hostStrs.map((content) => ({ content, enabled }));
       const key = currentGroup ? `${currentGroup}_${ip}` : ip;
 
       const item = tmpMap.get(key);
@@ -129,14 +138,11 @@ export function linesToList(lines: Line[], specifiedGroup?: string): Item[] {
       } else {
         tmpMap.set(key, { ip, hosts, group: currentGroup ?? SYSTEM_GROUP });
       }
-    } else if (line.type === 'group') {
+    }
+    if (!specifiedGroup && line.type === 'group') {
       const { value: group } = line;
 
-      if (
-        specifiedGroup ||
-        group === SYSTEM_GROUP ||
-        (currentGroup && currentGroup !== group)
-      ) {
+      if (currentGroup && currentGroup !== group) {
         continue;
       }
 
@@ -153,33 +159,29 @@ export function linesToList(lines: Line[], specifiedGroup?: string): Item[] {
       }
 
       if (currentGroup === group) {
-        currentGroup = SYSTEM_GROUP;
+        currentGroup = undefined;
         groupSet.add(group);
       } else {
-        currentGroup = groupSet.has(group) ? SYSTEM_GROUP : group;
+        currentGroup = groupSet.has(group) ? undefined : group;
       }
     }
   }
 
-  if (tmpMap.size) {
-    if (specifiedGroup) {
-      itemMap = tmpMap;
-    } else {
-      for (const [_, v] of tmpMap) {
-        v.group = SYSTEM_GROUP;
-        const item = itemMap.get(v.ip);
-        if (item) {
-          item.hosts.push(...v.hosts);
-        } else {
-          itemMap.set(v.ip, v);
-        }
+  if (tmpMap.size && !specifiedGroup) {
+    for (const [_, v] of tmpMap) {
+      v.group = SYSTEM_GROUP;
+      const item = itemMap.get(v.ip);
+      if (item) {
+        item.hosts.push(...v.hosts);
+      } else {
+        itemMap.set(v.ip, v);
       }
     }
   }
 
   for (const item of itemMap.values()) {
-    const set = new Set();
-    const dedup = [];
+    const set: Set<string> = new Set();
+    const dedup: Host[] = [];
     for (const host of item.hosts) {
       if (!set.has(host.content)) {
         dedup.push(host);
@@ -193,13 +195,13 @@ export function linesToList(lines: Line[], specifiedGroup?: string): Item[] {
 }
 
 export function textToGroups(text: string): Group[] {
-  const lines = textToLines(text);
+  const { lines, rawLines } = textToLines(text);
   const rangeMap: Map<string, Range> = new Map();
   const currentRange: Range = { start: 0, end: 0 };
   let currentGroup: string | null = null;
 
   lines.forEach((line, idx) => {
-    if (line.type !== 'group' || line.value === SYSTEM_GROUP) {
+    if (line.type !== 'group') {
       return;
     }
 
@@ -219,7 +221,6 @@ export function textToGroups(text: string): Group[] {
     }
   });
 
-  const rawLines = splitWhitespace(text);
   const groupMap: Map<string, Group> = new Map();
 
   for (const [group, range] of rangeMap) {
@@ -349,10 +350,6 @@ export function listToLines(list: Item[], oldLines: Line[]): Line[] {
     } else if (line.type === 'group') {
       const { value: group } = line;
 
-      if (group === SYSTEM_GROUP) {
-        continue;
-      }
-
       if (currentGroup) {
         if (currentGroup === group) {
           currentGroup = null;
@@ -410,7 +407,7 @@ export function linesToText(lines: Line[]): string {
     }
     if (line.type === 'other') {
       const s = line.value.trim();
-      if (s === '#[]') {
+      if (s === '#[]' || s === `#[${SYSTEM_GROUP}]`) {
         isPreEmpty = true;
         continue;
       }
@@ -436,7 +433,7 @@ export function listToText(
   oldText: string,
   group?: string,
 ): string {
-  const lines = textToLines(oldText);
+  const { lines } = textToLines(oldText);
   if (group) {
     lines.unshift({ type: 'group', value: group });
     lines.push({ type: 'group', value: group });
@@ -449,7 +446,7 @@ export function listToText(
 }
 
 export function textToList(text: string, group?: string): Item[] {
-  const lines = textToLines(text);
+  const { lines } = textToLines(text);
   return linesToList(lines, group);
 }
 
@@ -458,7 +455,7 @@ export function replaceGroupText(
   text: string,
   fullText: string,
 ): string {
-  const lines = textToLines(fullText);
+  const { lines, rawLines } = textToLines(fullText);
   const range: Range = { start: -1, end: -1 };
 
   lines.forEach((line, idx) => {
@@ -474,16 +471,20 @@ export function replaceGroupText(
     }
   });
 
-  const textLines = splitWhitespace(fullText);
   if (range.start !== -1 && range.end !== -1) {
-    textLines.splice(
+    rawLines.splice(
       range.start + 1,
       range.end - range.start - 1,
       ...splitWhitespace(text),
     );
   }
 
-  return textLines.join('\n');
+  return rawLines.join('\n');
+}
+
+function format(text: string): string {
+  const { lines } = textToLines(text);
+  return linesToText(lines);
 }
 
 export const parser = {
@@ -491,6 +492,7 @@ export const parser = {
   listToText,
   textToList,
   replaceGroupText,
+  format,
 };
 
 export { isIP };

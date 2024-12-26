@@ -21,7 +21,7 @@ test('test parser', async () => {
     encoding: 'utf-8',
   });
 
-  const lines = textToLines(mockText);
+  const { lines } = textToLines(mockText);
   await expect(lines).toMatchFileSnapshot(snapshotFile('text-to-lines'));
 
   const list = linesToList(lines);

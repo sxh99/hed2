@@ -1,6 +1,6 @@
 import { LanguageSupport, StreamLanguage } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
-import { SYSTEM_GROUP, isGroup, isIP } from 'hed2-parser';
+import { isGroup, isIP } from 'hed2-parser';
 
 const tagMap = {
   ip: tags.atom.toString(),
@@ -25,11 +25,7 @@ const hostsLang = StreamLanguage.define({
     if (stream.peek() === '#') {
       const line = stream.string.trim();
       stream.skipToEnd();
-      if (
-        !isGroup(line) ||
-        line === `#[${SYSTEM_GROUP}]` ||
-        state.groupSet.has(line)
-      ) {
+      if (!isGroup(line) || state.groupSet.has(line)) {
         return tagMap.comment;
       }
       if (state.group) {
