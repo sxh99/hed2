@@ -169,7 +169,7 @@
   },
   {
     "type": "group",
-    "value": "foo",
+    "value": "bar",
   },
   {
     "type": "valid",
@@ -194,7 +194,7 @@
   },
   {
     "type": "group",
-    "value": "foo",
+    "value": "bar",
   },
   {
     "type": "empty",

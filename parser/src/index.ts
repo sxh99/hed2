@@ -290,7 +290,17 @@ function hostsChunk(hosts: Host[], ip: string): Line[] {
   return lines;
 }
 
-export function listToLines(list: Item[], oldLines: Line[]): Line[] {
+interface listToLinesOptions {
+  groupNameMap?: Record<string, string>;
+}
+
+export function listToLines(
+  list: Item[],
+  oldLines: Line[],
+  options?: listToLinesOptions,
+): Line[] {
+  const { groupNameMap = {} } = options ?? {};
+
   const lines: Line[] = [];
   const sysHostsMap: Map<string, Host[]> = new Map();
   const otherItemMap: Map<string, Item[]> = new Map();
@@ -304,11 +314,12 @@ export function listToLines(list: Item[], oldLines: Line[]): Line[] {
         sysHostsMap.set(item.ip, item.hosts);
       }
     } else {
-      const items = otherItemMap.get(item.group);
+      const groupName = groupNameMap[item.group] ?? item.group;
+      const items = otherItemMap.get(groupName);
       if (items) {
         items.push(item);
       } else {
-        otherItemMap.set(item.group, [item]);
+        otherItemMap.set(groupName, [item]);
       }
     }
   }
@@ -357,7 +368,8 @@ export function listToLines(list: Item[], oldLines: Line[]): Line[] {
           if (!items?.length) {
             continue;
           }
-          pushItemToLines(items, group);
+          const newGroupName = groupNameMap[group];
+          pushItemToLines(items, newGroupName ?? group);
           otherItemMap.set(group, []);
         }
       } else {
@@ -431,15 +443,18 @@ export function linesToText(lines: Line[]): string {
 export function listToText(
   list: Item[],
   oldText: string,
-  group?: string,
+  options?: listToLinesOptions & {
+    specifiedGroup?: string;
+  },
 ): string {
+  const { specifiedGroup, ...restOptions } = options ?? {};
   const { lines } = textToLines(oldText);
-  if (group) {
-    lines.unshift({ type: 'group', value: group });
-    lines.push({ type: 'group', value: group });
+  if (specifiedGroup) {
+    lines.unshift({ type: 'group', value: specifiedGroup });
+    lines.push({ type: 'group', value: specifiedGroup });
   }
-  let newLines = listToLines(list, lines);
-  if (group) {
+  let newLines = listToLines(list, lines, restOptions);
+  if (specifiedGroup) {
     newLines = newLines.filter((line) => line.type !== 'group');
   }
   return linesToText(newLines);

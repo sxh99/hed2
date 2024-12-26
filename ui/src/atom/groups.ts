@@ -1,4 +1,4 @@
-import { SYSTEM_GROUP, parser } from 'hed2-parser';
+import { parser } from 'hed2-parser';
 import { atom } from 'jotai';
 import { splitAtom } from 'jotai/utils';
 import { xorWith } from 'lodash';
@@ -11,7 +11,7 @@ import {
   groupsAtom,
   systemHostsDraftAtom,
 } from './primitive';
-import { setSystemHostsDraftByListAtom } from './system-hosts-draft';
+import { setSystemHostsDraftAtom } from './system-hosts-draft';
 
 export const groupsWithWriterAtom = atom(
   (get) => {
@@ -20,48 +20,58 @@ export const groupsWithWriterAtom = atom(
   (get, set, newGroups: Group[]) => {
     const groups = get(groupsAtom);
     const systemGroup = newGroups.find((group) => group.system);
-    if (systemGroup) {
-      const xor = xorWith(groups, newGroups, (a, b) => {
-        return a.name === b.name && a.enabled === b.enabled;
-      });
-      if (xor.length === 1) {
-        const removed = xor[0];
-        systemGroup.list = systemGroup.list.filter(
-          (item) => item.group !== removed.name,
-        );
-        if (get(currentGroupNameAtom) === removed.name) {
-          set(currentGroupNameAtom, SYSTEM_GROUP);
-        }
-      } else if (xor.length === 2) {
-        const [previous, current] = xor;
-        if (previous.name !== current.name) {
-          current.list = current.list.map((item) => {
-            return { ...item, group: current.name };
-          });
+    const xor = xorWith(groups, newGroups, (a, b) => {
+      return a.name === b.name && a.enabled === b.enabled;
+    });
+    const currentGroupName = get(currentGroupNameAtom);
+    const groupNameMap: Record<string, string> = {};
+
+    if (xor.length === 1 && systemGroup) {
+      const removed = xor[0];
+      systemGroup.list = systemGroup.list.filter(
+        (item) => item.group !== removed.name,
+      );
+      if (currentGroupName === removed.name) {
+        set(currentGroupNameAtom, systemGroup.name);
+      }
+    }
+
+    if (xor.length === 2) {
+      const [previous, current] = xor;
+      if (previous.name !== current.name) {
+        current.list = current.list.map((item) => {
+          return { ...item, group: current.name };
+        });
+        if (current.enabled && systemGroup) {
           systemGroup.list = systemGroup.list.map((item) => {
             return item.group === previous.name
               ? { ...item, group: current.name }
               : item;
           });
-          if (get(currentGroupNameAtom) === previous.name) {
-            set(currentGroupNameAtom, current.name);
-          }
-        } else if (!previous.enabled && current.enabled) {
-          systemGroup.list = [...systemGroup.list, ...current.list];
-        } else if (previous.enabled && !current.enabled) {
-          systemGroup.list = systemGroup.list.filter(
-            (item) => item.group !== current.name,
-          );
         }
+        if (currentGroupName === previous.name) {
+          set(currentGroupNameAtom, current.name);
+        }
+        groupNameMap[current.name] = previous.name;
+        groupNameMap[previous.name] = current.name;
+      }
+      if (!previous.enabled && current.enabled && systemGroup) {
+        systemGroup.list = [...systemGroup.list, ...current.list];
+      }
+      if (previous.enabled && !current.enabled && systemGroup) {
+        systemGroup.list = systemGroup.list.filter(
+          (item) => item.group !== current.name,
+        );
       }
     }
+
     set(
       groupsAtom,
       newGroups.map((group) => {
         return group.system ? { ...group } : group;
       }),
     );
-    set(setSystemHostsDraftByListAtom);
+    set(setSystemHostsDraftAtom, groupNameMap);
     storage.setDisabledGroups(filterDisabledGroups(newGroups));
   },
 );

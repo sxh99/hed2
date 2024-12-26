@@ -32,11 +32,9 @@ export const currentGroupAtom = atom(
       return;
     }
     if (changedGroup.enabled) {
-      const newText = parser.listToText(
-        changedGroup.list,
-        changedGroup.text,
-        changedGroup.name,
-      );
+      const newText = parser.listToText(changedGroup.list, changedGroup.text, {
+        specifiedGroup: changedGroup.name,
+      });
       const hostsDraft = get(systemHostsDraftAtom);
       const newHostsDraft = parser.replaceGroupText(
         changedGroup.name,
@@ -51,7 +49,7 @@ export const currentGroupAtom = atom(
     changedGroup.text = parser.listToText(
       changedGroup.list,
       changedGroup.text,
-      changedGroup.name,
+      { specifiedGroup: changedGroup.name },
     );
     set(
       groupsAtom,
