@@ -292,6 +292,7 @@ function hostsChunk(hosts: Host[], ip: string): Line[] {
 
 interface listToLinesOptions {
   groupNameMap?: Record<string, string>;
+  ipMap?: Record<string, string>;
 }
 
 export function listToLines(
@@ -299,7 +300,7 @@ export function listToLines(
   oldLines: Line[],
   options?: listToLinesOptions,
 ): Line[] {
-  const { groupNameMap = {} } = options ?? {};
+  const { groupNameMap = {}, ipMap = {} } = options ?? {};
 
   const lines: Line[] = [];
   const sysHostsMap: Map<string, Host[]> = new Map();
@@ -307,19 +308,20 @@ export function listToLines(
 
   for (const item of list) {
     if (item.group === SYSTEM_GROUP) {
-      const hosts = sysHostsMap.get(item.ip);
+      const finalIp = ipMap[item.ip] ?? item.ip;
+      const hosts = sysHostsMap.get(finalIp);
       if (hosts) {
         hosts.push(...item.hosts);
       } else {
-        sysHostsMap.set(item.ip, item.hosts);
+        sysHostsMap.set(finalIp, item.hosts);
       }
     } else {
-      const groupName = groupNameMap[item.group] ?? item.group;
-      const items = otherItemMap.get(groupName);
+      const finalGroup = groupNameMap[item.group] ?? item.group;
+      const items = otherItemMap.get(finalGroup);
       if (items) {
         items.push(item);
       } else {
-        otherItemMap.set(groupName, [item]);
+        otherItemMap.set(finalGroup, [item]);
       }
     }
   }
@@ -353,7 +355,7 @@ export function listToLines(
           lines.push({ type: 'empty' });
           continue;
         }
-        lines.push(...hostsChunk(hosts, ip));
+        lines.push(...hostsChunk(hosts, ipMap[ip] ?? ip));
         sysHostsMap.set(ip, []);
       } else {
         lines.push({ type: 'empty' });
@@ -368,8 +370,7 @@ export function listToLines(
           if (!items?.length) {
             continue;
           }
-          const newGroupName = groupNameMap[group];
-          pushItemToLines(items, newGroupName ?? group);
+          pushItemToLines(items, groupNameMap[group] ?? group);
           otherItemMap.set(group, []);
         }
       } else {

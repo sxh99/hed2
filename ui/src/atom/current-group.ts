@@ -2,6 +2,7 @@ import { parser } from 'hed2-parser';
 import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { splitAtom } from 'jotai/utils';
+import { xorWith } from 'lodash';
 import { NOT_EXISTS_GROUP } from '~/consts';
 import type { Group, Item, ItemFormValue } from '~/types';
 import { filterDisabledGroups, mergeGroups } from '~/utils/group';
@@ -24,8 +25,25 @@ export const currentGroupAtom = atom(
   (get, set, changedGroup: Group) => {
     const groups = get(groupsAtom);
     if (changedGroup.system) {
+      const oldSystemGroup = groups.find((group) => group.system);
+      if (!oldSystemGroup) {
+        return;
+      }
+      const ipMap: Record<string, string> = {};
+      const xor = xorWith(oldSystemGroup.list, changedGroup.list, (a, b) => {
+        return a.ip === b.ip;
+      });
+      if (xor.length === 2) {
+        const [previous, current] = xor;
+        if (previous.ip !== current.ip) {
+          ipMap[previous.ip] = current.ip;
+          ipMap[current.ip] = previous.ip;
+        }
+      }
       const hostsDraft = get(systemHostsDraftAtom);
-      const newHostsDraft = parser.listToText(changedGroup.list, hostsDraft);
+      const newHostsDraft = parser.listToText(changedGroup.list, hostsDraft, {
+        ipMap,
+      });
       const newRawGroups = parser.textToGroups(newHostsDraft);
       set(groupsAtom, mergeGroups(newRawGroups, filterDisabledGroups(groups)));
       set(systemHostsDraftAtom, newHostsDraft);

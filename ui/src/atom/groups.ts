@@ -28,9 +28,11 @@ export const groupsWithWriterAtom = atom(
 
     if (xor.length === 1 && systemGroup) {
       const removed = xor[0];
-      systemGroup.list = systemGroup.list.filter(
-        (item) => item.group !== removed.name,
-      );
+      if (removed.enabled) {
+        systemGroup.list = systemGroup.list.filter(
+          (item) => item.group !== removed.name,
+        );
+      }
       if (currentGroupName === removed.name) {
         set(currentGroupNameAtom, systemGroup.name);
       }

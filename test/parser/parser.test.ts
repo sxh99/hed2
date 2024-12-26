@@ -29,6 +29,7 @@ test('test parser', async () => {
 
   for (const item of list) {
     if (item.ip === '1.1.1.1') {
+      item.ip = '11.11.11.11';
       item.hosts.pop();
       item.hosts.push({ content: 'o.com', enabled: true });
       item.hosts.push({ content: '13.com', enabled: false });
@@ -52,6 +53,7 @@ test('test parser', async () => {
 
   const newLines = listToLines(list, lines, {
     groupNameMap: { foo: 'bar', bar: 'foo' },
+    ipMap: { '1.1.1.1': '11.11.11.11', '11.11.11.11': '1.1.1.1' },
   });
   await expect(newLines).toMatchFileSnapshot(snapshotFile('list-to-lines'));
 
