@@ -31,6 +31,9 @@
         },
         "noUnusedImports": {
           "level": "error"
+        },
+        "noUnusedVariables": {
+          "level": "error"
         }
       }
     }

@@ -7,7 +7,13 @@ import { ipc } from '~/ipc';
 import type { Group } from '~/types';
 import { filterDisabledGroups, mergeGroups } from '~/utils/group';
 import { storage } from '~/utils/storage';
-import { currentGroupNameAtom, groupsAtom, systemHostsAtom } from './primitive';
+import { addHostsHistoryAtom } from './hosts-history';
+import {
+  currentGroupNameAtom,
+  groupsAtom,
+  hostsHistoryAtom,
+  systemHostsAtom,
+} from './primitive';
 
 export const groupsWithWriterAtom = atom(
   (get) => {
@@ -82,17 +88,20 @@ export const groupAtomsAtom = splitAtom(
   (group) => group.name,
 );
 
-export const initGroupsAtom = atom(null, async (_, set) => {
+export const initGroupsAtom = atom(null, async (get, set) => {
   try {
     const systemHosts = await ipc.readSystemHosts();
     const rawGroups = parser.textToGroups(systemHosts);
     const disabledGroups = storage.getDisabledGroups();
     const groups = mergeGroups(rawGroups, disabledGroups);
-    set(systemHostsAtom, systemHosts);
     if (groups.length) {
       set(currentGroupNameAtom, groups[0].name);
     }
     set(groupsAtom, groups);
+    set(systemHostsAtom, systemHosts);
+    if (!get(hostsHistoryAtom).length) {
+      set(addHostsHistoryAtom, systemHosts);
+    }
   } catch (error) {
     toastError(error);
   }
@@ -129,6 +138,7 @@ export const saveSystemHostsAtom = atom(null, async (get, set) => {
   }
   try {
     await ipc.writeSystemHosts(systemGroup.text);
+    set(addHostsHistoryAtom, systemGroup.text);
   } catch (error) {
     toastError(error);
   }

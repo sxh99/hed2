@@ -1,12 +1,11 @@
 import { atom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 import { EditorKind } from '~/consts';
-import type { EditorCfg, Group, ThemeCfg } from '~/types';
+import type { EditorCfg, Group, HostHistory, ThemeCfg } from '~/types';
 
 export const currentGroupNameAtom = atom('');
 
 export const groupsAtom = atom<Group[]>([]);
-
-export const systemHostsDraftAtom = atom('');
 
 export const editorCfgAtom = atom<EditorCfg>({
   kind: EditorKind.List,
@@ -19,3 +18,10 @@ export const themeAtom = atom<ThemeCfg>({
 });
 
 export const systemHostsAtom = atom('');
+
+export const hostsHistoryAtom = atomWithStorage<HostHistory[]>(
+  'hosts-history',
+  [],
+  undefined,
+  { getOnInit: true },
+);

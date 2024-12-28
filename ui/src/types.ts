@@ -20,3 +20,8 @@ export interface ThemeCfg {
   display: string;
   className: string;
 }
+
+export interface HostHistory {
+  createdAt: string;
+  content: string;
+}

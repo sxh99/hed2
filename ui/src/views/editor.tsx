@@ -31,7 +31,7 @@ export function Editor() {
       <div className="flex h-full w-full">
         <ListEditor className="w-1/2-1" />
         <Separator orientation="vertical" />
-        <TextEditor className="w-1/2-1" />
+        <TextEditor className="w-1/2" />
       </div>
     );
   }

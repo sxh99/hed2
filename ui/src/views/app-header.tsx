@@ -1,5 +1,5 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { RefreshCcw, Save } from 'lucide-react';
+import { History, RefreshCcw, Save } from 'lucide-react';
 import { useEffect } from 'react';
 import {
   groupsAtom,
@@ -9,8 +9,17 @@ import {
 } from '~/atom';
 import { CommonHeader, Kbd, TooltipButton } from '~/components';
 import { GitHub } from '~/components/icons';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '~/components/shadcn/dialog';
 import { IS_MAC } from '~/consts';
 import { ipc } from '~/ipc';
+import { HostsHistory } from './hosts-history';
 import { ThemeToggle } from './theme-toggle';
 
 export function AppHeader() {
@@ -23,6 +32,7 @@ export function AppHeader() {
       <div className="flex items-center gap-1.5">
         <RefreshButton />
         <SaveButton />
+        <HistoryButton />
         <ViewGitHubButton />
         <ThemeToggle />
       </div>
@@ -104,5 +114,24 @@ export function SaveButton() {
         <div className="absolute top-2 right-2 size-2 rounded-full bg-primary" />
       )}
     </TooltipButton>
+  );
+}
+
+export function HistoryButton() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <TooltipButton tooltip="history" variant="ghost" size="icon">
+          <History />
+        </TooltipButton>
+      </DialogTrigger>
+      <DialogContent className="w-auto max-w-none">
+        <DialogHeader>
+          <DialogTitle>History</DialogTitle>
+          <DialogDescription>System hosts history</DialogDescription>
+        </DialogHeader>
+        <HostsHistory />
+      </DialogContent>
+    </Dialog>
   );
 }

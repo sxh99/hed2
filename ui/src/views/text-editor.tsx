@@ -1,25 +1,16 @@
-import { githubDark, githubLight } from '@uiw/codemirror-theme-github';
-import CodeMirror from '@uiw/react-codemirror';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { debounce } from 'lodash';
 import { useMemo } from 'react';
-import {
-  currentGroupAtom,
-  editGroupTextAtom,
-  formatAllAtom,
-  themeAtom,
-} from '~/atom';
+import { currentGroupAtom, editGroupTextAtom, formatAllAtom } from '~/atom';
 import { Button, CommonHeader, Kbd } from '~/components';
-import { Theme } from '~/consts';
 import { cn } from '~/utils/cn';
-import { hostsLangSupport } from '~/utils/hosts-lang';
+import { CodeEditor } from './code-editor';
 import { EditorKindToggle } from './editor-kind-toggle';
 
 export function TextEditor(props: { className?: string }) {
   const { className } = props;
 
   const currentGroup = useAtomValue(currentGroupAtom);
-  const theme = useAtomValue(themeAtom);
   const editGroupText = useSetAtom(editGroupTextAtom);
   const debounceEditGroupText = useMemo(() => debounce(editGroupText, 200), []);
   const formatAll = useSetAtom(formatAllAtom);
@@ -35,12 +26,9 @@ export function TextEditor(props: { className?: string }) {
           </Button>
         </div>
       </CommonHeader>
-      <CodeMirror
+      <CodeEditor
         style={{ height: 'calc(100% - 3.5rem)' }}
-        height="100%"
-        theme={theme.className === Theme.Dark ? githubDark : githubLight}
         value={currentGroup.text}
-        extensions={[hostsLangSupport]}
         onChange={debounceEditGroupText}
       />
     </div>
