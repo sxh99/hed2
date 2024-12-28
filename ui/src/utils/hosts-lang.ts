@@ -1,6 +1,7 @@
 import { LanguageSupport, StreamLanguage } from '@codemirror/language';
+import { keymap } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
-import { isGroup, isIP } from 'hed2-parser';
+import { isGroup, isIP, parser } from 'hed2-parser';
 
 const tagMap = {
   ip: tags.atom.toString(),
@@ -58,6 +59,22 @@ const hostsLang = StreamLanguage.define({
     stream.skipToEnd();
     return null;
   },
+  languageData: {
+    commentTokens: { line: '#' },
+  },
 });
 
-export const hostsLangSupport = new LanguageSupport(hostsLang);
+const langKeymap = keymap.of([
+  {
+    key: 'Shift-Alt-f',
+    run: (view) => {
+      const newText = parser.format(view.state.doc.toString());
+      view.dispatch({
+        changes: { from: 0, to: view.state.doc.length, insert: newText },
+      });
+      return true;
+    },
+  },
+]);
+
+export const hostsLangSupport = new LanguageSupport(hostsLang, [langKeymap]);

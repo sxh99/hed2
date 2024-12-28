@@ -25,9 +25,7 @@ check:
 	cargo fmt --check
 	taplo fmt --check
 	cargo clippy --all-features -- -D warnings
-	node --run typecheck:ui
-	node --run typecheck:parser
-	node --run typecheck:other
+	just typecheck
 
 typecheck:
 	node --run typecheck:ui
