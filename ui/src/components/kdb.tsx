@@ -2,14 +2,31 @@ import { ArrowBigUp, ChevronUp, Command, Option } from 'lucide-react';
 import { IS_MAC } from '~/consts';
 import { cn } from '~/utils/cn';
 
-interface KbdProps extends React.ComponentProps<'kbd'> {
-  keys?: string[];
+function ShiftKey() {
+  return <span>{IS_MAC ? <ArrowBigUp className="size-4" /> : 'Shift'}</span>;
 }
 
-function Keys(props: { keys: string[] }) {
-  const { keys } = props;
+function CtrlKey() {
+  return <span>{IS_MAC ? <ChevronUp className="size-4" /> : 'Ctrl'}</span>;
+}
+
+function CmdKey() {
+  return <span>{IS_MAC ? <Command className="size-3" /> : 'Cmd'}</span>;
+}
+
+function AltOrOptionKey() {
+  return <span>{IS_MAC ? <Option className="size-3" /> : 'Alt'}</span>;
+}
+
+interface KeysProps {
+  keybind: string;
+}
+
+function Keys(props: KeysProps) {
+  const { keybind } = props;
 
   const eles: React.ReactNode[] = [];
+  const keys = keybind.split('+').map((s) => s.trim());
 
   keys.forEach((key, i) => {
     if (key === 'shift') {
@@ -32,15 +49,15 @@ function Keys(props: { keys: string[] }) {
   return eles;
 }
 
-export function Kbd(props: KbdProps) {
-  const { className, keys, children, ...restProps } = props;
+export function Kbd(props: React.ComponentProps<'kbd'> & KeysProps) {
+  const { className, keybind, children, ...restProps } = props;
 
-  const finalChildren = keys ? <Keys keys={keys} /> : children;
+  const finalChildren = keybind ? <Keys keybind={keybind} /> : children;
 
   return (
     <kbd
       className={cn(
-        'pointer-events-none select-none rounded border bg-muted px-1.5 inline-flex gap-1 items-center',
+        'pointer-events-none select-none rounded border bg-muted px-1.5 inline-flex gap-1 items-center text-foreground',
         className,
       )}
       {...restProps}
@@ -48,22 +65,4 @@ export function Kbd(props: KbdProps) {
       {finalChildren}
     </kbd>
   );
-}
-
-type KeyProps = Omit<React.ComponentProps<'span'>, 'children'>;
-
-export function ShiftKey(props: KeyProps) {
-  return <span>{IS_MAC ? <ArrowBigUp className="size-4" /> : 'Shift'}</span>;
-}
-
-export function CtrlKey(props: KeyProps) {
-  return <span>{IS_MAC ? <ChevronUp className="size-4" /> : 'Ctrl'}</span>;
-}
-
-export function CmdKey(props: KeyProps) {
-  return <span>{IS_MAC ? <Command className="size-3" /> : 'Cmd'}</span>;
-}
-
-export function AltOrOptionKey(props: KeyProps) {
-  return <span>{IS_MAC ? <Option className="size-3" /> : 'Alt'}</span>;
 }

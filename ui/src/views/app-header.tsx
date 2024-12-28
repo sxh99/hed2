@@ -1,9 +1,15 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { RefreshCcw, Save } from 'lucide-react';
 import { useEffect } from 'react';
-import { groupsAtom, initGroupsAtom, systemHostsAtom } from '~/atom';
-import { CommonHeader, TooltipButton, toastError } from '~/components';
+import {
+  groupsAtom,
+  initGroupsAtom,
+  saveSystemHostsAtom,
+  systemHostsAtom,
+} from '~/atom';
+import { CommonHeader, Kbd, TooltipButton } from '~/components';
 import { GitHub } from '~/components/icons';
+import { IS_MAC } from '~/consts';
 import { ipc } from '~/ipc';
 import { ThemeToggle } from './theme-toggle';
 
@@ -59,26 +65,35 @@ function ViewGitHubButton() {
 export function SaveButton() {
   const systemHosts = useAtomValue(systemHostsAtom);
   const groups = useAtomValue(groupsAtom);
-  const initGroups = useSetAtom(initGroupsAtom);
+  const saveSystemHosts = useSetAtom(saveSystemHostsAtom);
 
   const systemGroup = groups.find((group) => group.system);
   const changed = !!systemGroup && systemGroup.text !== systemHosts;
 
-  const handleSave = async () => {
-    if (!systemGroup) {
-      return;
-    }
-    try {
-      await ipc.writeSystemHosts(systemGroup.text);
-    } catch (error) {
-      toastError(error);
-    }
-    initGroups();
+  const handleSave = () => {
+    saveSystemHosts();
   };
+
+  useEffect(() => {
+    const listener = (e: KeyboardEvent) => {
+      if (e.key === 's' && IS_MAC ? e.metaKey : e.ctrlKey) {
+        e.preventDefault();
+        saveSystemHosts();
+      }
+    };
+    window.addEventListener('keydown', listener);
+
+    return () => window.removeEventListener('keydown', listener);
+  }, []);
 
   return (
     <TooltipButton
-      tooltip="Save"
+      tooltip={
+        <div className="flex gap-1 items-center">
+          <span>Save</span>
+          <Kbd keybind={IS_MAC ? 'cmd + s' : 'ctrl + s'} />
+        </div>
+      }
       variant="ghost"
       size="icon"
       className="relative"

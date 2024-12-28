@@ -954,6 +954,14 @@ body {
   width: 100vw;
 }
 
+.w-\[120px\] {
+  width: 120px;
+}
+
+.w-\[150px\] {
+  width: 150px;
+}
+
 .min-w-10 {
   min-width: 2.5rem;
 }
@@ -2210,6 +2218,10 @@ body {
     font-size: 0.875rem;
     line-height: 1.25rem;
   }
+}
+
+.\[\&\>svg\]\:pointer-events-none>svg {
+  pointer-events: none;
 }
 
 .\[\&\>svg\]\:size-4>svg {

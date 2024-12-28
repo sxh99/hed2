@@ -65,6 +65,30 @@ export function EditInput(props: EditInputProps) {
     onOk(finalValue);
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (err) {
+      setErr('');
+    }
+    setValue(e.target.value);
+  };
+
+  const handleBlur = () => {
+    if (preventAutoBlur && !autoBlurBugInMacFlag.current) {
+      autoBlurBugInMacFlag.current = true;
+      inputRef.current?.focus();
+      return;
+    }
+    handleOk();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleOk();
+    } else if (e.key === 'Escape') {
+      onCancel();
+    }
+  };
+
   return (
     <Tooltip open={!!err}>
       <TooltipTrigger asChild>
@@ -75,27 +99,9 @@ export function EditInput(props: EditInputProps) {
             className,
           )}
           value={value}
-          onChange={(e) => {
-            if (err) {
-              setErr('');
-            }
-            setValue(e.target.value);
-          }}
-          onBlur={() => {
-            if (preventAutoBlur && !autoBlurBugInMacFlag.current) {
-              autoBlurBugInMacFlag.current = true;
-              inputRef.current?.focus();
-              return;
-            }
-            handleOk();
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              handleOk();
-            } else if (e.key === 'Escape') {
-              onCancel();
-            }
-          }}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
           {...restProps}
         />
       </TooltipTrigger>

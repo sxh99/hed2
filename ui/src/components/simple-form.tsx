@@ -111,6 +111,12 @@ export function FormItem(
 
   const { err, setErr } = useContext(FormContext);
 
+  const handleChange = () => {
+    if (err.field === name) {
+      setErr({ field: '', err: '' });
+    }
+  };
+
   return (
     <div className="grid grid-cols-6 items-center">
       <Label
@@ -128,11 +134,7 @@ export function FormItem(
           className="col-span-5 bg-white dark:bg-black placeholder:italic data-[state=instant-open]:border-red-500 data-[state=instant-open]:focus-visible:ring-red-500"
           id={name}
           name={name}
-          onChange={() => {
-            if (err.field === name) {
-              setErr({ field: '', err: '' });
-            }
-          }}
+          onChange={handleChange}
         >
           {children}
         </TooltipTrigger>

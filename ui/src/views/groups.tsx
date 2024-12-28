@@ -17,6 +17,7 @@ import {
 import {
   Button,
   EditInput,
+  Kbd,
   ScrollArea,
   SearchInput,
   Switch,
@@ -104,16 +105,6 @@ function GroupButton(props: {
     return null;
   }
 
-  const handleClick = () => {
-    if (group.name === currentGroupName) {
-      return;
-    }
-    setCurrentGroupName(group.name);
-    if (editorCfg.kind !== EditorKind.List) {
-      setEditorCfg({ ...editorCfg, kind: EditorKind.List });
-    }
-  };
-
   const handleGroupRenameOk = (newName: string) => {
     setGroup({ ...group, name: newName });
     renameInputVisible.off();
@@ -121,15 +112,6 @@ function GroupButton(props: {
 
   const handleGroupRenameValidate = (newName: string) => {
     return checkGroupExists(groups, newName);
-  };
-
-  const handleToggleGroupEnable = (checked: boolean) => {
-    const newGroup = { ...group, enabled: checked };
-    setGroup(newGroup);
-  };
-
-  const handleGroupRemove = () => {
-    onGroupRemove(groupAtom);
   };
 
   if (renameInputVisible.value) {
@@ -150,6 +132,31 @@ function GroupButton(props: {
 
   const active = currentGroupName === group.name;
 
+  const handleClick = () => {
+    if (group.name === currentGroupName) {
+      return;
+    }
+    setCurrentGroupName(group.name);
+    if (editorCfg.kind !== EditorKind.List) {
+      setEditorCfg({ ...editorCfg, kind: EditorKind.List });
+    }
+  };
+
+  const handleToggleGroupEnable = (checked: boolean) => {
+    const newGroup = { ...group, enabled: checked };
+    setGroup(newGroup);
+  };
+
+  const handleGroupRemove = () => {
+    onGroupRemove(groupAtom);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (!group.system && e.key === 'F2') {
+      renameInputVisible.on();
+    }
+  };
+
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
@@ -158,7 +165,8 @@ function GroupButton(props: {
           asChild
           variant={active ? 'default' : 'ghost'}
           onClick={handleClick}
-          ignoreSvg
+          tabIndex={-1}
+          onKeyDown={handleKeyDown}
         >
           <div>
             <div className="flex items-center gap-2">
@@ -182,9 +190,13 @@ function GroupButton(props: {
         <ContextMenuItem
           disabled={group.system}
           onClick={renameInputVisible.on}
+          className="w-[150px] flex justify-between items-center"
         >
-          <FilePenLine />
-          Rename
+          <div className="flex items-center gap-2">
+            <FilePenLine className="size-4" />
+            Edit
+          </div>
+          <Kbd keybind="F2" />
         </ContextMenuItem>
         <ContextMenuItem
           disabled={group.system}

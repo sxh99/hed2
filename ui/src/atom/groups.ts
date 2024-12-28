@@ -120,3 +120,17 @@ export const formatAllAtom = atom(null, (get, set) => {
   set(groupsAtom, newGroups);
   storage.setDisabledGroups(filterDisabledGroups(newGroups));
 });
+
+export const saveSystemHostsAtom = atom(null, async (get, set) => {
+  const groups = get(groupsAtom);
+  const systemGroup = groups.find((group) => group.system);
+  if (!systemGroup) {
+    return;
+  }
+  try {
+    await ipc.writeSystemHosts(systemGroup.text);
+  } catch (error) {
+    toastError(error);
+  }
+  set(initGroupsAtom);
+});

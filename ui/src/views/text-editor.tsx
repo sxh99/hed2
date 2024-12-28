@@ -29,9 +29,9 @@ export function TextEditor(props: { className?: string }) {
       <CommonHeader>
         <EditorKindToggle />
         <div>
-          <Button variant="outline" ignoreSvg onClick={formatAll}>
+          <Button variant="outline" onClick={formatAll}>
             Format
-            <Kbd keys={['shift', 'option', 'F']} />
+            <Kbd keybind="shift + option + F" />
           </Button>
         </div>
       </CommonHeader>
