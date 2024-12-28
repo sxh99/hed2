@@ -1,5 +1,12 @@
+import { Slot } from '@radix-ui/react-slot';
 import { type PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { FilePenLine, Plus, Trash2 } from 'lucide-react';
+import {
+  FilePenLine,
+  FileSliders,
+  MonitorCog,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import {
   addGroupAtom,
   currentGroupNameAtom,
@@ -24,6 +31,7 @@ import {
 import { EditorKind } from '~/consts';
 import { useBoolean, useSearch } from '~/hooks';
 import type { Group } from '~/types';
+import { cn } from '~/utils/cn';
 import { checkGroupExists } from '~/utils/group';
 
 export function GroupPanel() {
@@ -134,12 +142,13 @@ function GroupButton(props: {
           onOk={handleGroupRenameOk}
           onCancel={renameInputVisible.off}
           onValidate={handleGroupRenameValidate}
-          maxLength={50}
           selectAllWhenMounted
         />
       </div>
     );
   }
+
+  const active = currentGroupName === group.name;
 
   return (
     <ContextMenu>
@@ -147,12 +156,23 @@ function GroupButton(props: {
         <Button
           className="w-full min-h-12 h-auto justify-between mt-1 cursor-pointer"
           asChild
-          variant={currentGroupName === group.name ? 'default' : 'ghost'}
+          variant={active ? 'default' : 'ghost'}
           onClick={handleClick}
+          ignoreSvg
         >
           <div>
-            <div className="whitespace-normal break-all text-left truncate">
-              {group.name}
+            <div className="flex items-center gap-2">
+              <Slot
+                className={cn(
+                  'size-5 flex-shrink-0',
+                  active ? 'text-slate-300' : 'text-slate-400',
+                )}
+              >
+                {group.system ? <MonitorCog /> : <FileSliders />}
+              </Slot>
+              <div className="whitespace-normal break-all text-left truncate z-10">
+                {group.name}
+              </div>
             </div>
             <GroupSwitch group={group} onToggle={handleToggleGroupEnable} />
           </div>
@@ -209,7 +229,6 @@ function NewGroupInput(props: {
         onOk={handleNewGroupOk}
         onValidate={handleNewGroupValidate}
         onCancel={onCancel}
-        maxLength={50}
       />
     </div>
   );

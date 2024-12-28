@@ -37,20 +37,21 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
-  kbd?: boolean;
+  ignoreSvg?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { className, variant, size, asChild = false, kbd = false, ...props },
+    { className, variant, size, asChild = false, ignoreSvg = false, ...props },
     ref,
   ) => {
     const Comp = asChild ? Slot : 'button';
     return (
       <Comp
         className={cn(
-          !kbd && '[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
           buttonVariants({ variant, size, className }),
+          !ignoreSvg &&
+            '[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
         )}
         ref={ref}
         {...props}
