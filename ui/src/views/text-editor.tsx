@@ -7,7 +7,6 @@ import {
   currentGroupAtom,
   editGroupTextAtom,
   formatAllAtom,
-  systemHostsDraftAtom,
   themeAtom,
 } from '~/atom';
 import { Button, CommonHeader, Kbd } from '~/components';
@@ -20,7 +19,6 @@ export function TextEditor(props: { className?: string }) {
   const { className } = props;
 
   const currentGroup = useAtomValue(currentGroupAtom);
-  const systemHostsDraft = useAtomValue(systemHostsDraftAtom);
   const theme = useAtomValue(themeAtom);
   const editGroupText = useSetAtom(editGroupTextAtom);
   const debounceEditGroupText = useMemo(() => debounce(editGroupText, 200), []);
@@ -41,7 +39,7 @@ export function TextEditor(props: { className?: string }) {
         style={{ height: 'calc(100% - 3.5rem)' }}
         height="100%"
         theme={theme.className === Theme.Dark ? githubDark : githubLight}
-        value={currentGroup.system ? systemHostsDraft : currentGroup.text}
+        value={currentGroup.text}
         extensions={[hostsLangSupport]}
         onChange={debounceEditGroupText}
       />

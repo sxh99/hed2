@@ -75,4 +75,11 @@ export const ipc = {
       invoke('view_github');
     }
   },
+
+  writeSystemHosts(content: string): Promise<void> {
+    if (IS_TAURI) {
+      return invoke('write_system_hosts', { content });
+    }
+    return Promise.resolve();
+  },
 };

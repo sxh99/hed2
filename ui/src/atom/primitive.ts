@@ -17,3 +17,5 @@ export const themeAtom = atom<ThemeCfg>({
   display: '',
   className: '',
 });
+
+export const systemHostsAtom = atom('');

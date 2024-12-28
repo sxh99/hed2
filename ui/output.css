@@ -686,12 +686,20 @@ body {
   left: 50%;
 }
 
+.right-2 {
+  right: 0.5rem;
+}
+
 .right-4 {
   right: 1rem;
 }
 
 .top-1\/2 {
   top: 50%;
+}
+
+.top-2 {
+  top: 0.5rem;
 }
 
 .top-4 {
@@ -766,6 +774,11 @@ body {
 
 .hidden {
   display: none;
+}
+
+.size-2 {
+  width: 0.5rem;
+  height: 0.5rem;
 }
 
 .size-3 {

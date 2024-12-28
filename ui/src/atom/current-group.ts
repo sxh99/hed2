@@ -7,11 +7,7 @@ import { NOT_EXISTS_GROUP } from '~/consts';
 import type { Group, Item, ItemFormValue } from '~/types';
 import { filterDisabledGroups, mergeGroups } from '~/utils/group';
 import { storage } from '~/utils/storage';
-import {
-  currentGroupNameAtom,
-  groupsAtom,
-  systemHostsDraftAtom,
-} from './primitive';
+import { currentGroupNameAtom, groupsAtom } from './primitive';
 
 export const currentGroupAtom = atom(
   (get) => {
@@ -24,13 +20,13 @@ export const currentGroupAtom = atom(
   },
   (get, set, changedGroup: Group) => {
     const groups = get(groupsAtom);
+    const systemGroup = groups.find((group) => group.system);
+    if (!systemGroup) {
+      return;
+    }
     if (changedGroup.system) {
-      const oldSystemGroup = groups.find((group) => group.system);
-      if (!oldSystemGroup) {
-        return;
-      }
       const ipMap: Record<string, string> = {};
-      const xor = xorWith(oldSystemGroup.list, changedGroup.list, (a, b) => {
+      const xor = xorWith(systemGroup.list, changedGroup.list, (a, b) => {
         return a.ip === b.ip;
       });
       if (xor.length === 2) {
@@ -40,28 +36,24 @@ export const currentGroupAtom = atom(
           ipMap[current.ip] = previous.ip;
         }
       }
-      const hostsDraft = get(systemHostsDraftAtom);
-      const newHostsDraft = parser.listToText(changedGroup.list, hostsDraft, {
+      const newText = parser.listToText(changedGroup.list, systemGroup.text, {
         ipMap,
       });
-      const newRawGroups = parser.textToGroups(newHostsDraft);
+      const newRawGroups = parser.textToGroups(newText);
       set(groupsAtom, mergeGroups(newRawGroups, filterDisabledGroups(groups)));
-      set(systemHostsDraftAtom, newHostsDraft);
       return;
     }
     if (changedGroup.enabled) {
       const newText = parser.listToText(changedGroup.list, changedGroup.text, {
         specifiedGroup: changedGroup.name,
       });
-      const hostsDraft = get(systemHostsDraftAtom);
-      const newHostsDraft = parser.replaceGroupText(
+      const newSystemText = parser.replaceGroupText(
         changedGroup.name,
         newText,
-        hostsDraft,
+        systemGroup.text,
       );
-      const newRawGroups = parser.textToGroups(newHostsDraft);
+      const newRawGroups = parser.textToGroups(newSystemText);
       set(groupsAtom, mergeGroups(newRawGroups, filterDisabledGroups(groups)));
-      set(systemHostsDraftAtom, newHostsDraft);
       return;
     }
     changedGroup.text = parser.listToText(
@@ -117,19 +109,20 @@ export const editGroupTextAtom = atom(null, (get, set, newText: string) => {
   if (currentGroup.system) {
     const newRawGroups = parser.textToGroups(newText);
     set(groupsAtom, mergeGroups(newRawGroups, filterDisabledGroups(groups)));
-    set(systemHostsDraftAtom, newText);
     return;
   }
   if (currentGroup.enabled) {
-    const hostsDraft = get(systemHostsDraftAtom);
-    const newHostsDraft = parser.replaceGroupText(
+    const systemGroup = groups.find((group) => group.system);
+    if (!systemGroup) {
+      return;
+    }
+    const newSystemText = parser.replaceGroupText(
       currentGroup.name,
       newText,
-      hostsDraft,
+      systemGroup.text,
     );
-    const newRawGroups = parser.textToGroups(newHostsDraft);
+    const newRawGroups = parser.textToGroups(newSystemText);
     set(groupsAtom, mergeGroups(newRawGroups, filterDisabledGroups(groups)));
-    set(systemHostsDraftAtom, newHostsDraft);
     return;
   }
   const newList = parser.textToList(newText, currentGroup.name);

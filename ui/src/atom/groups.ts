@@ -6,12 +6,7 @@ import type { Group } from '~/types';
 import { filterDisabledGroups, mergeGroups } from '~/utils/group';
 import { ipc } from '~/utils/ipc';
 import { storage } from '~/utils/storage';
-import {
-  currentGroupNameAtom,
-  groupsAtom,
-  systemHostsDraftAtom,
-} from './primitive';
-import { setSystemHostsDraftAtom } from './system-hosts-draft';
+import { currentGroupNameAtom, groupsAtom, systemHostsAtom } from './primitive';
 
 export const groupsWithWriterAtom = atom(
   (get) => {
@@ -66,14 +61,17 @@ export const groupsWithWriterAtom = atom(
         );
       }
     }
-
+    if (systemGroup) {
+      systemGroup.text = parser.listToText(systemGroup.list, systemGroup.text, {
+        groupNameMap,
+      });
+    }
     set(
       groupsAtom,
       newGroups.map((group) => {
         return group.system ? { ...group } : group;
       }),
     );
-    set(setSystemHostsDraftAtom, groupNameMap);
     storage.setDisabledGroups(filterDisabledGroups(newGroups));
   },
 );
@@ -88,10 +86,9 @@ export const initGroupsAtom = atom(null, async (_, set) => {
   const rawGroups = parser.textToGroups(systemHosts);
   const disabledGroups = storage.getDisabledGroups();
   const groups = mergeGroups(rawGroups, disabledGroups);
-  const systemGroup = groups.find((group) => group.system);
-  if (systemGroup) {
-    set(currentGroupNameAtom, systemGroup.name);
-    set(systemHostsDraftAtom, systemGroup.text);
+  set(systemHostsAtom, systemHosts);
+  if (groups.length) {
+    set(currentGroupNameAtom, groups[0].name);
   }
   set(groupsAtom, groups);
 });
@@ -111,13 +108,10 @@ export const addGroupAtom = atom(null, (get, set, groupName: string) => {
 });
 
 export const formatAllAtom = atom(null, (get, set) => {
-  const newSystemHostsDraft = parser.format(get(systemHostsDraftAtom));
-  const newRawGroups = parser.textToGroups(newSystemHostsDraft);
-  let disabledGroups = filterDisabledGroups(get(groupsAtom));
-  disabledGroups = disabledGroups.map((group) => {
+  const groups = get(groupsAtom);
+  const newGroups = groups.map((group) => {
     return { ...group, text: parser.format(group.text) };
   });
-  set(systemHostsDraftAtom, newSystemHostsDraft);
-  set(groupsAtom, mergeGroups(newRawGroups, disabledGroups));
-  storage.setDisabledGroups(disabledGroups);
+  set(groupsAtom, newGroups);
+  storage.setDisabledGroups(filterDisabledGroups(newGroups));
 });
