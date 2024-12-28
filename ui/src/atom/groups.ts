@@ -2,9 +2,10 @@ import { parser } from 'hed2-parser';
 import { atom } from 'jotai';
 import { splitAtom } from 'jotai/utils';
 import { xorWith } from 'lodash';
+import { toastError } from '~/components';
+import { ipc } from '~/ipc';
 import type { Group } from '~/types';
 import { filterDisabledGroups, mergeGroups } from '~/utils/group';
-import { ipc } from '~/utils/ipc';
 import { storage } from '~/utils/storage';
 import { currentGroupNameAtom, groupsAtom, systemHostsAtom } from './primitive';
 
@@ -82,15 +83,19 @@ export const groupAtomsAtom = splitAtom(
 );
 
 export const initGroupsAtom = atom(null, async (_, set) => {
-  const systemHosts = await ipc.getSystemHosts();
-  const rawGroups = parser.textToGroups(systemHosts);
-  const disabledGroups = storage.getDisabledGroups();
-  const groups = mergeGroups(rawGroups, disabledGroups);
-  set(systemHostsAtom, systemHosts);
-  if (groups.length) {
-    set(currentGroupNameAtom, groups[0].name);
+  try {
+    const systemHosts = await ipc.readSystemHosts();
+    const rawGroups = parser.textToGroups(systemHosts);
+    const disabledGroups = storage.getDisabledGroups();
+    const groups = mergeGroups(rawGroups, disabledGroups);
+    set(systemHostsAtom, systemHosts);
+    if (groups.length) {
+      set(currentGroupNameAtom, groups[0].name);
+    }
+    set(groupsAtom, groups);
+  } catch (error) {
+    toastError(error);
   }
-  set(groupsAtom, groups);
 });
 
 export const addGroupAtom = atom(null, (get, set, groupName: string) => {

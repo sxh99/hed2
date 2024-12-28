@@ -10,8 +10,8 @@ fn run() {
 	if let Err(err) = tauri::Builder::default()
 		.invoke_handler(tauri::generate_handler![
 			read_system_hosts,
+			write_system_hosts,
 			view_github,
-			write_system_hosts
 		])
 		.run(tauri::generate_context!())
 	{
@@ -20,17 +20,19 @@ fn run() {
 }
 
 #[tauri::command]
-fn read_system_hosts() -> String {
-	sys::read_hosts_content()
+fn read_system_hosts() -> Result<String, String> {
+	sys::read_hosts()
+		.map_err(|_| "Failed to read system hosts file".to_string())
+}
+
+#[tauri::command]
+fn write_system_hosts(content: String) -> Result<(), String> {
+	sys::write_hosts(content)
+		.map_err(|_| "Failed to write to system hosts file".to_string())
 }
 
 #[tauri::command]
 fn view_github() {
 	let url = env!("CARGO_PKG_REPOSITORY");
 	let _ = webbrowser::open(url);
-}
-
-#[tauri::command]
-fn write_system_hosts(content: String) {
-	let _ = sys::write_hosts_content(content);
 }

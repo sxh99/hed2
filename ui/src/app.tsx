@@ -3,6 +3,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '~/components/shadcn/resizable';
+import { Toaster } from '~/components/shadcn/sonner';
 import { TooltipProvider } from '~/components/shadcn/tooltip';
 import { AppHeader } from '~/views/app-header';
 import { Editor } from '~/views/editor';
@@ -27,6 +28,7 @@ export function App() {
           </ResizablePanel>
         </ResizablePanelGroup>
       </TooltipProvider>
+      <Toaster />
     </div>
   );
 }

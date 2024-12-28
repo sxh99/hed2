@@ -74,5 +74,5 @@
 }
 
 .cm-scroller {
-  @apply scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border;
+  @apply scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border scrollbar-thumb-rounded-full;
 }

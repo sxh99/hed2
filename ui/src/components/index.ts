@@ -11,3 +11,4 @@ export { Label } from './shadcn/label';
 export { Textarea } from './shadcn/textarea';
 export { TooltipButton } from './tooltip-button';
 export { Kbd } from './kdb';
+export { toastError } from './toast';

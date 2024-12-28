@@ -2,9 +2,9 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { RefreshCcw, Save } from 'lucide-react';
 import { useEffect } from 'react';
 import { groupsAtom, initGroupsAtom, systemHostsAtom } from '~/atom';
-import { CommonHeader, TooltipButton } from '~/components';
+import { CommonHeader, TooltipButton, toastError } from '~/components';
 import { GitHub } from '~/components/icons';
-import { ipc } from '~/utils/ipc';
+import { ipc } from '~/ipc';
 import { ThemeToggle } from './theme-toggle';
 
 export function AppHeader() {
@@ -68,7 +68,11 @@ export function SaveButton() {
     if (!systemGroup) {
       return;
     }
-    await ipc.writeSystemHosts(systemGroup.text);
+    try {
+      await ipc.writeSystemHosts(systemGroup.text);
+    } catch (error) {
+      toastError(error);
+    }
     initGroups();
   };
 

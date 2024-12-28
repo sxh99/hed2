@@ -3,6 +3,11 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shixinhuang99/hed2.git"
+  },
+  "homepage": "https://github.com/shixinhuang99/hed2",
   "scripts": {
     "fmt": "biome check --linter-enabled=false --write",
     "check": "biome check",

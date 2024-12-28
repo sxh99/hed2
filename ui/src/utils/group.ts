@@ -1,8 +1,12 @@
 import { type Group as RawGroup, SYSTEM_GROUP } from 'hed2-parser';
+import { NOT_EXISTS_GROUP_NAME } from '~/consts';
 import type { Group } from '~/types';
 import { storage } from './storage';
 
 export function checkGroupExists(groups: Group[], name: string) {
+  if (name === SYSTEM_GROUP || name === NOT_EXISTS_GROUP_NAME) {
+    return `\`${name}\`is forbidden to create`;
+  }
   if (groups.some((group) => group.name === name)) {
     return `\`${name}\` already exists`;
   }
