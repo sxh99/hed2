@@ -1,5 +1,6 @@
 import { atom } from 'jotai';
 import { Theme } from '~/consts';
+import { ipc } from '~/ipc';
 import { isSystemDark } from '~/utils';
 import { storage } from '~/utils/storage';
 import { themeAtom } from './primitive';
@@ -19,6 +20,7 @@ export const initThemeAtom = atom(null, (_, set) => {
   const theme = storage.getTheme();
   const className = applyTheme(theme);
   set(themeAtom, { display: theme, className });
+  ipc.setTheme(theme);
 });
 
 export const toggleThemeAtom = atom(null, (get, set) => {
@@ -36,6 +38,7 @@ export const toggleThemeAtom = atom(null, (get, set) => {
   const newClassName = applyTheme(newDisplay);
   set(themeAtom, { display: newDisplay, className: newClassName });
   storage.setTheme(newDisplay);
+  ipc.setTheme(newDisplay);
 });
 
 export const applyMatchMediaAtom = atom(null, (get, set, matches: boolean) => {
@@ -46,4 +49,5 @@ export const applyMatchMediaAtom = atom(null, (get, set, matches: boolean) => {
   const theme = matches ? Theme.Dark : Theme.Light;
   const newClassName = applyTheme(theme);
   set(themeAtom, { display, className: newClassName });
+  ipc.setTheme(display);
 });

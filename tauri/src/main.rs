@@ -13,6 +13,7 @@ fn run() {
 			write_system_hosts,
 			view_github,
 			open_hosts_dir,
+			set_theme,
 		])
 		.run(tauri::generate_context!())
 	{
@@ -41,4 +42,17 @@ fn view_github() {
 #[tauri::command]
 fn open_hosts_dir() {
 	let _ = sys::open_hosts_dir();
+}
+
+#[tauri::command]
+fn set_theme(ww: tauri::WebviewWindow, theme: String) {
+	use tauri::Theme::*;
+
+	let window_theme = match theme.as_ref() {
+		"light" => Some(Light),
+		"dark" => Some(Dark),
+		_ => None,
+	};
+
+	let _ = ww.set_theme(window_theme);
 }

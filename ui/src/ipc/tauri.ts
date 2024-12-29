@@ -17,4 +17,8 @@ export class TauriIpc extends Ipc {
   openHostsDir(): Promise<void> {
     return invoke('open_hosts_dir');
   }
+
+  setTheme(theme: string): Promise<void> {
+    return invoke('set_theme', { theme });
+  }
 }

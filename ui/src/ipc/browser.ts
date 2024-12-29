@@ -20,6 +20,10 @@ export class BrowserIpc extends Ipc {
   }
 
   async openHostsDir(): Promise<void> {
-    throw new Error('Not support');
+    //
+  }
+
+  async setTheme(): Promise<void> {
+    //
   }
 }
