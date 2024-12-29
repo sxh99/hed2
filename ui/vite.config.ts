@@ -32,5 +32,8 @@ export default defineConfig(async () => {
       PKG_NAME: JSON.stringify(pkg.productName),
       PKG_VERSION: JSON.stringify(pkg.version),
     },
+    build: {
+      chunkSizeWarningLimit: 1000,
+    },
   };
 });
