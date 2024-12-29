@@ -1,10 +1,10 @@
 import { isTauri } from '@tauri-apps/api/core';
 import type { Group } from '~/types';
 
-export enum EditorKind {
-  List = 'list',
-  Text = 'text',
-}
+export const EditorKind = {
+  List: 'list',
+  Text: 'text',
+} as const;
 
 export const NOT_EXISTS_GROUP_NAME = '__NOT_EXISTS__';
 
@@ -22,10 +22,10 @@ export const IS_TAURI = isTauri();
 
 export const IS_TAURI_MAC = IS_TAURI && IS_MAC;
 
-export enum Theme {
-  Dark = 'dark',
-  Light = 'light',
-  System = 'system',
-}
+export const Theme = {
+  Dark: 'dark',
+  Light: 'light',
+  System: 'system',
+} as const;
 
 export const DARK_MODE_MEDIA = '(prefers-color-scheme: dark)';

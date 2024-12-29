@@ -52,7 +52,7 @@ export function HostsHistory() {
               className="w-full rounded-sm mt-1"
               onClick={() => setActive(item)}
             >
-              <span>{format(item.createdAt, 'yyyy/MM/dd hh:kk:mm')}</span>
+              <span>{format(item.createdAt, 'yyyy/MM/dd kk:mm:ss')}</span>
             </Button>
           );
         })}

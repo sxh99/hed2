@@ -12,6 +12,7 @@ fn run() {
 			read_system_hosts,
 			write_system_hosts,
 			view_github,
+			open_hosts_dir,
 		])
 		.run(tauri::generate_context!())
 	{
@@ -34,5 +35,10 @@ fn write_system_hosts(content: String) -> Result<(), String> {
 #[tauri::command]
 fn view_github() {
 	let url = env!("CARGO_PKG_REPOSITORY");
-	let _ = webbrowser::open(url);
+	let _ = opener::open_browser(url);
+}
+
+#[tauri::command]
+fn open_hosts_dir() {
+	let _ = sys::open_hosts_dir();
 }

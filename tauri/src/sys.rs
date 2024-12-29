@@ -19,6 +19,15 @@ pub fn write_hosts(content: String) -> Result<()> {
 	Ok(())
 }
 
+pub fn open_hosts_dir() -> Result<()> {
+	let hosts_path = get_hosts_path()?;
+	if let Some(dir) = hosts_path.parent() {
+		opener::open(dir)?;
+	}
+
+	Ok(())
+}
+
 #[cfg(all(not(dev), windows))]
 fn get_hosts_path() -> Result<PathBuf> {
 	let sys_drive = env::var("SYSTEMDRIVE")?;

@@ -21,7 +21,7 @@ export function SearchInput(props: SearchInputProps) {
     <div className={cn('relative', className)}>
       <Search className="pointer-events-auto absolute left-2.5 size-4 top-1/2 -translate-y-1/2 select-none opacity-50" />
       <Input
-        className="bg-white dark:bg-black pl-8 placeholder:italic"
+        className="dark:bg-black pl-8 placeholder:italic"
         onChange={handleChange}
         {...restProps}
       />

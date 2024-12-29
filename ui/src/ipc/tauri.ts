@@ -13,4 +13,8 @@ export class TauriIpc extends Ipc {
   viewGitHub(): Promise<void> {
     return invoke('view_github');
   }
+
+  openHostsDir(): Promise<void> {
+    return invoke('open_hosts_dir');
+  }
 }

@@ -131,7 +131,7 @@ export function FormItem(
       <Tooltip open={err.field === name}>
         <TooltipTrigger
           asChild
-          className="col-span-5 bg-white dark:bg-black placeholder:italic data-[state=instant-open]:border-red-500 data-[state=instant-open]:focus-visible:ring-red-500"
+          className="col-span-5 dark:bg-black placeholder:italic data-[state=instant-open]:border-red-500 data-[state=instant-open]:focus-visible:ring-red-500"
           id={name}
           name={name}
           onChange={handleChange}

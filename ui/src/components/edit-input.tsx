@@ -95,7 +95,7 @@ export function EditInput(props: EditInputProps) {
         <Input
           ref={inputRef}
           className={cn(
-            'bg-white dark:bg-black placeholder:italic data-[state=instant-open]:border-red-500 data-[state=instant-open]:focus-visible:ring-red-500',
+            'dark:bg-black placeholder:italic data-[state=instant-open]:border-red-500 data-[state=instant-open]:focus-visible:ring-red-500',
             className,
           )}
           value={value}

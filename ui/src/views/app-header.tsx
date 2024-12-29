@@ -1,10 +1,17 @@
+import { parser } from 'hed2-parser';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { History, RefreshCcw, Save } from 'lucide-react';
+import {
+  History,
+  RefreshCcw,
+  Save,
+  Settings as SettingsIcon,
+} from 'lucide-react';
 import { useEffect } from 'react';
 import {
   groupsAtom,
   initGroupsAtom,
   saveSystemHostsAtom,
+  settingsAtom,
   systemHostsAtom,
 } from '~/atom';
 import { CommonHeader, Kbd, TooltipButton } from '~/components';
@@ -20,6 +27,7 @@ import {
 import { IS_MAC } from '~/consts';
 import { ipc } from '~/ipc';
 import { HostsHistory } from './hosts-history';
+import { Settings } from './settings';
 import { ThemeToggle } from './theme-toggle';
 
 export function AppHeader() {
@@ -33,6 +41,7 @@ export function AppHeader() {
         <RefreshButton />
         <SaveButton />
         <HistoryButton />
+        <SettingsButton />
         <ViewGitHubButton />
         <ThemeToggle />
       </div>
@@ -131,6 +140,31 @@ export function HistoryButton() {
           <DialogDescription>System hosts history</DialogDescription>
         </DialogHeader>
         <HostsHistory />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function SettingsButton() {
+  const settings = useAtomValue(settingsAtom);
+
+  useEffect(() => {
+    parser.hostsNumPerLine = settings.hostsNumPerLine;
+  }, [settings.hostsNumPerLine]);
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <TooltipButton tooltip="history" variant="ghost" size="icon">
+          <SettingsIcon />
+        </TooltipButton>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Settings</DialogTitle>
+          <DialogDescription>Application settings</DialogDescription>
+        </DialogHeader>
+        <Settings />
       </DialogContent>
     </Dialog>
   );

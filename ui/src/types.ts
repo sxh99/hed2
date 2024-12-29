@@ -25,3 +25,8 @@ export interface HostHistory {
   createdAt: string;
   content: string;
 }
+
+export interface SettingsValue {
+  hostsNumPerLine: number;
+  historyMaximumNum: number;
+}

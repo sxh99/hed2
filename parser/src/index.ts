@@ -37,6 +37,8 @@ interface Range {
 
 export const SYSTEM_GROUP = 'System';
 
+let hostsNumPerLine = 10;
+
 function splitWhitespace(text: string): string[] {
   if (text.includes('\r\n')) {
     return text.replaceAll('\r\n', '\n').split('\n');
@@ -284,8 +286,12 @@ function hostsChunk(hosts: Host[], ip: string): Line[] {
     };
   };
 
-  lines.push(...chunk(enabledHosts, 10).map((v) => mapFn(v, true)));
-  lines.push(...chunk(disabledHosts, 10).map((v) => mapFn(v, false)));
+  lines.push(
+    ...chunk(enabledHosts, hostsNumPerLine).map((v) => mapFn(v, true)),
+  );
+  lines.push(
+    ...chunk(disabledHosts, hostsNumPerLine).map((v) => mapFn(v, false)),
+  );
 
   return lines;
 }
@@ -509,6 +515,12 @@ export const parser = {
   textToList,
   replaceGroupText,
   format,
+  get hostsNumPerLine() {
+    return hostsNumPerLine;
+  },
+  set hostsNumPerLine(v: number) {
+    hostsNumPerLine = v;
+  },
 };
 
 export { isIP };

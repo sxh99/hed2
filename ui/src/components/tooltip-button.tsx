@@ -9,15 +9,14 @@ import {
 
 interface TooltipButtonProps extends ButtonProps {
   tooltip: React.ReactNode;
-  open?: boolean;
 }
 
 export const TooltipButton = forwardRef<HTMLButtonElement, TooltipButtonProps>(
   (props: TooltipButtonProps, ref) => {
-    const { tooltip, open, ...restProps } = props;
+    const { tooltip, ...restProps } = props;
 
     return (
-      <Tooltip open={open}>
+      <Tooltip>
         <TooltipTrigger asChild>
           <Button ref={ref} {...restProps} />
         </TooltipTrigger>

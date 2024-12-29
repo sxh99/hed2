@@ -18,4 +18,8 @@ export class BrowserIpc extends Ipc {
   async viewGitHub(): Promise<void> {
     window.open('https://github.com/shixinhuang99/hed2', '_blank');
   }
+
+  async openHostsDir(): Promise<void> {
+    throw new Error('Not support');
+  }
 }
