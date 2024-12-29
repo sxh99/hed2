@@ -5,7 +5,8 @@
     "lib": ["ESNext"],
     "module": "Node16",
     "moduleResolution": "node16",
-    "types": ["node"]
+    "types": ["node"],
+    "resolveJsonModule": true
   },
   "exclude": ["node_modules", "ui/src", "ui/dist", "parser/src", "parser/dist"]
 }

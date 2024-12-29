@@ -34,8 +34,8 @@ export function AppHeader() {
   return (
     <CommonHeader>
       <div>
-        <span className="font-bold text-lg">Hed2</span>
-        <span className="font-light text-xs ml-2">0.1.0</span>
+        <span className="font-bold text-lg">{PKG_NAME}</span>
+        <span className="font-light text-xs ml-2">{PKG_VERSION}</span>
       </div>
       <div className="flex items-center gap-1.5">
         <RefreshButton />

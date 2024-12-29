@@ -16,7 +16,7 @@ export const storage = {
 
   getTheme(): string {
     const str = localStorage.getItem(THEME_KEY);
-    if (!str || !Object.values(Theme).includes(str as Theme)) {
+    if (!str || !Object.values<string>(Theme).includes(str)) {
       return Theme.System;
     }
     return str;
