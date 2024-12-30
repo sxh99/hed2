@@ -9,7 +9,11 @@ pub fn read_hosts() -> Result<String> {
 	Ok(content)
 }
 
-pub fn write_hosts(content: String) -> Result<()> {
+pub fn write_hosts(mut content: String) -> Result<()> {
+	if cfg!(windows) {
+		content = content.replace('\n', "\r\n");
+	}
+
 	let hosts_path = get_hosts_path()?;
 	let tmp_file = env::temp_dir().join("hed2_tmp");
 	fs::write(&tmp_file, content)?;

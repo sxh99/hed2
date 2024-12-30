@@ -11,7 +11,7 @@ export function Editor() {
   const [editorCfg, setEditorCfg] = useAtom(editorCfgAtom);
 
   useEffect(() => {
-    const mql = window.matchMedia('(min-width: 1400px)');
+    const mql = window.matchMedia('(min-width: 1280px)');
     if (mql.matches) {
       setEditorCfg((prev) => ({ ...prev, showAll: true }));
     }
@@ -29,7 +29,7 @@ export function Editor() {
   if (editorCfg.showAll) {
     return (
       <div className="flex h-full w-full">
-        <ListEditor className="w-1/2-1" />
+        <ListEditor className="flex-1" />
         <Separator orientation="vertical" />
         <TextEditor className="w-1/2" />
       </div>
