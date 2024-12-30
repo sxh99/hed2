@@ -2,7 +2,7 @@ import { parser } from 'hed2-parser';
 import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { splitAtom } from 'jotai/utils';
-import { xorWith } from 'lodash';
+import { xorWith } from 'lodash-es';
 import { NOT_EXISTS_GROUP } from '~/consts';
 import type { Group, Item, ItemFormValue } from '~/types';
 import { filterDisabledGroups, mergeGroups } from '~/utils/group';

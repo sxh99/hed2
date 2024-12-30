@@ -9,7 +9,7 @@ import { AppHeader } from '~/views/app-header';
 import { Editor } from '~/views/editor';
 import { GroupPanel } from '~/views/groups';
 
-export function App() {
+export default function App() {
   return (
     <div className="h-screen w-screen flex flex-col">
       <TooltipProvider delayDuration={100} skipDelayDuration={90}>

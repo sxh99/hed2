@@ -1,7 +1,7 @@
 import { parser } from 'hed2-parser';
 import { atom } from 'jotai';
 import { splitAtom } from 'jotai/utils';
-import { xorWith } from 'lodash';
+import { xorWith } from 'lodash-es';
 import { toastError } from '~/components';
 import { ipc } from '~/ipc';
 import type { Group } from '~/types';
