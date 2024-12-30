@@ -1,5 +1,5 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 import { useMemo } from 'react';
 import { currentGroupAtom, editGroupTextAtom, formatAllAtom } from '~/atom';
 import { Button, CommonHeader, Kbd } from '~/components';

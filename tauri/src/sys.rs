@@ -9,12 +9,29 @@ pub fn read_hosts() -> Result<String> {
 	Ok(content)
 }
 
-pub fn write_hosts(content: String) -> Result<()> {
+pub fn write_hosts(mut content: String) -> Result<()> {
+	if cfg!(windows) {
+		content = content.replace('\n', "\r\n");
+	}
+
 	let hosts_path = get_hosts_path()?;
 	let tmp_file = env::temp_dir().join("hed2_tmp");
 	fs::write(&tmp_file, content)?;
 	fs::copy(&tmp_file, hosts_path)?;
 	fs::remove_file(&tmp_file)?;
+
+	Ok(())
+}
+
+pub fn check_hosts_permissions() -> Result<()> {
+	let hosts_path = get_hosts_path()?;
+	let permissions = fs::metadata(hosts_path)?.permissions();
+
+	if permissions.readonly() {
+		anyhow::bail!(
+			"The hosts file is in read-only mode, please disable it manually"
+		)
+	}
 
 	Ok(())
 }

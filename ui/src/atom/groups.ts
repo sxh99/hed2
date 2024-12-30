@@ -1,7 +1,7 @@
 import { parser } from 'hed2-parser';
 import { atom } from 'jotai';
 import { splitAtom } from 'jotai/utils';
-import { xorWith } from 'lodash';
+import { xorWith } from 'lodash-es';
 import { toastError } from '~/components';
 import { ipc } from '~/ipc';
 import type { Group } from '~/types';
@@ -90,7 +90,10 @@ export const groupAtomsAtom = splitAtom(
 
 export const initGroupsAtom = atom(null, async (get, set) => {
   try {
-    const systemHosts = await ipc.readSystemHosts();
+    let systemHosts = await ipc.readSystemHosts();
+    if (systemHosts.includes('\r\n')) {
+      systemHosts = systemHosts.replaceAll('\r\n', '\n');
+    }
     const rawGroups = parser.textToGroups(systemHosts);
     const disabledGroups = storage.getDisabledGroups();
     const groups = mergeGroups(rawGroups, disabledGroups);

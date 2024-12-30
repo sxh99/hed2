@@ -95,7 +95,7 @@ export function SaveButton() {
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
-      if (e.key === 's' && IS_MAC ? e.metaKey : e.ctrlKey) {
+      if (e.key === 's' && (IS_MAC ? e.metaKey : e.ctrlKey)) {
         e.preventDefault();
         saveSystemHosts();
       }
@@ -110,7 +110,7 @@ export function SaveButton() {
       tooltip={
         <div className="flex gap-1 items-center">
           <span>Save</span>
-          <Kbd keybind={IS_MAC ? 'cmd + s' : 'ctrl + s'} />
+          <Kbd keybind={IS_MAC ? 'cmd + S' : 'ctrl + S'} />
         </div>
       }
       variant="ghost"

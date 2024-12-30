@@ -1,6 +1,16 @@
-import { StrictMode } from 'react';
+import { LoaderCircle } from 'lucide-react';
+import { StrictMode, Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
-import { App } from './app';
+
+function Loading() {
+  return (
+    <div className="h-screen w-screen flex items-center justify-center">
+      <LoaderCircle className="animate-spin size-8" />
+    </div>
+  );
+}
+
+const App = lazy(() => import('./app'));
 
 function main() {
   const root = document.getElementById('root');
@@ -11,7 +21,9 @@ function main() {
 
   createRoot(root).render(
     <StrictMode>
-      <App />
+      <Suspense fallback={<Loading />}>
+        <App />
+      </Suspense>
     </StrictMode>,
   );
 }

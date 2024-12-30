@@ -809,6 +809,16 @@ body {
   height: 1.5rem;
 }
 
+.size-8 {
+  width: 2rem;
+  height: 2rem;
+}
+
+.size-\[520px\] {
+  width: 520px;
+  height: 520px;
+}
+
 .h-10 {
   height: 2.5rem;
 }
@@ -849,10 +859,6 @@ body {
   height: 1px;
 }
 
-.h-\[70vh\] {
-  height: 70vh;
-}
-
 .h-auto {
   height: auto;
 }
@@ -883,10 +889,6 @@ body {
 
 .w-1\/2 {
   width: 50%;
-}
-
-.w-1\/2-1 {
-  width: calc(50% - 1px);
 }
 
 .w-10 {
@@ -937,10 +939,6 @@ body {
   width: 320px;
 }
 
-.w-\[50vw\] {
-  width: 50vw;
-}
-
 .w-auto {
   width: auto;
 }
@@ -969,16 +967,8 @@ body {
   min-width: 2.25rem;
 }
 
-.min-w-\[600px\] {
-  min-width: 600px;
-}
-
 .min-w-\[8rem\] {
   min-width: 8rem;
-}
-
-.max-w-\[800px\] {
-  max-width: 800px;
 }
 
 .max-w-lg {
@@ -1014,6 +1004,16 @@ body {
 .translate-y-\[-50\%\] {
   --tw-translate-y: -50%;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
 .cursor-default {

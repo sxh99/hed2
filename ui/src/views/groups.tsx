@@ -10,7 +10,6 @@ import {
 import {
   addGroupAtom,
   currentGroupNameAtom,
-  editorCfgAtom,
   groupAtomsAtom,
   groupsAtom,
 } from '~/atom';
@@ -29,7 +28,6 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from '~/components/shadcn/context-menu';
-import { EditorKind } from '~/consts';
 import { useBoolean, useSearch } from '~/hooks';
 import type { Group } from '~/types';
 import { cn } from '~/utils/cn';
@@ -99,7 +97,6 @@ function GroupButton(props: {
   const [currentGroupName, setCurrentGroupName] = useAtom(currentGroupNameAtom);
   const groups = useAtomValue(groupsAtom);
   const renameInputVisible = useBoolean();
-  const [editorCfg, setEditorCfg] = useAtom(editorCfgAtom);
 
   if (!group.name.includes(search)) {
     return null;
@@ -137,9 +134,6 @@ function GroupButton(props: {
       return;
     }
     setCurrentGroupName(group.name);
-    if (editorCfg.kind !== EditorKind.List) {
-      setEditorCfg({ ...editorCfg, kind: EditorKind.List });
-    }
   };
 
   const handleToggleGroupEnable = (checked: boolean) => {
