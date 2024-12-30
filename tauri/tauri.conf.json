@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "hed2",
+  "productName": "Hed2",
   "identifier": "com.hed2.app",
   "mainBinaryName": "Hed2",
   "build": {
@@ -25,14 +25,27 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["app"],
+    "targets": ["app", "nsis"],
     "icon": [
       "../assets/32x32.png",
       "../assets/128x128.png",
       "../assets/128x128@2x.png",
       "../assets/icon.icns",
-      "../assets/icon.ico"
+      "../assets/icon.ico",
+      "../assets/icon.png"
     ],
-    "category": "DeveloperTool"
+    "category": "DeveloperTool",
+    "licenseFile": "../LICENSE",
+    "shortDescription": "A hosts file editor desktop client",
+    "useLocalToolsDir": true,
+    "windows": {
+      "allowDowngrades": true,
+      "webviewInstallMode": {
+        "type": "skip"
+      },
+      "nsis": {
+        "installerIcon": "../assets/icon.ico"
+      }
+    }
   }
 }

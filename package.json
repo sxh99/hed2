@@ -2,12 +2,14 @@
   "name": "hed2-root",
   "private": true,
   "version": "0.1.0",
+  "author": "shixinhuang99 <shixinhuang99@gmail.com>",
   "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/shixinhuang99/hed2.git"
   },
   "homepage": "https://github.com/shixinhuang99/hed2",
+  "description": "A hosts file editor desktop client",
   "scripts": {
     "fmt": "biome check --linter-enabled=false --write",
     "check": "biome check",
