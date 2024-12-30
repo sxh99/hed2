@@ -23,6 +23,19 @@ pub fn write_hosts(mut content: String) -> Result<()> {
 	Ok(())
 }
 
+pub fn check_hosts_permissions() -> Result<()> {
+	let hosts_path = get_hosts_path()?;
+	let permissions = fs::metadata(hosts_path)?.permissions();
+
+	if permissions.readonly() {
+		anyhow::bail!(
+			"The hosts file is in read-only mode, please disable it manually"
+		)
+	}
+
+	Ok(())
+}
+
 pub fn open_hosts_dir() -> Result<()> {
 	let hosts_path = get_hosts_path()?;
 	if let Some(dir) = hosts_path.parent() {

@@ -29,6 +29,7 @@ fn read_system_hosts() -> Result<String, String> {
 
 #[tauri::command]
 fn write_system_hosts(content: String) -> Result<(), String> {
+	sys::check_hosts_permissions().map_err(|err| err.to_string())?;
 	sys::write_hosts(content)
 		.map_err(|_| "Failed to write to system hosts file".to_string())
 }

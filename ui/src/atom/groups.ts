@@ -90,7 +90,10 @@ export const groupAtomsAtom = splitAtom(
 
 export const initGroupsAtom = atom(null, async (get, set) => {
   try {
-    const systemHosts = await ipc.readSystemHosts();
+    let systemHosts = await ipc.readSystemHosts();
+    if (systemHosts.includes('\r\n')) {
+      systemHosts = systemHosts.replaceAll('\r\n', '\n');
+    }
     const rawGroups = parser.textToGroups(systemHosts);
     const disabledGroups = storage.getDisabledGroups();
     const groups = mergeGroups(rawGroups, disabledGroups);
