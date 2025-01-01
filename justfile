@@ -51,5 +51,7 @@ build:
 	pnpm tauri build --no-bundle
 
 bundle-win:
-	just build
 	pnpm tauri bundle --bundles nsis
+
+bundle-mac:
+	pnpm tauri bundle --bundles app
