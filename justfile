@@ -45,7 +45,11 @@ push-tag tag:
 ui-dep +pkgs:
 	pnpm {{pkgs}} --filter ./ui
 
-bundle-win:
+build:
+	node --run build:parser
 	node --run build:ui
 	pnpm tauri build --no-bundle
+
+bundle-win:
+	just build
 	pnpm tauri bundle --bundles nsis

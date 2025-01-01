@@ -40,7 +40,7 @@ export function HostsHistory() {
   };
 
   return (
-    <div className="border border-border rounded flex">
+    <div className="border border-border rounded flex h-[520px]">
       <ScrollArea className="h-full w-[200px] px-2.5 py-1.5">
         {hostsHistory.map((item) => {
           return (
@@ -58,7 +58,7 @@ export function HostsHistory() {
         })}
       </ScrollArea>
       <Separator orientation="vertical" />
-      <div className="size-[520px]">
+      <div className="w-[520px]">
         <CommonHeader className="h-9 px-1 justify-end">
           <Button variant="ghost" size="sm" onClick={handleCopy}>
             <Copy />

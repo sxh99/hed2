@@ -814,11 +814,6 @@ body {
   height: 2rem;
 }
 
-.size-\[520px\] {
-  width: 520px;
-  height: 520px;
-}
-
 .h-10 {
   height: 2.5rem;
 }
@@ -857,6 +852,10 @@ body {
 
 .h-\[1px\] {
   height: 1px;
+}
+
+.h-\[520px\] {
+  height: 520px;
 }
 
 .h-auto {
@@ -937,6 +936,10 @@ body {
 
 .w-\[320px\] {
   width: 320px;
+}
+
+.w-\[520px\] {
+  width: 520px;
 }
 
 .w-auto {
