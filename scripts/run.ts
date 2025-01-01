@@ -3,13 +3,13 @@ import path from 'node:path';
 import readline from 'node:readline';
 import kill from 'tree-kill';
 
-type CmdName = 'tailwindcss' | 'ui' | 'tauri';
+type CmdName = 'tailwindcss' | 'ui' | 'tauri' | 'electron';
 
 interface Cmd {
   name: CmdName;
   runner: string;
   args: string[];
-  closed: boolean;
+  closed?: boolean;
   cp?: ChildProcess;
   cwd?: string;
 }
@@ -21,21 +21,24 @@ const allCmd: Cmd[] = [
     name: 'tailwindcss',
     runner: 'node',
     args: ['--run', 'tailwindcss'],
-    closed: false,
     cwd: path.join(cwd, 'ui'),
   },
   {
     name: 'ui',
     runner: 'node',
     args: ['--run', 'dev'],
-    closed: false,
     cwd: path.join(cwd, 'ui'),
   },
   {
     name: 'tauri',
     runner: 'cargo',
     args: ['run'],
-    closed: false,
+  },
+  {
+    name: 'electron',
+    runner: 'node',
+    args: ['--run', 'dev'],
+    cwd: path.join(cwd, 'electron'),
   },
 ];
 
@@ -83,7 +86,7 @@ export function run(names: CmdName[]) {
 
     cp.on('close', () => {
       cmd.closed = true;
-      if (cmd.name === 'tauri') {
+      if (cmd.name === 'tauri' || cmd.name === 'electron') {
         killAll();
       }
       checkAndExit();

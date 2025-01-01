@@ -8,5 +8,13 @@
     "types": ["node"],
     "resolveJsonModule": true
   },
-  "exclude": ["node_modules", "ui/src", "ui/dist", "parser/src", "parser/dist"]
+  "exclude": [
+    "node_modules",
+    "ui/src",
+    "ui/dist",
+    "parser/src",
+    "parser/dist",
+    "electron/src",
+    "electron/dist"
+  ]
 }

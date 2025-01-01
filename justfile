@@ -45,7 +45,10 @@ push-tag tag:
 ui-dep +pkgs:
 	pnpm {{pkgs}} --filter ./ui
 
-build:
+electron-dep +pkgs:
+	pnpm {{pkgs}} --filter ./electron
+
+build-tauri:
 	node --run build:parser
 	node --run build:ui
 	pnpm tauri build --no-bundle

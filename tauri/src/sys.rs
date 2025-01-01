@@ -23,7 +23,7 @@ pub fn write_hosts(mut content: String) -> Result<()> {
 	Ok(())
 }
 
-pub fn check_hosts_permissions() -> Result<()> {
+pub fn check_hosts_readonly() -> Result<()> {
 	let hosts_path = get_hosts_path()?;
 	let permissions = fs::metadata(hosts_path)?.permissions();
 

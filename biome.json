@@ -2,15 +2,7 @@
   "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "files": {
     "ignoreUnknown": true,
-    "ignore": [
-      "node_modules",
-      "target",
-      "tauri/gen",
-      "parser/test/__snapshots__",
-      "parser/dist",
-      "*.css",
-      "ui/dist"
-    ]
+    "ignore": ["node_modules", "target", "tauri/gen", "dist", "*.css"]
   },
   "formatter": {
     "enabled": true,

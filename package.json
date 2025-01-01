@@ -18,10 +18,12 @@
     "typecheck:other": "tsc -p ./tsconfig.json --noEmit",
     "run:tauri": "tsx ./scripts/run-tauri.ts",
     "run:browser": "tsx ./scripts/run-browser.ts",
+    "run:electron": "tsx ./scripts/run-electron.ts",
     "build:parser": "pnpm run --filter ./parser build",
     "test:parser": "pnpm run --filter ./test test",
     "test:parser:u": "pnpm run --filter ./test test:u",
-    "build:ui": "pnpm run --filter ./ui build"
+    "build:ui": "pnpm run --filter ./ui build",
+    "build:electron": "pnpm run --filter ./electron build"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

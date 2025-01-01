@@ -2,3 +2,4 @@ packages:
   - ui
   - parser
   - test
+  - electron
