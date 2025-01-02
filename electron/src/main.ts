@@ -1,28 +1,52 @@
 import path from 'node:path';
 import { BrowserWindow, app, ipcMain, nativeTheme, shell } from 'electron';
+import { IS_DEV } from './consts.js';
 import { getHostsPath, isHostsReadonly, readHosts, writeHosts } from './sys.js';
+import { WidnowState } from './window-state.js';
 
 let mainWindow: BrowserWindow | null = null;
 
 function createWindow() {
+  const widnowState = new WidnowState();
+  widnowState.restoreWindowState();
+
   mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 700,
-    minWidth: 1000,
-    minHeight: 700,
+    width: widnowState.width,
+    height: widnowState.height,
+    minWidth: widnowState.minWidth,
+    minHeight: widnowState.minHeight,
     resizable: true,
     center: true,
     webPreferences: {
       preload: path.join(import.meta.dirname, 'preload.js'),
+      scrollBounce: true,
+      spellcheck: false,
     },
+    autoHideMenuBar: true,
+    icon: IS_DEV
+      ? path.join(import.meta.dirname, '../', '../', 'assets', 'icon.ico')
+      : path.join(import.meta.dirname, 'assets', 'icon.ico'),
   });
 
-  if (import.meta.env.MODE === 'development') {
+  if (IS_DEV) {
     mainWindow.loadURL('http://localhost:4000');
-    mainWindow.webContents.openDevTools({ mode: 'undocked' });
+    mainWindow.webContents.openDevTools({ mode: 'undocked', activate: false });
   } else {
     mainWindow.loadFile('./index.html');
   }
+
+  mainWindow.removeMenu();
+  mainWindow.setThumbnailToolTip('Hed2');
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow?.show();
+  });
+
+  mainWindow.on('close', () => {
+    if (mainWindow) {
+      widnowState.saveWindowState(mainWindow);
+    }
+  });
 }
 
 function initIpc() {

@@ -1,5 +1,6 @@
 {
   "name": "hed2-electron",
+  "productName": "Hed2",
   "private": true,
   "version": "0.1.0",
   "author": "shixinhuang99 <shixinhuang99@gmail.com>",
@@ -12,7 +13,7 @@
   "description": "A hosts file editor desktop client",
   "main": "./dist/main.js",
   "scripts": {
-    "dev": "vite build --mode development && electron .",
+    "dev": "vite build && electron .",
     "build": "vite build"
   },
   "devDependencies": {

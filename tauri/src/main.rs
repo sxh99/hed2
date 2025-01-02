@@ -35,9 +35,10 @@ fn run() -> Result<()> {
 				.plugin(tauri_plugin_window_state::Builder::default().build());
 			if ret.is_ok() {
 				if let Some(ww) = app.get_webview_window("main") {
-					ww.restore_state(StateFlags::all()).log_err();
+					ww.restore_state(StateFlags::SIZE).log_err();
+					fix_restore_size(&ww);
+					ww.center().log_err();
 					println!("restore window state");
-					fix_restore_size(ww);
 				}
 			} else {
 				ret.log_err();
@@ -98,7 +99,7 @@ fn set_theme(ww: tauri::WebviewWindow, theme: String) {
 	ww.set_theme(window_theme).log_err();
 }
 
-fn fix_restore_size(ww: WebviewWindow) {
+fn fix_restore_size(ww: &WebviewWindow) {
 	let Ok(Some(current_monitor)) = ww.current_monitor() else {
 		return;
 	};
