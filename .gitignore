@@ -5,3 +5,4 @@ dist
 /tauri/gen
 /tmp
 tsconfig.tsbuildinfo
+/electron-bundle

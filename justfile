@@ -58,3 +58,8 @@ bundle-win:
 
 bundle-mac:
 	pnpm tauri bundle --bundles app
+
+build-electron:
+	node --run build:parser
+	node --run build:ui
+	node --run build:electron

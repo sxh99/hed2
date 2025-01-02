@@ -10,6 +10,9 @@ function createWindow() {
   const widnowState = new WidnowState();
   widnowState.restoreWindowState();
 
+  const preload = path.join(import.meta.dirname, 'preload.js');
+  console.log(`preload=${preload}`);
+
   mainWindow = new BrowserWindow({
     width: widnowState.width,
     height: widnowState.height,
@@ -18,21 +21,21 @@ function createWindow() {
     resizable: true,
     center: true,
     webPreferences: {
-      preload: path.join(import.meta.dirname, 'preload.js'),
+      preload,
       scrollBounce: true,
       spellcheck: false,
     },
     autoHideMenuBar: true,
-    icon: IS_DEV
-      ? path.join(import.meta.dirname, '../', '../', 'assets', 'icon.ico')
-      : path.join(import.meta.dirname, 'assets', 'icon.ico'),
   });
 
   if (IS_DEV) {
     mainWindow.loadURL('http://localhost:4000');
     mainWindow.webContents.openDevTools({ mode: 'undocked', activate: false });
   } else {
-    mainWindow.loadFile('./index.html');
+    const html = path.join(import.meta.dirname, 'ui', 'index.html');
+    console.log(`html=${html}`);
+    mainWindow.loadFile(html);
+    mainWindow.webContents.openDevTools({ mode: 'undocked', activate: false });
   }
 
   mainWindow.removeMenu();
@@ -92,6 +95,8 @@ function initIpc() {
 }
 
 function main() {
+  console.log(`IS_DEV=${IS_DEV}`);
+
   if (!app.requestSingleInstanceLock()) {
     app.quit();
   } else {
