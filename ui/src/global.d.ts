@@ -1,6 +1,5 @@
 declare const PKG_NAME: string;
 declare const PKG_VERSION: string;
-// biome-ignore lint/correctness/noUnusedVariables: <explanation>
 interface Window {
   electronAPI: {
     readSystemHosts: () => Promise<string>;

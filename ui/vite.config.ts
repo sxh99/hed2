@@ -35,5 +35,6 @@ export default defineConfig(async () => {
     build: {
       chunkSizeWarningLimit: 1000,
     },
+    base: './',
   };
 });

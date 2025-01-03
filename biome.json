@@ -2,7 +2,14 @@
   "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "files": {
     "ignoreUnknown": true,
-    "ignore": ["node_modules", "target", "tauri/gen", "dist", "*.css"]
+    "ignore": [
+      "node_modules",
+      "target",
+      "tauri/gen",
+      "dist",
+      "*.css",
+      "electron-bundle"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -29,7 +36,8 @@
           "level": "error"
         }
       }
-    }
+    },
+    "ignore": ["ui/src/global.d.ts"]
   },
   "javascript": {
     "formatter": {

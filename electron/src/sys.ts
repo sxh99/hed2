@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { IS_DEV } from './consts.js';
 
 export async function readHosts(): Promise<string> {
   const hostsPath = await getHostsPath();
@@ -29,8 +30,8 @@ export async function isHostsReadonly(): Promise<boolean> {
 }
 
 export async function getHostsPath(): Promise<string> {
-  if (import.meta.env.MODE === 'development') {
-    return path.join(process.cwd(), '../', 'tmp', 'hosts');
+  if (IS_DEV) {
+    return path.join(import.meta.dirname, '../', '../', 'tmp', 'hosts');
   }
   if (process.platform === 'win32') {
     const systemDrive = process.env.SYSTEMDRIVE;

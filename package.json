@@ -15,20 +15,25 @@
     "check": "biome check",
     "typecheck:ui": "tsc -p ./ui/tsconfig.json --noEmit",
     "typecheck:parser": "tsc -p ./parser/tsconfig.json --noEmit",
+    "typecheck:electron": "tsc -p ./electron/tsconfig.json --noEmit",
     "typecheck:other": "tsc -p ./tsconfig.json --noEmit",
     "run:tauri": "tsx ./scripts/run-tauri.ts",
     "run:browser": "tsx ./scripts/run-browser.ts",
     "run:electron": "tsx ./scripts/run-electron.ts",
-    "build:parser": "pnpm run --filter ./parser build",
     "test:parser": "pnpm run --filter ./test test",
     "test:parser:u": "pnpm run --filter ./test test:u",
+    "build:parser": "pnpm run --filter ./parser build",
     "build:ui": "pnpm run --filter ./ui build",
-    "build:electron": "pnpm run --filter ./electron build"
+    "build:electron": "pnpm run --filter ./electron build",
+    "bundle:tauri:win": "pnpm tauri bundle --bundles nsis",
+    "bundle:tauri:mac": "pnpm tauri bundle --bundles app",
+    "bundle:electron": "pnpm run --filter ./electron bundle"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@tauri-apps/cli": "^2.1.0",
     "@types/node": "^22.10.2",
+    "invariant": "^2.2.4",
     "tree-kill": "^1.2.2",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3"
