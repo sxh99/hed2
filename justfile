@@ -50,12 +50,6 @@ ui-dep +pkgs:
 electron-dep +pkgs:
 	pnpm {{pkgs}} --filter ./electron
 
-build-tauri:
+build-web:
 	node --run build:parser
 	node --run build:ui
-	pnpm tauri build --no-bundle --target universal-apple-darwin
-
-build-electron:
-	node --run build:parser
-	node --run build:ui
-	node --run build:electron

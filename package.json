@@ -24,6 +24,8 @@
     "test:parser:u": "pnpm run --filter ./test test:u",
     "build:parser": "pnpm run --filter ./parser build",
     "build:ui": "pnpm run --filter ./ui build",
+    "build:tauri:win": "pnpm tauri build --no-bundle",
+    "build:tauri:mac": "pnpm tauri build --no-bundle --target universal-apple-darwin",
     "build:electron": "pnpm run --filter ./electron build",
     "bundle:tauri:win": "pnpm tauri bundle --bundles nsis",
     "bundle:tauri:mac": "pnpm tauri bundle --bundles dmg --target universal-apple-darwin",
