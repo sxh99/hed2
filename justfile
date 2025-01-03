@@ -54,7 +54,7 @@ electron-dep +pkgs:
 build-tauri:
 	node --run build:parser
 	node --run build:ui
-	pnpm tauri build --no-bundle
+	pnpm tauri build --no-bundle --target universal-apple-darwin
 
 build-electron:
 	node --run build:parser
