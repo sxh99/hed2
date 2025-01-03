@@ -22,7 +22,7 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-          # - os: macos-latest
+          - os: macos-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -40,20 +40,25 @@ jobs:
         with:
           tool: just
 
-      # - name: macos bundles
-      #   if: matrix.os == 'macos-latest'
-      #   run: |
-      #     pnpm i
-      #     just build-tauri
-      #     node --run bundle:tauri:mac
-      #     just build-electron
-      #     node --run bundle:electron
+      - name: macos bundles
+        if: matrix.os == 'macos-latest'
+        run: |
+          npm i pnpm -g
+          pnpm i
+          just build-tauri
+          node --run bundle:tauri:mac
+          just build-electron
+          node --run bundle:electron
 
-      # - uses: softprops/action-gh-release@v2
-      #   with:
-      #     name: try-release
-      #     tag_name: try-release
-      #     draft: true
+      - uses: softprops/action-gh-release@v2
+        if: matrix.os == 'macos-latest'
+        with:
+          name: try-release
+          tag_name: try-release
+          draft: true
+          files: |
+            ./target/release/bundle/dmg/*.dmg
+            ./electron-bundle/*.dmg
 
       - name: windows bundles
         if: matrix.os == 'windows-latest'

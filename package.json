@@ -26,7 +26,7 @@
     "build:ui": "pnpm run --filter ./ui build",
     "build:electron": "pnpm run --filter ./electron build",
     "bundle:tauri:win": "pnpm tauri bundle --bundles nsis",
-    "bundle:tauri:mac": "pnpm tauri bundle --bundles app",
+    "bundle:tauri:mac": "pnpm tauri bundle --bundles dmg",
     "bundle:electron": "pnpm run --filter ./electron bundle"
   },
   "devDependencies": {

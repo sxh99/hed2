@@ -29,7 +29,7 @@ async function main() {
       license: '../LICENSE',
       oneClick: false,
     },
-    dmg: {},
+    npmRebuild: false,
   };
 
   const result = await build({ config, publish: 'never' });
