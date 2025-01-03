@@ -12,6 +12,7 @@ async function main() {
   if (!version) {
     return;
   }
+  console.log('set pkg version to', version);
   await setPkgVersion('./ui/package.json', version);
   await setPkgVersion('./electron/package.json', version);
 }

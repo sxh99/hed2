@@ -34,12 +34,11 @@ typecheck:
 	node --run typecheck:electron
 
 release-pr tag:
-	git checkout -b "release-{{tag}}"
-	pnpm tsx ./scripts/set-pkg-version.ts -- {{tag}}
+	pnpm tsx ./scripts/set-pkg-version.ts {{tag}}
 	cargo set-version {{tag}}
 	just fmt
 	git commit -am "chore(release): {{tag}}"
-	git push --set-upstream origin release-{{tag}}
+	git push
 
 push-tag tag:
 	git tag {{tag}}
