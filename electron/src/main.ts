@@ -32,8 +32,10 @@ function createWindow() {
     mainWindow.loadFile(path.join(import.meta.dirname, 'index.html'));
   }
 
-  mainWindow.removeMenu();
-  mainWindow.setThumbnailToolTip('Hed2');
+  if (process.platform === 'win32') {
+    mainWindow.removeMenu();
+    mainWindow.setThumbnailToolTip('Hed2');
+  }
 
   mainWindow.once('ready-to-show', () => {
     mainWindow?.show();
