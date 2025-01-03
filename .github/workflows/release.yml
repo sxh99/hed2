@@ -31,7 +31,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: "pnpm"
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -59,6 +58,7 @@ jobs:
       - name: windows bundles
         if: matrix.os == 'windows-latest'
         run: |
+          npm i pnpm -g
           pnpm i
           just build-tauri
           node --run bundle:tauri:win
