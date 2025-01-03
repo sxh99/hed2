@@ -14,7 +14,14 @@ async function main() {
       buildResources: '../assets',
     },
     files: ['./dist'],
-    artifactName: '${productName}_${version}_${arch}-setup.${ext}',
+    artifactName: '${productName}_${version}_${arch}-electron-setup.${ext}',
+    win: {
+      target: [{ target: 'nsis', arch: ['x64'] }],
+    },
+    mac: {
+      target: [{ target: 'dmg', arch: ['universal'] }],
+      category: 'public.app-category.developer-tools',
+    },
     nsis: {
       allowToChangeInstallationDirectory: true,
       createDesktopShortcut: 'always',
@@ -22,6 +29,7 @@ async function main() {
       license: '../LICENSE',
       oneClick: false,
     },
+    dmg: {},
   };
 
   const result = await build({ config });

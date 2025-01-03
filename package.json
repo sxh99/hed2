@@ -27,7 +27,7 @@
     "build:electron": "pnpm run --filter ./electron build",
     "bundle:tauri:win": "pnpm tauri bundle --bundles nsis",
     "bundle:tauri:mac": "pnpm tauri bundle --bundles app",
-    "bundle:electron:win": "pnpm run --filter ./electron bundle"
+    "bundle:electron": "pnpm run --filter ./electron bundle"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
