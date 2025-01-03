@@ -31,6 +31,7 @@ typecheck:
 	node --run typecheck:ui
 	node --run typecheck:parser
 	node --run typecheck:other
+	node --run typecheck:electron
 
 release-pr tag:
 	git checkout -b "release-{{tag}}"
@@ -52,12 +53,6 @@ build-tauri:
 	node --run build:parser
 	node --run build:ui
 	pnpm tauri build --no-bundle
-
-bundle-win:
-	pnpm tauri bundle --bundles nsis
-
-bundle-mac:
-	pnpm tauri bundle --bundles app
 
 build-electron:
 	node --run build:parser

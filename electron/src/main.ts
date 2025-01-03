@@ -10,9 +10,6 @@ function createWindow() {
   const widnowState = new WidnowState();
   widnowState.restoreWindowState();
 
-  const preload = path.join(import.meta.dirname, 'preload.js');
-  console.log(`preload=${preload}`);
-
   mainWindow = new BrowserWindow({
     width: widnowState.width,
     height: widnowState.height,
@@ -21,7 +18,7 @@ function createWindow() {
     resizable: true,
     center: true,
     webPreferences: {
-      preload,
+      preload: path.join(import.meta.dirname, 'preload.js'),
       scrollBounce: true,
       spellcheck: false,
     },
@@ -32,10 +29,7 @@ function createWindow() {
     mainWindow.loadURL('http://localhost:4000');
     mainWindow.webContents.openDevTools({ mode: 'undocked', activate: false });
   } else {
-    const html = path.join(import.meta.dirname, 'ui', 'index.html');
-    console.log(`html=${html}`);
-    mainWindow.loadFile(html);
-    mainWindow.webContents.openDevTools({ mode: 'undocked', activate: false });
+    mainWindow.loadFile(path.join(import.meta.dirname, 'index.html'));
   }
 
   mainWindow.removeMenu();
@@ -95,8 +89,6 @@ function initIpc() {
 }
 
 function main() {
-  console.log(`IS_DEV=${IS_DEV}`);
-
   if (!app.requestSingleInstanceLock()) {
     app.quit();
   } else {

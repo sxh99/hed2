@@ -2,7 +2,9 @@ import { type Configuration, build } from 'electron-builder';
 import fs from 'fs-extra';
 
 async function main() {
-  await fs.copy('../ui/dist', './dist/ui');
+  await fs.copy('../ui/dist', './dist');
+  const files = await fs.readdir('./dist');
+  console.log('files', files);
 
   const config: Configuration = {
     productName: 'Hed2',
@@ -11,7 +13,7 @@ async function main() {
       output: '../electron-bundle',
       buildResources: '../assets',
     },
-    files: ['./dist/**/*'],
+    files: ['./dist'],
     artifactName: '${productName}_${version}_${arch}-setup.${ext}',
     nsis: {
       allowToChangeInstallationDirectory: true,
@@ -22,7 +24,7 @@ async function main() {
     },
   };
 
-  const result = await build({ config, dir: true });
+  const result = await build({ config });
 
   for (const ret of result) {
     console.log(ret);
