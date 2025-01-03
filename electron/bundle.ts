@@ -32,7 +32,7 @@ async function main() {
     dmg: {},
   };
 
-  const result = await build({ config });
+  const result = await build({ config, publish: 'never' });
 
   for (const ret of result) {
     console.log(ret);
