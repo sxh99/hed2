@@ -46,8 +46,8 @@ jobs:
           npm i pnpm -g
           pnpm i
           just build-web
-          node --run build:tauri:mac
-          node --run bundle:tauri:mac
+          # node --run build:tauri:mac
+          # node --run bundle:tauri:mac
           node --run build:electron
           node --run bundle:electron
 
